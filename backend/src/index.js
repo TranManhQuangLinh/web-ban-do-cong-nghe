@@ -1,14 +1,28 @@
 const express = require("express");
 const dotenv = require("dotenv");
-dotenv.config;
+const { default: mongoose } = require("mongoose");
+const routes = require("./routes");
+const bodyParser = require('body-parser')
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
+// console.log('process.env.PORT:', process.env.PORT);
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
+app.use(bodyParser.json())
+routes(app)
+
+// console.log('process.env.MONGO_DB:', process.env.MONGO_DB);
+
+mongoose
+  .connect(`${process.env.MONGO_DB}`)
+  .then(() => {
+    console.log("MongoDB has connected successfully!");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 app.listen(port, () => {
-  console.log(`Server is running in port: ${port}`)
+  console.log(`Server is running in port: ${port}`);
 });

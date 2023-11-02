@@ -18,14 +18,14 @@ import { convertPrice } from "../../utils";
 const ProductDetailsComponent = ({ idProduct }) => {
   const productDetails = {
     _id: "1",
-    countInStock: "1",
+    quantityInStock: "1",
     description: "",
     image:
       "https://salt.tikicdn.com/cache/280x280/ts/product/5e/8e/5a/ffd57c334ad997d311d311be41ef6aa8.png.webp",
     name: "iPhone15",
     price: "2590000",
     category: "Dien thoai",
-    selled: "1",
+    sold: "1",
     discount: "10",
   };
 
@@ -81,7 +81,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
             {productDetails?.name}
           </WrapperStyleNameProduct>
           <div>
-            <WrapperStyleTextSell>Đã bán: {productDetails?.selled}+</WrapperStyleTextSell>
+            <WrapperStyleTextSell>Đã bán: {productDetails?.sold}+</WrapperStyleTextSell>
           </div>
           <WrapperPriceProduct>
             <WrapperPriceTextProduct>
@@ -116,7 +116,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
               <WrapperInputNumber
                 onChange={onChange}
                 defaultValue={1}
-                max={productDetails?.countInStock}
+                max={productDetails?.quantityInStock}
                 min={1}
                 value={numProduct}
                 size="small"
@@ -130,7 +130,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
                 onClick={() =>
                   handleChangeCount(
                     "increase",
-                    numProduct === productDetails?.countInStock
+                    numProduct === productDetails?.quantityInStock
                   )
                 }
               >

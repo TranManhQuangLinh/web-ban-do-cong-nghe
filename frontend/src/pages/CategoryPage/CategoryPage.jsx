@@ -22,86 +22,86 @@ const CategoryPage = () => {
     data: [
       {
         _id: "1",
-        countInStock: "1",
+        quantityInStock: "1",
         description: "",
         image:
           "https://salt.tikicdn.com/cache/280x280/ts/product/5e/8e/5a/ffd57c334ad997d311d311be41ef6aa8.png.webp",
         name: "iPhone15",
         price: "2590000",
         category: "Dien thoai",
-        selled: "1",
+        sold: "1",
         discount: "10",
       },
       {
         _id: "1",
-        countInStock: "1",
+        quantityInStock: "1",
         description: "",
         image:
           "https://salt.tikicdn.com/cache/280x280/ts/product/5e/8e/5a/ffd57c334ad997d311d311be41ef6aa8.png.webp",
         name: "iPhone15",
         price: "2590000",
         category: "Dien thoai",
-        selled: "1",
+        sold: "1",
         discount: "10",
       },
       {
         _id: "1",
-        countInStock: "1",
+        quantityInStock: "1",
         description: "",
         image:
           "https://salt.tikicdn.com/cache/280x280/ts/product/5e/8e/5a/ffd57c334ad997d311d311be41ef6aa8.png.webp",
         name: "iPhone15",
         price: "2590000",
         category: "Dien thoai",
-        selled: "1",
+        sold: "1",
         discount: "10",
       },
       {
         _id: "1",
-        countInStock: "1",
+        quantityInStock: "1",
         description: "",
         image:
           "https://salt.tikicdn.com/cache/280x280/ts/product/5e/8e/5a/ffd57c334ad997d311d311be41ef6aa8.png.webp",
         name: "iPhone15",
         price: "2590000",
         category: "Dien thoai",
-        selled: "1",
+        sold: "1",
         discount: "10",
       },
       {
         _id: "1",
-        countInStock: "1",
+        quantityInStock: "1",
         description: "",
         image:
           "https://salt.tikicdn.com/cache/280x280/ts/product/5e/8e/5a/ffd57c334ad997d311d311be41ef6aa8.png.webp",
         name: "iPhone15",
         price: "2590000",
         category: "Dien thoai",
-        selled: "1",
+        sold: "1",
         discount: "10",
       },
       {
         _id: "1",
-        countInStock: "1",
+        quantityInStock: "1",
         description: "",
         image:
           "https://salt.tikicdn.com/cache/280x280/ts/product/5e/8e/5a/ffd57c334ad997d311d311be41ef6aa8.png.webp",
         name: "iPhone15",
         price: "2590000",
         category: "Dien thoai",
-        selled: "1",
+        sold: "1",
         discount: "10",
       },
       {
         _id: "1",
-        countInStock: "1",
+        quantityInStock: "1",
         description: "",
         image:
           "https://salt.tikicdn.com/cache/280x280/ts/product/5e/8e/5a/ffd57c334ad997d311d311be41ef6aa8.png.webp",
         name: "iPhone15",
         price: "2590000",
         category: "Dien thoai",
-        selled: "1",
+        sold: "1",
         discount: "10",
       },
       
@@ -141,13 +141,13 @@ const CategoryPage = () => {
                   return (
                     <CardComponent
                       key={product._id}
-                      countInStock={product.countInStock}
+                      quantityInStock={product.quantityInStock}
                       description={product.description}
                       image={product.image}
                       name={product.name}
                       price={product.price}
                       category={product.category}
-                      selled={product.selled}
+                      sold={product.sold}
                       discount={product.discount}
                       id={product._id}
                     />
