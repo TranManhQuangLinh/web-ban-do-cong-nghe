@@ -7,6 +7,6 @@ router.post('/create-category', authAdminMiddleWare, CategoryController.createCa
 router.put('/update-category/:id', authAdminMiddleWare, CategoryController.updateCategory)
 router.delete('/delete-category/:id', authAdminMiddleWare, CategoryController.deleteCategory)
 router.get('/get-all-categories', CategoryController.getAllCategories)
-router.post('/delete-multiple-categories', authAdminMiddleWare, CategoryController.deleteManyCategories)
+router.post('/delete-many-categories', authAdminMiddleWare, CategoryController.deleteManyCategories)
 
 module.exports = router

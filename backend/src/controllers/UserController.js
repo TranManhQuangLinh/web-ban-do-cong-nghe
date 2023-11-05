@@ -7,17 +7,17 @@ const createUser = async (req, res) => {
         const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
         const isCheckEmail = reg.test(email)
         if (!email || !password || !confirmPassword) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'input is required'
             })
         } else if (!isCheckEmail) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'email is invalid'
             })
         } else if (password !== confirmPassword) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'password and confirmPassword are not equal'
             })
@@ -37,12 +37,12 @@ const loginUser = async (req, res) => {
         const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
         const isCheckEmail = reg.test(email)
         if (!email || !password) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'input is required'
             })
         } else if (!isCheckEmail) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'email is invalid'
             })
@@ -84,7 +84,7 @@ const updateUser = async (req, res) => {
         const data = req.body
         const loggedInUserRole = req.loggedInUserRole
         if (!userId) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'userId is required'
             })
@@ -102,7 +102,7 @@ const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id
         if (!userId) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'userId is required'
             })
@@ -120,7 +120,7 @@ const deleteManyUsers = async (req, res) => {
     try {
         const ids = req.body.ids
         if (!ids) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'ids is required'
             })
@@ -150,7 +150,7 @@ const getDetailsUser = async (req, res) => {
     try {
         const userId = req.params.id
         if (!userId) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'userId is required'
             })
@@ -168,7 +168,7 @@ const refreshToken = async (req, res) => {
     try {
         let token = req.headers.token.split(' ')[1]
         if (!token) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'token is required'
             })

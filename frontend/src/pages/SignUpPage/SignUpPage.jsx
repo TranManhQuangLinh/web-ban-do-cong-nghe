@@ -8,10 +8,14 @@ import {
 } from "./style";
 import imageLogo from "../../assets/images/logo-login.png";
 import { Image } from "antd";
-import { useState } from "react";
+import * as UserService from "../../services/UserService";
+import * as message from "../../components/Message/Message";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../components/LoadingComponent/Loading";
+import { useMutationHooks } from "../../hooks/useMutationHook";
+import { useEffect } from "react";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -22,11 +26,25 @@ const SignUpPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const mutation = useMutationHooks((data) => UserService.signUpUser(data));
+  console.log("sign up mutation", mutation);
+
+  const { data, isPending, isSuccess } = mutation;
+
+  useEffect(() => {
+    if (data) {
+      if (isSuccess && data.status === "OK") {
+        message.success("Đăng ký thành công");
+        handleNavigateSignIn();
+      } else {
+        message.error(data.message);
+      }
+    }
+  }, [isSuccess]);
+
   const handleOnchangeEmail = (value) => {
     setEmail(value);
   };
-
-  const isLoading = false;
 
   const handleOnchangePassword = (value) => {
     setPassword(value);
@@ -45,6 +63,7 @@ const SignUpPage = () => {
   };
 
   const handleSignUp = () => {
+    mutation.mutate({ email, password, confirmPassword });
     console.log("signing up");
   };
 
@@ -68,8 +87,7 @@ const SignUpPage = () => {
         }}
       >
         <WrapperContainerLeft>
-          <h1>Xin chào</h1>
-          <p>Tạo tài khoản</p>
+          <h1>Tạo tài khoản</h1>
           <InputForm
             style={{ marginBottom: "10px" }}
             placeholder="abc@gmail.com"
@@ -89,7 +107,7 @@ const SignUpPage = () => {
               {isShowPassword ? <EyeFilled /> : <EyeInvisibleFilled />}
             </span>
             <InputForm
-              placeholder="password"
+              placeholder="mật khẩu"
               style={{ marginBottom: "10px" }}
               type={isShowPassword ? "text" : "password"}
               value={password}
@@ -109,13 +127,16 @@ const SignUpPage = () => {
               {isShowConfirmPassword ? <EyeFilled /> : <EyeInvisibleFilled />}
             </span>
             <InputForm
-              placeholder="comfirm password"
+              placeholder="xác nhận mật khẩu"
               type={isShowConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={handleOnchangeConfirmPassword}
             />
           </div>
-          <Loading isLoading={isLoading}>
+          {data?.status === "ERR" && (
+            <span style={{ color: "red" }}>{data?.message}</span>
+          )}
+          <Loading isPending={isPending}>
             <ButtonComponent
               disabled={
                 !email.length || !password.length || !confirmPassword.length
@@ -128,7 +149,7 @@ const SignUpPage = () => {
                 width: "100%",
                 border: "none",
                 borderRadius: "4px",
-                margin: "26px 0 10px",
+                margin: "10px 0 10px",
               }}
               textbutton={"Đăng ký"}
               styleTextButton={{
@@ -169,7 +190,7 @@ const SignUpPage = () => {
           <Image
             src={imageLogo}
             preview={false}
-            alt="iamge-logo"
+            alt="image-logo"
             height="203px"
             width="203px"
           />

@@ -70,16 +70,8 @@ const deleteCategory = (id) => {
           message: "category is not defined",
         });
       }
-      const categoryProducts = await Product.find({ category: id });
-      console.log("categoryProducts", categoryProducts);
-      // Lấy danh sách các ID sản phẩm thuộc danh mục này
-      const productIdsToDelete = categoryProducts.map((product) => product._id);
 
-      // Xóa danh mục
       await Category.findByIdAndDelete(id);
-
-      // Xóa tất cả các sản phẩm thuộc danh mục này
-      await Product.deleteMany({ _id: { $in: productIdsToDelete } });
 
       resolve({
         status: "OK",
@@ -94,9 +86,7 @@ const deleteCategory = (id) => {
 const deleteManyCategory = (ids) => {
   return new Promise(async (resolve, reject) => {
     try {
-      for (const categoryId of ids) {
-        await deleteCategory(categoryId);
-      }
+      await Category.deleteMany(ids);
       resolve({
         status: "OK",
         message: "delete categories success",

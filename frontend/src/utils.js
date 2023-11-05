@@ -1,8 +1,9 @@
 export const convertPrice = (price) => {
   try {
-    const result = price?.toLocaleString().replaceAll(",", ".");
-    console.log(price, result);
-    return `${result}đ`;
+    // Chuyển đổi số thành chuỗi và định dạng lại bằng dấu chấm
+    const formattedPrice = price.toLocaleString("vi-VN");
+    console.log(price, formattedPrice);
+    return `${formattedPrice}đ`;
   } catch (error) {
     return null;
   }

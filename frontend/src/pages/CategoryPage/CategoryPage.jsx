@@ -109,7 +109,7 @@ const CategoryPage = () => {
   };
 
   return (
-    <Loading isLoading={loading}>
+    <Loading isPending={loading}>
       <div
         style={{
           width: "100%",

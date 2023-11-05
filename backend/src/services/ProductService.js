@@ -146,9 +146,8 @@ const getAllProducts = (limit, page, sort, filter) => {
       const totalProduct = await Product.count();
       let allProduct = [];
       if (filter) {
-        const label = filter[0];
         const allObjectFilter = await Product.find({
-          [label]: { $regex: filter[1] },
+          [filter[0]]: { $regex: filter[1] },
         })
           .limit(limit)
           .skip(page * limit)
@@ -158,13 +157,13 @@ const getAllProducts = (limit, page, sort, filter) => {
           message: "Success",
           data: allObjectFilter,
           total: totalProduct,
-          pageCurrent: Number(page + 1),
+          currentPage: Number(page + 1),
           totalPage: Math.ceil(totalProduct / limit),
         });
       }
       if (sort) {
         const objectSort = {};
-        objectSort[sort[1]] = sort[0];
+        objectSort[sort[0]] = sort[1];
         const allProductSort = await Product.find()
           .limit(limit)
           .skip(page * limit)
@@ -175,7 +174,7 @@ const getAllProducts = (limit, page, sort, filter) => {
           message: "Success",
           data: allProductSort,
           total: totalProduct,
-          pageCurrent: Number(page + 1),
+          currentPage: Number(page + 1),
           totalPage: Math.ceil(totalProduct / limit),
         });
       }
@@ -195,7 +194,7 @@ const getAllProducts = (limit, page, sort, filter) => {
         message: "Success",
         data: allProduct,
         total: totalProduct,
-        pageCurrent: Number(page + 1),
+        currentPage: Number(page + 1),
         totalPage: Math.ceil(totalProduct / limit),
       });
     } catch (e) {

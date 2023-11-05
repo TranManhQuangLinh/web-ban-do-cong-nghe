@@ -4,7 +4,7 @@ const createCategory = async (req, res) => {
     try {
         const { name } = req.body
         if (!name) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'input is required'
             })
@@ -23,7 +23,7 @@ const updateCategory = async (req, res) => {
         const categoryId = req.params.id
         const data = req.body
         if (!categoryId) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'categoryId is required'
             })
@@ -41,7 +41,7 @@ const deleteCategory = async (req, res) => {
     try {
         const categoryId = req.params.id
         if (!categoryId) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'categoryId is required'
             })
@@ -59,7 +59,7 @@ const deleteManyCategories = async (req, res) => {
     try {
         const ids = req.body.ids
         if (!ids) {
-            return res.status(422).json({
+            return res.status(200).json({
                 status: 'ERR',
                 message: 'ids is required'
             })

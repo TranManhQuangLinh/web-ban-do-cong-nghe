@@ -1,4 +1,4 @@
-import { Checkbox, Rate } from 'antd'
+import { Checkbox } from 'antd'
 import React from 'react'
 import { WrapperContent, WrapperLableText, WrapperTextPrice, WrapperTextValue } from './style'
 

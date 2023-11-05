@@ -52,12 +52,12 @@ const ProductDetailsComponent = ({ idProduct }) => {
     }
   };
 
-  const isLoading = false;
+  const isPending = false;
 
   const handleAddOrderProduct = () => {};
 
   return (
-    <Loading isLoading={isLoading}>
+    <Loading isPending={isPending}>
       <Row
         style={{
           padding: "16px",

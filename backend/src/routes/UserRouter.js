@@ -11,6 +11,6 @@ router.delete('/delete-user/:id', authAdminMiddleWare, userController.deleteUser
 router.get('/get-all-users', authAdminMiddleWare, userController.getAllUsers)
 router.get('/get-details-user/:id', authAdminUserMiddleWare, userController.getDetailsUser)
 router.post('/refresh-token', userController.refreshToken)
-router.post('/delete-multiple-users', authAdminMiddleWare, userController.deleteManyUsers)
+router.post('/delete-many-users', authAdminMiddleWare, userController.deleteManyUsers)
 
 module.exports = router

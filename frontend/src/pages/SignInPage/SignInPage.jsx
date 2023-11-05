@@ -9,17 +9,67 @@ import {
 import imageLogo from "../../assets/images/logo-login.png";
 import { Image } from "antd";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
+import * as UserService from "../../services/UserService";
+import * as message from "../../components/Message/Message";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux'
 import Loading from "../../components/LoadingComponent/Loading";
+import { useMutationHooks } from "../../hooks/useMutationHook";
+import { useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { updateUser } from '../../redux/slides/userSlide'
 
 const SignInPage = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const location = useLocation();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const isLoading = false;
+
+  const mutation = useMutationHooks((data) => UserService.loginUser(data));
+  // console.log("sign in mutation", mutation);
+  const { data, isPending, isSuccess } = mutation;
+
+  useEffect(() => {
+    if (data) {
+      if (isSuccess && data.status === "OK") {
+        message.success("Đăng nhập thành công")
+        if (location?.state) {
+          navigate(location?.state);
+        } else {
+          navigate("/");
+        }
+        localStorage.setItem(
+          "access_token",
+          JSON.stringify(data?.access_token)
+        );
+        localStorage.setItem(
+          "refresh_token",
+          JSON.stringify(data?.refresh_token)
+        );
+        if (data?.access_token) {
+          const decoded = jwtDecode(data?.access_token);
+          // console.log("decoded", decoded);
+          if (decoded?.id) {
+            handleGetDetailsUser(decoded?.id, data?.access_token)
+          }
+        }
+      }
+      else {
+        message.error(data.message)
+      }
+    }
+  }, [isSuccess]);
+
+  const handleGetDetailsUser = async (id, token) => {
+    const storage = localStorage.getItem('refresh_token')
+    const refreshToken = JSON.parse(storage)
+    const res = await UserService.getDetailsUser(id, token)
+    dispatch(updateUser({ ...res?.data, access_token: token,refreshToken }))
+  }
 
   const handleOnchangeEmail = (value) => {
     setEmail(value);
@@ -39,6 +89,10 @@ const SignInPage = () => {
 
   const handleSignIn = () => {
     console.log("signing in");
+    mutation.mutate({
+      email,
+      password,
+    });
   };
 
   return (
@@ -61,8 +115,7 @@ const SignInPage = () => {
         }}
       >
         <WrapperContainerLeft>
-          <h1>Xin chào</h1>
-          <p>Đăng nhập</p>
+          <h1>Đăng nhập</h1>
           <InputForm
             style={{ marginBottom: "10px" }}
             placeholder="abc@gmail.com"
@@ -82,13 +135,16 @@ const SignInPage = () => {
               {isShowPassword ? <EyeFilled /> : <EyeInvisibleFilled />}
             </span>
             <InputForm
-              placeholder="password"
+              placeholder="mật khẩu"
               type={isShowPassword ? "text" : "password"}
               value={password}
               onChange={handleOnchangePassword}
             />
           </div>
-          <Loading isLoading={isLoading}>
+          {data?.status === "ERR" && (
+            <span style={{ color: "red" }}>{data?.message}</span>
+          )}
+          <Loading isPending={isPending}>
             <ButtonComponent
               disabled={!email.length || !password.length}
               onClick={handleSignIn}
@@ -99,7 +155,7 @@ const SignInPage = () => {
                 width: "100%",
                 border: "none",
                 borderRadius: "4px",
-                margin: "26px 0 10px",
+                margin: "10px 0 10px",
               }}
               textbutton={"Đăng nhập"}
               styleTextButton={{
@@ -141,7 +197,7 @@ const SignInPage = () => {
           <Image
             src={imageLogo}
             preview={false}
-            alt="iamge-logo"
+            alt="image-logo"
             height="203px"
             width="203px"
           />

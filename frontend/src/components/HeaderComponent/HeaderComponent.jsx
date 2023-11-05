@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  WrapperContentPopup,
   WrapperHeader,
   WrapperHeaderAccout,
   WrapperTextHeader,
@@ -11,18 +12,66 @@ import {
   ShoppingCartOutlined,
 } from "@ant-design/icons";
 import ButttonInputSearch from "../ButtonInputSearch/ButttonInputSearch";
-import { Badge, Col } from "antd";
-import { useNavigate } from 'react-router-dom';
-
+import { Badge, Col, Popover } from "antd";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import Loading from "../LoadingComponent/Loading";
+import * as UserService from '../../services/UserService'
+import { resetUser } from "../../redux/slides/userSlide";
 
 const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch()
+  const [userName, setUserName] = useState("");
+  const [userAvatar, setUserAvatar] = useState("");
+  const [search, setSearch] = useState("");
+  const [isOpenPopup, setIsOpenPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const content = (
+    <div>
+      <WrapperContentPopup onClick={() => handleClickNavigate('profile')}>Thông tin người dùng</WrapperContentPopup>
+      {user?.role === "Admin" && (
+
+        <WrapperContentPopup onClick={() => handleClickNavigate('admin')}>Quản lí hệ thống</WrapperContentPopup>
+      )}
+      <WrapperContentPopup onClick={() => handleClickNavigate(`my-order`)}>Đơn hàng của tôi</WrapperContentPopup>
+      <WrapperContentPopup onClick={() => handleClickNavigate()}>Đăng xuất</WrapperContentPopup>
+    </div>
+  );
+
+  const handleClickNavigate = (type) => {
+    if(type === 'profile') {
+      navigate('/profile-user')
+    }else if(type === 'admin') {
+      navigate('/system/admin')
+    }else if(type === 'my-order') {
+      navigate('/my-order',{ state : {
+          id: user?.id,
+          token : user?.access_token
+        }
+      })
+    }else {
+      handleLogout()
+    }
+    setIsOpenPopup(false)
+  }
+
+  const handleLogout = async () => {
+    setLoading(true)
+    await UserService.logoutUser()
+    dispatch(resetUser())
+    setLoading(false)
+  }
+
   const handleSignInClick = () => {
-    navigate('/sign-in')
-  }
+    navigate("/sign-in");
+  };
   const handleSignUpClick = () => {
-    navigate('/sign-up')
-  }
+    navigate("/sign-up");
+  };
 
   return (
     <div
@@ -58,18 +107,55 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
           span={6}
           style={{ display: "flex", gap: "54px", alignItems: "center" }}
         >
-          <WrapperHeaderAccout>
-            <UserOutlined style={{ fontSize: "30px" }} />
-
-            <div style={{ cursor: "pointer" }}>
-              <WrapperTextHeaderSmall onClick={handleSignInClick}>Đăng nhập</WrapperTextHeaderSmall>/
-              <WrapperTextHeaderSmall onClick={handleSignUpClick}>Đăng ký</WrapperTextHeaderSmall>
-              <div>
-                <WrapperTextHeaderSmall>Tài khoản</WrapperTextHeaderSmall>
-                <CaretDownOutlined />
-              </div>
-            </div>
-          </WrapperHeaderAccout>
+          <Loading isPending={loading}>
+            <WrapperHeaderAccout>
+              {userAvatar ? (
+                <img
+                  src={userAvatar}
+                  alt="avatar"
+                  style={{
+                    height: "30px",
+                    width: "30px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <UserOutlined style={{ fontSize: "30px" }} />
+              )}
+              {user?.access_token ? (
+                <>
+                  <Popover content={content} trigger="click" open={isOpenPopup}>
+                    <div
+                      style={{
+                        cursor: "pointer",
+                        maxWidth: 100,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                      onClick={() => setIsOpenPopup((prev) => !prev)}
+                    >
+                      {userName?.length ? userName : user?.email}
+                    </div>
+                  </Popover>
+                </>
+              ) : (
+                <div style={{ cursor: "pointer" }}>
+                  <WrapperTextHeaderSmall onClick={handleSignInClick}>
+                    Đăng nhập
+                  </WrapperTextHeaderSmall>
+                  /
+                  <WrapperTextHeaderSmall onClick={handleSignUpClick}>
+                    Đăng ký
+                  </WrapperTextHeaderSmall>
+                  <div>
+                    <WrapperTextHeaderSmall>Tài khoản</WrapperTextHeaderSmall>
+                    <CaretDownOutlined />
+                  </div>
+                </div>
+              )}
+            </WrapperHeaderAccout>
+          </Loading>
           {!isHiddenCart && (
             <div style={{ cursor: "pointer" }}>
               <Badge count={4} size="small">
@@ -77,7 +163,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                   style={{ fontSize: "30px", color: "#fff" }}
                 />
               </Badge>
-                <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
+              <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
             </div>
           )}
         </Col>
