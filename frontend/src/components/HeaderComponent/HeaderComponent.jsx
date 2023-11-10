@@ -12,18 +12,18 @@ import {
   ShoppingCartOutlined,
 } from "@ant-design/icons";
 import ButttonInputSearch from "../ButtonInputSearch/ButttonInputSearch";
-import { Badge, Col, Popover } from "antd";
+import { Badge, Col, Flex, Popover } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import Loading from "../LoadingComponent/Loading";
-import * as UserService from '../../services/UserService'
+import * as UserService from "../../services/UserService";
 import { resetUser } from "../../redux/slides/userSlide";
 
 const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState("");
   const [search, setSearch] = useState("");
@@ -32,39 +32,47 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
 
   const content = (
     <div>
-      <WrapperContentPopup onClick={() => handleClickNavigate('profile')}>Thông tin người dùng</WrapperContentPopup>
+      <WrapperContentPopup onClick={() => handleClickNavigate("profile")}>
+        Thông tin người dùng
+      </WrapperContentPopup>
       {user?.role === "Admin" && (
-
-        <WrapperContentPopup onClick={() => handleClickNavigate('admin')}>Quản lí hệ thống</WrapperContentPopup>
+        <WrapperContentPopup onClick={() => handleClickNavigate("admin")}>
+          Quản lí hệ thống
+        </WrapperContentPopup>
       )}
-      <WrapperContentPopup onClick={() => handleClickNavigate(`my-order`)}>Đơn hàng của tôi</WrapperContentPopup>
-      <WrapperContentPopup onClick={() => handleClickNavigate()}>Đăng xuất</WrapperContentPopup>
+      <WrapperContentPopup onClick={() => handleClickNavigate(`my-order`)}>
+        Đơn hàng của tôi
+      </WrapperContentPopup>
+      <WrapperContentPopup onClick={() => handleClickNavigate()}>
+        Đăng xuất
+      </WrapperContentPopup>
     </div>
   );
 
   const handleClickNavigate = (type) => {
-    if(type === 'profile') {
-      navigate('/profile-user')
-    }else if(type === 'admin') {
-      navigate('/system/admin')
-    }else if(type === 'my-order') {
-      navigate('/my-order',{ state : {
+    if (type === "profile") {
+      navigate("/profile-user");
+    } else if (type === "admin") {
+      navigate("/system/admin");
+    } else if (type === "my-order") {
+      navigate("/my-order", {
+        state: {
           id: user?.id,
-          token : user?.access_token
-        }
-      })
-    }else {
-      handleLogout()
+          token: user?.access_token,
+        },
+      });
+    } else {
+      handleLogout();
     }
-    setIsOpenPopup(false)
-  }
+    setIsOpenPopup(false);
+  };
 
   const handleLogout = async () => {
-    setLoading(true)
-    await UserService.logoutUser()
-    dispatch(resetUser())
-    setLoading(false)
-  }
+    setLoading(true);
+    await UserService.logoutUser();
+    dispatch(resetUser());
+    setLoading(false);
+  };
 
   const handleSignInClick = () => {
     navigate("/sign-in");
@@ -119,9 +127,13 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                     borderRadius: "50%",
                     objectFit: "cover",
                   }}
+                  onClick={() => setIsOpenPopup((prev) => !prev)}
                 />
               ) : (
-                <UserOutlined style={{ fontSize: "30px" }} />
+                <UserOutlined
+                  style={{ fontSize: "30px" }}
+                  onClick={() => setIsOpenPopup((prev) => !prev)}
+                />
               )}
               {user?.access_token ? (
                 <>
@@ -157,7 +169,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
             </WrapperHeaderAccout>
           </Loading>
           {!isHiddenCart && (
-            <div style={{ cursor: "pointer" }}>
+            <div style={{ cursor: "pointer", display: "flex", alignItems: "center" }}>
               <Badge count={4} size="small">
                 <ShoppingCartOutlined
                   style={{ fontSize: "30px", color: "#fff" }}

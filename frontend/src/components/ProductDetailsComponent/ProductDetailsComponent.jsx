@@ -8,30 +8,23 @@ import {
   WrapperAddressProduct,
   WrapperQualityProduct,
   WrapperInputNumber,
+  WrapperDiscountText,
 } from "./style";
 import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import ButtonComponent from "../ButtonComponent/ButtonComponent";
 import Loading from "../LoadingComponent/Loading";
 import { useState } from "react";
 import { convertPrice } from "../../utils";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import * as ProductService from "../../services/ProductService";
+import { useQuery } from "@tanstack/react-query";
 
 const ProductDetailsComponent = ({ idProduct }) => {
-  const productDetails = {
-    _id: "1",
-    quantityInStock: "1",
-    description: "",
-    image:
-      "https://salt.tikicdn.com/cache/280x280/ts/product/5e/8e/5a/ffd57c334ad997d311d311be41ef6aa8.png.webp",
-    name: "iPhone15",
-    price: "2590000",
-    category: "Dien thoai",
-    sold: "1",
-    discount: "10",
-  };
-
-  const user = {
-    address: "Ha Noi"
-  }
+  const user = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
 
   const [numProduct, setNumProduct] = useState(1);
   const [errorLimitOrder, setErrorLimitOrder] = useState(false);
@@ -52,7 +45,21 @@ const ProductDetailsComponent = ({ idProduct }) => {
     }
   };
 
-  const isPending = false;
+  const fetchDetailsProduct = async (context) => {
+    const id = context?.queryKey && context?.queryKey[1];
+    if (id) {
+      const res = await ProductService.getDetailsProduct(id);
+      return res.data;
+    }
+  };
+
+  const { isPending, data: productDetails } = useQuery({
+    queryKey: ["product-details", idProduct],
+    queryFn: fetchDetailsProduct,
+    enabled: !!idProduct,
+  });
+
+  console.log(productDetails);
 
   const handleAddOrderProduct = () => {};
 
@@ -68,12 +75,17 @@ const ProductDetailsComponent = ({ idProduct }) => {
       >
         <Col
           span={10}
-          style={{ borderRight: "1px solid #e5e5e5", paddingRight: "8px" }}
+          style={{
+            borderRight: "1px solid #e5e5e5",
+            paddingRight: "8px",
+            display: "flex",
+            justifyContent: "center",
+          }}
         >
           <Image
             src={productDetails?.image}
             alt="image product"
-            preview={false}
+            preview={true}
           />
         </Col>
         <Col span={14} style={{ paddingLeft: "10px" }}>
@@ -81,11 +93,20 @@ const ProductDetailsComponent = ({ idProduct }) => {
             {productDetails?.name}
           </WrapperStyleNameProduct>
           <div>
-            <WrapperStyleTextSell>Đã bán: {productDetails?.sold}+</WrapperStyleTextSell>
+            <WrapperStyleTextSell>
+              Đã bán: {productDetails?.sold}
+            </WrapperStyleTextSell>
           </div>
           <WrapperPriceProduct>
             <WrapperPriceTextProduct>
               {convertPrice(productDetails?.price)}
+              <WrapperDiscountText>
+                {productDetails?.discount ? (
+                  `-${productDetails?.discount}%`
+                ) : (
+                  <></>
+                )}
+              </WrapperDiscountText>
             </WrapperPriceTextProduct>
           </WrapperPriceProduct>
           <WrapperAddressProduct>

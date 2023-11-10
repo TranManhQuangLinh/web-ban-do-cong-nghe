@@ -5,8 +5,14 @@ export const WrapperCardStyle = styled(Card)`
     width: 200px;
     & img {
         height: 200px;
-        width: 200px;
-    },
+        width: 198px;
+    };
+    & .ant-card-cover {
+        margin-top: 0px;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+    };
+    border-radius: 10px;
     position: relative;
     background-color: ${props => props.disabled ? '#ccc' : '#fff'};
     cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'}
@@ -29,15 +35,19 @@ export const WrapperReportText = styled.div`
 `
 
 export const WrapperPriceText = styled.div`
-    color: rgb(255, 66, 78);
+    // color: rgb(255, 66, 78);
     font-size: 16px;
     font-weight: 500;
 `
 
 export const WrapperDiscountText = styled.span`
-    color: rgb(255, 66, 78);
+    font-weight: 400;
     font-size: 12px;
-    font-weight: 500;
+    line-height: 150%;
+    padding: 0px 4px;
+    background: rgb(245, 245, 250);
+    border-radius: 8px;
+    color: rgb(39, 39, 42);
 `
 
 export const WrapperStyleTextSell = styled.span`
