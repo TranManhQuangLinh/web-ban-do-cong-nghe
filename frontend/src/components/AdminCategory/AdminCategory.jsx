@@ -1,24 +1,22 @@
-import { Button, Form, Select, Space } from "antd";
+import { Button, Form, Space } from "antd";
 import React from "react";
-import { WrapperHeader, WrapperUploadFile } from "./style";
+import { WrapperHeader } from "./style";
 import TableComponent from "../TableComponent/TableComponent";
 import InputComponent from "../InputComponent/InputComponent";
 import Loading from "../LoadingComponent/Loading";
 import ButtonComponent from "../ButtonComponent/ButtonComponent";
 import ModalComponent from "../ModalComponent/ModalComponent";
-import { getBase64 } from "../../utils";
 import { useEffect } from "react";
 import * as message from "../../components/Message/Message";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useRef } from "react";
 import { useMutationHooks } from "../../hooks/useMutationHook";
-import * as UserService from "../../services/UserService";
+import * as CategoryService from "../../services/CategoryService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SearchOutlined } from "@ant-design/icons";
-import { Option } from "antd/es/mentions";
 
-const AdminUser = () => {
+const AdminCategory = () => {
   const queryClient = useQueryClient();
   const [rowSelected, setRowSelected] = useState("");
   const [rowSelectedKeys, setRowSelectedKeys] = useState([]);
@@ -30,35 +28,28 @@ const AdminUser = () => {
   const user = useSelector((state) => state?.user);
   const searchInput = useRef(null);
 
-  const [stateUserDetails, setStateUserDetails] = useState({
-    email: "",
-    password: "",
-    role: "",
+  const [stateCategoryDetails, setStateCategoryDetails] = useState({
     name: "",
-    dateOfBirth: "",
-    phone: "",
-    address: "",
-    avatar: "",
   });
 
-  // lấy tất cả user từ db
-  const getAllUsers = async () => {
-    const res = await UserService.getAllUsers(user?.access_token);
-    return { data: res?.data, key: "users" };
+  // lấy tất cả category từ db
+  const getAllCategories = async () => {
+    const res = await CategoryService.getAllCategories(user?.access_token);
+    return { data: res?.data, key: "categories" };
   };
 
-  const { data: users, isPending: isPendingUsers } = useQuery({
-    queryKey: ["users"],
-    queryFn: getAllUsers,
+  const { data: categories, isPending: isPendingCategories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getAllCategories,
   });
 
   // table
   const dataTable =
-    users?.data?.length > 0 &&
-    users?.data?.map((user) => {
-      return { ...user, key: user._id };
+    categories?.data?.length > 0 &&
+    categories?.data?.map((category) => {
+      return { ...category, key: category._id };
     });
-    
+
   // search dropdown
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -180,30 +171,6 @@ const AdminUser = () => {
       ...getColumnSearchProps("name"),
     },
     {
-      title: "Email",
-      dataIndex: "email",
-      sorter: (a, b) => a.email.length - b.email.length,
-      ...getColumnSearchProps("email"),
-    },
-    {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      sorter: (a, b) => a.address.length - b.address.length,
-      ...getColumnSearchProps("address"),
-    },
-    {
-      title: "Vai trò",
-      dataIndex: "role",
-      sorter: (a, b) => a.role.length - b.role.length,
-      ...getColumnSearchProps("role"),
-    },
-    {
-      title: "Điện thoại",
-      dataIndex: "phone",
-      sorter: (a, b) => a.phone - b.phone,
-      ...getColumnSearchProps("phone"),
-    },
-    {
       title: "Thao tác",
       dataIndex: "action",
       render: renderAction,
@@ -213,66 +180,44 @@ const AdminUser = () => {
   // reset state khi bấm nút tạo
   useEffect(() => {
     if (isOpenModalCreate) {
-      setStateUserDetails({
-        email: "",
-        password: "",
-        role: "",
+      setStateCategoryDetails({
         name: "",
-        dateOfBirth: "",
-        phone: "",
-        address: "",
-        avatar: "",
       });
     }
   }, [isOpenModalCreate]);
 
-  // lấy details user khi bấm nút sửa
+  // lấy details category khi bấm nút sửa
   useEffect(() => {
     if (rowSelected && isOpenModalUpdate) {
       setIsPendingUpdate(true);
-      fetchGetDetailsUser(rowSelected, user?.access_token);
+      fetchGetDetailsCategory(rowSelected, user?.access_token);
     }
   }, [rowSelected, isOpenModalUpdate]);
 
-  const fetchGetDetailsUser = async (rowSelected, access_token) => {
-    const res = await UserService.getDetailsUser(rowSelected, access_token);
+  const fetchGetDetailsCategory = async (rowSelected, access_token) => {
+    const res = await CategoryService.getDetailsCategory(
+      rowSelected,
+      access_token
+    );
     if (res?.data) {
-      setStateUserDetails({
-        email: res?.data?.email,
-        password: res?.data?.password,
-        role: res?.data?.role,
+      setStateCategoryDetails({
         name: res?.data?.name,
-        dateOfBirth: res?.data?.dateOfBirth,
-        phone: res?.data?.phone,
-        address: res?.data?.address,
-        avatar: res.data?.avatar,
       });
     }
     setIsPendingUpdate(false);
   };
 
-  // form chi tiết người dùng
+  // form chi tiết danh mục
   const [form] = Form.useForm();
 
   useEffect(() => {
-    form.setFieldsValue(stateUserDetails);
-  }, [form, stateUserDetails]);
+    form.setFieldsValue(stateCategoryDetails);
+  }, [form, stateCategoryDetails]);
 
   const handleOnchangeDetails = (e) => {
-    setStateUserDetails({
-      ...stateUserDetails,
+    setStateCategoryDetails({
+      ...stateCategoryDetails,
       [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleOnchangeAvatarDetails = async ({ fileList }) => {
-    const file = fileList[0];
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    setStateUserDetails({
-      ...stateUserDetails,
-      avatar: file.preview,
     });
   };
 
@@ -280,26 +225,26 @@ const AdminUser = () => {
   const mutationCreate = useMutationHooks((data) => {
     const { token, ...rests } = data;
     // console.log(data);
-    const res = UserService.createUser({ ...rests }, token);
+    const res = CategoryService.createCategory({ ...rests }, token);
     return res;
   });
 
   const mutationUpdate = useMutationHooks((data) => {
-    const { id, token, email, ...rests } = data;
-    const res = UserService.updateUser(id, { ...rests }, token);
+    const { id, token, ...rests } = data;
+    const res = CategoryService.updateCategory(id, { ...rests }, token);
     return res;
   });
 
   const mutationDeleted = useMutationHooks((data) => {
     const { id, token } = data;
     // console.log(data);
-    const res = UserService.deleteUser(id, token);
+    const res = CategoryService.deleteCategory(id, token);
     return res;
   });
 
   const mutationDeletedMany = useMutationHooks((data) => {
     const { token, ...ids } = data;
-    const res = UserService.deleteManyUsers(ids, token);
+    const res = CategoryService.deleteManyCategories(ids, token);
     return res;
   });
 
@@ -371,12 +316,12 @@ const AdminUser = () => {
     }
   }, [isSuccessDeletedMany]);
 
-  const handleCreateUser = () => {
+  const handleCreateCategory = () => {
     mutationCreate.mutate(
-      { token: user?.access_token, ...stateUserDetails },
+      { token: user?.access_token, ...stateCategoryDetails },
       {
         onSettled: () => {
-          queryClient.invalidateQueries(["users"]);
+          queryClient.invalidateQueries(["categories"]);
         },
       }
     );
@@ -384,25 +329,22 @@ const AdminUser = () => {
 
   const handleCloseModalCreate = () => {
     setIsOpenModalCreate(false);
-    setStateUserDetails({
-      email: "",
-      password: "",
-      role: "",
+    setStateCategoryDetails({
       name: "",
-      dateOfBirth: "",
-      phone: "",
-      address: "",
-      avatar: "",
     });
     form.resetFields();
   };
 
-  const handleUpdateUser = () => {
+  const handleUpdateCategory = () => {
     mutationUpdate.mutate(
-      { id: rowSelected, token: user?.access_token, ...stateUserDetails },
+      {
+        id: rowSelected,
+        token: user?.access_token,
+        ...stateCategoryDetails,
+      },
       {
         onSettled: () => {
-          queryClient.invalidateQueries(["users"]);
+          queryClient.invalidateQueries(["categories"]);
         },
       }
     );
@@ -410,15 +352,8 @@ const AdminUser = () => {
 
   const handleCloseModalUpdate = () => {
     setIsOpenModalUpdate(false);
-    setStateUserDetails({
-      email: "",
-      password: "",
-      role: "",
+    setStateCategoryDetails({
       name: "",
-      dateOfBirth: "",
-      phone: "",
-      address: "",
-      avatar: "",
     });
     form.resetFields();
   };
@@ -427,12 +362,12 @@ const AdminUser = () => {
     setIsOpenModalDelete(false);
   };
 
-  const handleDeleteUser = () => {
+  const handleDeleteCategory = () => {
     mutationDeleted.mutate(
       { id: rowSelected, token: user?.access_token },
       {
         onSettled: () => {
-          queryClient.invalidateQueries(["users"]);
+          queryClient.invalidateQueries(["categories"]);
         },
       }
     );
@@ -442,12 +377,12 @@ const AdminUser = () => {
     setIsOpenModalDeleteMany(false);
   };
 
-  const handleDeleteManyUsers = (ids) => {
+  const handleDeleteManyCategories = (ids) => {
     mutationDeletedMany.mutate(
       { ids: ids, token: user?.access_token },
       {
         onSettled: () => {
-          queryClient.invalidateQueries(["users"]);
+          queryClient.invalidateQueries(["categories"]);
         },
       }
     );
@@ -455,7 +390,7 @@ const AdminUser = () => {
 
   return (
     <div>
-      <WrapperHeader>Quản lý người dùng</WrapperHeader>
+      <WrapperHeader>Quản lý danh mục</WrapperHeader>
 
       <div style={{ marginTop: "20px" }}>
         <ButtonComponent
@@ -500,7 +435,7 @@ const AdminUser = () => {
 
         <TableComponent
           columns={columns}
-          isPending={isPendingUsers}
+          isPending={isPendingCategories}
           data={dataTable}
           onRow={(record, rowIndex) => {
             return {
@@ -519,7 +454,7 @@ const AdminUser = () => {
       </div>
 
       <ModalComponent
-        title={isOpenModalCreate ? "Tạo mới người dùng" : "Sửa người dùng"}
+        title={isOpenModalCreate ? "Tạo mới danh mục" : "Sửa danh mục"}
         isOpen={isOpenModalCreate || isOpenModalUpdate}
         onCancel={() => {
           setIsOpenModalUpdate(false);
@@ -536,134 +471,48 @@ const AdminUser = () => {
             wrapperCol={{ span: 18 }}
             autoComplete="on"
             form={form}
-            onFinish={isOpenModalCreate ? handleCreateUser : handleUpdateUser}
+            onFinish={
+              isOpenModalCreate ? handleCreateCategory : handleUpdateCategory
+            }
           >
-            {isOpenModalCreate ? (
-              <Form.Item
-                label="Email"
-                name="email"
-                rules={[{ required: true, message: "Mời nhập email!" }]}
-              >
-                <InputComponent
-                  value={stateUserDetails.email}
-                  onChange={handleOnchangeDetails}
-                  name="email"
-                />
-              </Form.Item>
-            ) : (
-              <Form.Item label="Email">{stateUserDetails.email}</Form.Item>
-            )}
-
             <Form.Item
-              label="Mật khẩu"
-              name="password"
-              rules={[{ required: true, message: "Mời nhập mật khẩu!" }]}
+              label="Tên"
+              name="name"
+              rules={[{ required: true, message: "Mời nhập tên!" }]}
             >
               <InputComponent
-                value={stateUserDetails.password}
-                onChange={handleOnchangeDetails}
-                name="password"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Vai trò"
-              name="role"
-              rules={[{ required: true, message: "Mời chọn vai trò!" }]}
-            >
-              <Select
-                value={stateUserDetails.role}
-                onChange={(value) =>
-                  handleOnchangeDetails({ target: { name: "role", value } })
-                }
-                placeholder="Chọn vai trò"
-              >
-                <Option value="Khách hàng">Khách hàng</Option>
-                <Option value="Admin">Admin</Option>
-                <Option value="Nhân viên">Nhân viên</Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item label="Tên" name="name">
-              <InputComponent
-                value={stateUserDetails.name}
+                value={stateCategoryDetails.name}
                 onChange={handleOnchangeDetails}
                 name="name"
               />
-            </Form.Item>
-
-            <Form.Item label="Ngày sinh" name="dateOfBirth">
-              <InputComponent
-                value={stateUserDetails.dateOfBirth}
-                onChange={handleOnchangeDetails}
-                name="dateOfBirth"
-              />
-            </Form.Item>
-
-            <Form.Item label="Số điện thoại" name="phone">
-              <InputComponent
-                value={stateUserDetails.phone}
-                onChange={handleOnchangeDetails}
-                name="phone"
-              />
-            </Form.Item>
-
-            <Form.Item label="Địa chỉ" name="address">
-              <InputComponent
-                value={stateUserDetails.address}
-                onChange={handleOnchangeDetails}
-                name="address"
-              />
-            </Form.Item>
-
-            <Form.Item label="Avatar" name="avatar">
-              <WrapperUploadFile
-                onChange={handleOnchangeAvatarDetails}
-                maxCount={1}
-              >
-                <Button>Select File</Button>
-                {stateUserDetails?.avatar && (
-                  <img
-                    src={stateUserDetails?.avatar}
-                    style={{
-                      height: "60px",
-                      width: "60px",
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                      marginLeft: "10px",
-                    }}
-                    alt="avatar"
-                  />
-                )}
-              </WrapperUploadFile>
             </Form.Item>
           </Form>
         </Loading>
       </ModalComponent>
 
       <ModalComponent
-        title="Xóa người dùng"
+        title="Xóa danh mục"
         open={isOpenModalDelete}
         onCancel={handleCloseModalDelete}
-        onOk={handleDeleteUser}
+        onOk={handleDeleteCategory}
       >
         <Loading isPending={isPendingDeleted}>
-          <div>Bạn có chắc muốn xóa người dùng này không?</div>
+          <div>Bạn có chắc muốn xóa danh mục này không?</div>
         </Loading>
       </ModalComponent>
 
       <ModalComponent
-        title="Xóa tất cả người dùng đã chọn"
+        title="Xóa tất cả danh mục đã chọn"
         open={isOpenModalDeleteMany}
         onCancel={handleCloseModalDeleteMany}
-        onOk={handleDeleteManyUsers}
+        onOk={handleDeleteManyCategories}
       >
         <Loading isPending={isPendingDeletedMany}>
-          <div>Bạn có chắc muốn xóa tất cả người dùng đã chọn không?</div>
+          <div>Bạn có chắc muốn xóa tất cả danh mục đã chọn không?</div>
         </Loading>
       </ModalComponent>
     </div>
   );
 };
 
-export default AdminUser;
+export default AdminCategory;

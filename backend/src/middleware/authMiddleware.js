@@ -5,7 +5,8 @@ dotenv.config();
 
 // chỉ admin
 const authAdminMiddleWare = (req, res, next) => {
-  const token = req.headers.token.split(" ")[1];
+  const token = req.headers.token?.split(" ")[1];
+  // console.log("token", token);
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
     if (err) {
       return res.status(401).json({
@@ -25,7 +26,7 @@ const authAdminMiddleWare = (req, res, next) => {
   });
 };
 
-// chỉ admin và user có id giống id trên param 
+// chỉ admin và user có id giống id trên param
 const authAdminUserMiddleWare = (req, res, next) => {
   const token = req.headers.token.split(" ")[1];
   const userId = req.params.id;
@@ -38,7 +39,7 @@ const authAdminUserMiddleWare = (req, res, next) => {
     }
     // console.log(user);
     if (user?.role === "Admin" || user?.id === userId) {
-      req.loggedInUserRole  = user.role
+      req.loggedInUserRole = user.role;
       next();
     } else {
       return res.status(401).json({

@@ -1,5 +1,4 @@
 const Category = require("../models/CategoryModel");
-const Product = require("../models/ProductModel");
 
 const createCategory = (newCategory) => {
   return new Promise(async (resolve, reject) => {
@@ -40,6 +39,17 @@ const updateCategory = (id, data) => {
         resolve({
           status: "ERR",
           message: "category is not defined",
+        });
+      }
+
+      const checkNameCategory = await Category.findOne({
+        name: data.name,
+      });
+      // console.log(checkNameCategory);
+      if (checkNameCategory !== null && checkCategory.name !== data.name) {
+        resolve({
+          status: "ERR",
+          message: "category already exists",
         });
       }
 
@@ -106,8 +116,31 @@ const getAllCategories = () => {
       }); // sắp xếp theo thời gian giảm dần, nghĩa là mới nhât --> cập nhật gần nhất
       resolve({
         status: "OK",
-        message: "Success",
+        message: "SUCCESS",
         data: allCategory,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const getDetailsCategory = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const category = await Category.findOne({
+        _id: id,
+      });
+      if (category === null) {
+        resolve({
+          status: "ERR",
+          message: "category is not defined",
+        });
+      }
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: category,
       });
     } catch (e) {
       reject(e);
@@ -119,6 +152,7 @@ module.exports = {
   createCategory,
   updateCategory,
   deleteCategory,
-  getAllCategories,
   deleteManyCategory,
+  getAllCategories,
+  getDetailsCategory,
 };

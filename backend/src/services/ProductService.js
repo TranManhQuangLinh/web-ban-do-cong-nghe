@@ -154,7 +154,7 @@ const getAllProducts = (limit, page, sort, filter) => {
           .sort({ createdAt: -1, updatedAt: -1 });
         resolve({
           status: "OK",
-          message: "Success",
+          message: "SUCCESS",
           data: allObjectFilter,
           total: totalProduct,
           currentPage: Number(page + 1),
@@ -171,7 +171,7 @@ const getAllProducts = (limit, page, sort, filter) => {
           .sort({ createdAt: -1, updatedAt: -1 });
         resolve({
           status: "OK",
-          message: "Success",
+          message: "SUCCESS",
           data: allProductSort,
           total: totalProduct,
           currentPage: Number(page + 1),
@@ -191,7 +191,7 @@ const getAllProducts = (limit, page, sort, filter) => {
       }
       resolve({
         status: "OK",
-        message: "Success",
+        message: "SUCCESS",
         data: allProduct,
         total: totalProduct,
         currentPage: Number(page + 1),

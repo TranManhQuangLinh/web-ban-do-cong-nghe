@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 const shippingPriceSchema = new mongoose.Schema(
   {
-    minOrderAmount: {
-      type: Number,
-      required: true,
-    },
     maxOrderAmount: {
       type: Number,
     },

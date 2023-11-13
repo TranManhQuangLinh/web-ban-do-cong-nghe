@@ -4,7 +4,7 @@ const { generateAccessToken, generateRefreshToken } = require("./JwtService");
 
 const createUser = (newUser) => {
   return new Promise(async (resolve, reject) => {
-    const { name, email, password } = newUser;
+    const { email } = newUser;
     try {
       const checkUser = await User.findOne({
         email: email,
@@ -16,11 +16,7 @@ const createUser = (newUser) => {
         });
       }
       // const hash = bcrypt.hashSync(password, 10);
-      const createdUser = await User.create({
-        name,
-        email,
-        password,
-      });
+      const createdUser = await User.create(newUser);
       if (createdUser) {
         resolve({
           status: "OK",
@@ -34,7 +30,7 @@ const createUser = (newUser) => {
   });
 };
 
-const loginUser = (userLogin) => {
+const login = (userLogin) => {
   return new Promise(async (resolve, reject) => {
     const { email, password } = userLogin;
     try {
@@ -144,7 +140,7 @@ const deleteUser = (id) => {
   });
 };
 
-const deleteManyUser = (ids) => {
+const deleteManyUsers = (ids) => {
   return new Promise(async (resolve, reject) => {
     try {
       await User.deleteMany({ _id: ids });
@@ -164,7 +160,7 @@ const getAllUsers = () => {
       const allUser = await User.find().sort({ createdAt: -1, updatedAt: -1 }); // sắp xếp theo thời gian giảm dần, nghĩa là mới nhât --> cập nhật gần nhất
       resolve({
         status: "OK",
-        message: "Success",
+        message: "SUCCESS",
         data: allUser,
       });
     } catch (e) {
@@ -198,10 +194,10 @@ const getDetailsUser = (id) => {
 
 module.exports = {
   createUser,
-  loginUser,
+  login,
   updateUser,
   deleteUser,
   getAllUsers,
   getDetailsUser,
-  deleteManyUser,
+  deleteManyUsers,
 };

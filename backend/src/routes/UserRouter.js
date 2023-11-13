@@ -1,16 +1,36 @@
 const express = require("express");
-const router = express.Router()
-const userController = require('../controllers/UserController');
-const { authAdminUserMiddleWare, authAdminMiddleWare } = require("../middleware/authMiddleware");
+const router = express.Router();
+const UserController = require("../controllers/UserController");
+const {
+  authAdminUserMiddleWare,
+  authAdminMiddleWare,
+} = require("../middleware/authMiddleware");
 
-router.post('/sign-up', userController.createUser)
-router.post('/sign-in', userController.loginUser)
-router.post('/log-out', userController.logoutUser)
-router.put('/update-user/:id', authAdminUserMiddleWare, userController.updateUser)
-router.delete('/delete-user/:id', authAdminMiddleWare, userController.deleteUser)
-router.get('/get-all-users', authAdminMiddleWare, userController.getAllUsers)
-router.get('/get-details-user/:id', authAdminUserMiddleWare, userController.getDetailsUser)
-router.post('/refresh-token', userController.refreshToken)
-router.post('/delete-many-users', authAdminMiddleWare, userController.deleteManyUsers)
+router.post("/sign-up", UserController.signUp);
+router.post("/sign-in", UserController.login);
+router.post("/log-out", UserController.logout);
+router.post("/create-user", authAdminMiddleWare, UserController.createUser);
+router.put(
+  "/update-user/:id",
+  authAdminUserMiddleWare,
+  UserController.updateUser
+);
+router.delete(
+  "/delete-user/:id",
+  authAdminMiddleWare,
+  UserController.deleteUser
+);
+router.get("/get-all-users", authAdminMiddleWare, UserController.getAllUsers);
+router.get(
+  "/get-details-user/:id",
+  authAdminUserMiddleWare,
+  UserController.getDetailsUser
+);
+router.post("/refresh-token", UserController.refreshToken);
+router.post(
+  "/delete-many-users",
+  authAdminMiddleWare,
+  UserController.deleteManyUsers
+);
 
-module.exports = router
+module.exports = router;

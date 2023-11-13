@@ -1,8 +1,8 @@
 import { axiosJWT } from "./UserService";
 
-export const getAllCategories = async (access_token) => {
+export const getAllShippingPrices = async (access_token) => {
   const res = await axiosJWT.get(
-    `${process.env.REACT_APP_API_URL}/category/get-all-categories`,
+    `${process.env.REACT_APP_API_URL}/shipping-price/get-all-shipping-prices`,
     {
       headers: {
         token: `Bearer ${access_token}`,
@@ -12,9 +12,9 @@ export const getAllCategories = async (access_token) => {
   return res.data;
 };
 
-export const getDetailsCategory = async (id, access_token) => {
+export const getDetailsShippingPrice = async (id, access_token) => {
   const res = await axiosJWT.get(
-    `${process.env.REACT_APP_API_URL}/category/get-details-category/${id}`,
+    `${process.env.REACT_APP_API_URL}/shipping-price/get-details-shipping-price/${id}`,
     {
       headers: {
         token: `Bearer ${access_token}`,
@@ -24,9 +24,9 @@ export const getDetailsCategory = async (id, access_token) => {
   return res.data;
 };
 
-export const createCategory = async (data, access_token) => {
+export const createShippingPrice = async (data, access_token) => {
   const res = await axiosJWT.post(
-    `${process.env.REACT_APP_API_URL}/category/create-category`,
+    `${process.env.REACT_APP_API_URL}/shipping-price/create-shipping-price`,
     data,
     {
       headers: {
@@ -37,9 +37,9 @@ export const createCategory = async (data, access_token) => {
   return res.data;
 };
 
-export const updateCategory = async (id, data, access_token) => {
+export const updateShippingPrice = async (id, data, access_token) => {
   const res = await axiosJWT.put(
-    `${process.env.REACT_APP_API_URL}/category/update-category/${id}`,
+    `${process.env.REACT_APP_API_URL}/shipping-price/update-shipping-price/${id}`,
     data,
     {
       headers: {
@@ -50,9 +50,9 @@ export const updateCategory = async (id, data, access_token) => {
   return res.data;
 };
 
-export const deleteCategory = async (id, access_token) => {
+export const deleteShippingPrice = async (id, access_token) => {
   const res = await axiosJWT.delete(
-    `${process.env.REACT_APP_API_URL}/category/delete-category/${id}`,
+    `${process.env.REACT_APP_API_URL}/shipping-price/delete-shipping-price/${id}`,
     {
       headers: {
         token: `Bearer ${access_token}`,
@@ -62,9 +62,9 @@ export const deleteCategory = async (id, access_token) => {
   return res.data;
 };
 
-export const deleteManyCategories = async (data, access_token) => {
+export const deleteManyShippingPrices = async (data, access_token) => {
   const res = await axiosJWT.post(
-    `${process.env.REACT_APP_API_URL}/category/delete-many-categories`,
+    `${process.env.REACT_APP_API_URL}/shipping-price/delete-many-shipping-prices`,
     data,
     {
       headers: {

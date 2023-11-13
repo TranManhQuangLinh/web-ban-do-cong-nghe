@@ -24,6 +24,7 @@ const HeaderComponent = ({
   isHiddenSearch = false,
   isHiddenCart = false,
   isAdminPage = false,
+  style
 }) => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
@@ -75,7 +76,7 @@ const HeaderComponent = ({
 
   const handleLogout = async () => {
     setLoading(true);
-    await UserService.logoutUser();
+    await UserService.logout();
     dispatch(resetUser());
     setLoading(false);
   };
@@ -90,11 +91,12 @@ const HeaderComponent = ({
   return (
     <div
       style={{
-        heiht: "100%",
+        // height: "100%",
         width: "100%",
         display: "flex",
         background: "var(--primary-color)",
         justifyContent: "center",
+        ...style,
       }}
     >
       <WrapperHeader
