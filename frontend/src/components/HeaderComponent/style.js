@@ -22,18 +22,20 @@ export const WrapperTextHeader = styled(Link)`
   }
 `;
 
-export const WrapperHeaderAccout = styled.div`
+export const WrapperHeaderAccount = styled.div`
   display: flex;
   align-items: center;
   color: #fff;
   gap: 10px;
   max-width: 200px;
+  cursor: pointer;
 `;
 
 export const WrapperTextHeaderSmall = styled.span`
   font-size: 12px;
   color: #fff;
   white-space: nowrap;
+  margin-left: 5px;
 `;
 export const WrapperContentPopup = styled.p`
   cursor: pointer;

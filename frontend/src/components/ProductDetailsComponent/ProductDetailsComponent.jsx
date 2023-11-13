@@ -5,7 +5,6 @@ import {
   WrapperStyleTextSell,
   WrapperPriceProduct,
   WrapperPriceTextProduct,
-  WrapperAddressProduct,
   WrapperQualityProduct,
   WrapperInputNumber,
   WrapperDiscountText,
@@ -18,16 +17,18 @@ import { convertPrice } from "../../utils";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import * as ProductService from "../../services/ProductService";
+import * as message from "../Message/Message";
 import { useQuery } from "@tanstack/react-query";
+import { addOrderItem } from "../../redux/slices/OrderSlice";
 
 const ProductDetailsComponent = ({ idProduct }) => {
   const user = useSelector((state) => state.user);
+  const order = useSelector((state) => state.order);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
   const [numProduct, setNumProduct] = useState(1);
-  const [errorLimitOrder, setErrorLimitOrder] = useState(false);
 
   const onChange = (value) => {
     setNumProduct(Number(value));
@@ -59,9 +60,39 @@ const ProductDetailsComponent = ({ idProduct }) => {
     enabled: !!idProduct,
   });
 
-  console.log(productDetails);
+  // console.log(productDetails);
 
-  const handleAddOrderProduct = () => {};
+  const handleAddToCart = () => {
+    if (!user?.id) {
+      navigate("/sign-in", { state: location?.pathname });
+    } else {
+      const orderRedux = order?.orderItems?.find(
+        (item) => item.product === productDetails?._id
+      );
+      if (
+        orderRedux?.quantity + numProduct <= orderRedux?.quantityInStock ||
+        (!orderRedux && productDetails?.quantityInStock > 0)
+      ) {
+        dispatch(
+          addOrderItem({
+            orderItem: {
+              name: productDetails?.name,
+              quantity: numProduct,
+              image: productDetails?.image,
+              price: productDetails?.price,
+              discount: productDetails?.discount,
+              product: productDetails?._id,
+              quantityInStock: productDetails?.quantityInStock,
+            },
+          })
+        );
+      } else {
+        message.error(
+          `Số lượng hàng trong kho không đủ. Còn ${productDetails?.quantityInStock} sản phẩm`
+        );
+      }
+    }
+  };
 
   return (
     <Loading isPending={isPending}>
@@ -109,11 +140,6 @@ const ProductDetailsComponent = ({ idProduct }) => {
               </WrapperDiscountText>
             </WrapperPriceTextProduct>
           </WrapperPriceProduct>
-          <WrapperAddressProduct>
-            <span>Giao đến </span>
-            <span className="address">{user?.address}</span> -
-            <span className="change-address">Đổi địa chỉ</span>
-          </WrapperAddressProduct>
           <div
             style={{
               margin: "10px 0 20px",
@@ -159,28 +185,26 @@ const ProductDetailsComponent = ({ idProduct }) => {
               </button>
             </WrapperQualityProduct>
           </div>
-          <div style={{ display: "flex", aliggItems: "center", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div>
               <ButtonComponent
                 size={40}
-                styleButton={{
+                disabled={user?.role === "Admin" || user?.role === "Nhân viên"}
+                buttonStyle={{
                   background: "rgb(255, 57, 69)",
                   height: "48px",
                   width: "220px",
                   border: "none",
                   borderRadius: "4px",
                 }}
-                onClick={handleAddOrderProduct}
-                textbutton={"Thêm vào giỏ hàng"}
-                styleTextButton={{
+                onClick={handleAddToCart}
+                buttonText={"Thêm vào giỏ hàng"}
+                buttonTextStyle={{
                   color: "#fff",
                   fontSize: "15px",
                   fontWeight: "700",
                 }}
               ></ButtonComponent>
-              {errorLimitOrder && (
-                <div style={{ color: "red" }}>San pham het hang</div>
-              )}
             </div>
           </div>
         </Col>

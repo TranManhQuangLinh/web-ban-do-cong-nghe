@@ -2,27 +2,26 @@ import { Button } from "antd";
 import React from "react";
 
 const ButtonComponent = ({
-  size,
-  styleButton,
-  styleTextButton,
-  textbutton,
+  buttonStyle,
+  buttonTextStyle,
+  buttonText,
   disabled,
   onClick,
   ...rests
 }) => {
   const handleDisableOnclick = () => {};
+  // console.log(disabled);
   return (
     <Button
       style={{
-        ...styleButton,
-        background: disabled ? "#ccc" : styleButton.background,
+        ...buttonStyle,
+        background: disabled ? "#ccc" : buttonStyle?.background,
         cursor: disabled ? "auto" : "pointer",
       }}
-      size={size}
       onClick={disabled ? handleDisableOnclick : onClick}
       {...rests}
     >
-      <span style={styleTextButton}>{textbutton}</span>
+      <span style={buttonTextStyle}>{buttonText}</span>
     </Button>
   );
 };

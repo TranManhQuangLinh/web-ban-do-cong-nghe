@@ -1,5 +1,5 @@
 const User = require("../models/UserModel");
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 const { generateAccessToken, generateRefreshToken } = require("./JwtService");
 
 const createUser = (newUser) => {
@@ -15,11 +15,11 @@ const createUser = (newUser) => {
           message: "email already exists",
         });
       }
-      const hash = bcrypt.hashSync(password, 10);
+      // const hash = bcrypt.hashSync(password, 10);
       const createdUser = await User.create({
         name,
         email,
-        password: hash,
+        password,
       });
       if (createdUser) {
         resolve({
@@ -48,9 +48,9 @@ const loginUser = (userLogin) => {
           message: "user does not exist",
         });
       }
-      const comparePassword = bcrypt.compareSync(password, checkUser.password);
+      // const comparePassword = bcrypt.compareSync(password, checkUser.password);
       // console.log(comparePassword);
-      if (!comparePassword) {
+      if (password !== checkUser.password) {
         resolve({
           status: "ERR",
           message: "password is incorrect",
@@ -104,9 +104,9 @@ const updateUser = (id, data, loggedInUserRole) => {
         });
       }
 
-      if(data.password){
-        data.password = bcrypt.hashSync(data.password, 10);
-      }
+      // if(data.password){
+      //   data.password = bcrypt.hashSync(data.password, 10);
+      // }
 
       const updatedUser = await User.findByIdAndUpdate(id, data, { new: true });
       resolve({

@@ -13,12 +13,12 @@ import * as UserService from "../../services/UserService";
 import * as message from "../../components/Message/Message";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../components/LoadingComponent/Loading";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import { updateUser } from '../../redux/slides/userSlide'
+import { updateUser } from "../../redux/slices/UserSlice";
 
 const SignInPage = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
@@ -36,12 +36,7 @@ const SignInPage = () => {
   useEffect(() => {
     if (data) {
       if (isSuccess && data.status === "OK") {
-        message.success("Đăng nhập thành công")
-        if (location?.state) {
-          navigate(location?.state);
-        } else {
-          navigate("/");
-        }
+        // console.log(data);
         localStorage.setItem(
           "access_token",
           JSON.stringify(data?.access_token)
@@ -50,26 +45,33 @@ const SignInPage = () => {
           "refresh_token",
           JSON.stringify(data?.refresh_token)
         );
-        if (data?.access_token) {
-          const decoded = jwtDecode(data?.access_token);
-          // console.log("decoded", decoded);
-          if (decoded?.id) {
-            handleGetDetailsUser(decoded?.id, data?.access_token)
-          }
+        const decoded = jwtDecode(data?.access_token);
+        // console.log("decoded", decoded);
+        if (decoded?.id) {
+          handleGetDetailsUser(decoded?.id, data?.access_token);
         }
-      }
-      else {
-        message.error(data.message)
+        message.success("Đăng nhập thành công");
+        if (location?.state) {
+          navigate(location?.state);
+        }
+        else if(decoded.role === "Admin" || decoded.role === "Nhân viên"){
+          navigate("/admin")
+        }
+        else {
+          navigate("/");
+        }
+      } else {
+        message.error(data.message);
       }
     }
   }, [isSuccess]);
 
   const handleGetDetailsUser = async (id, token) => {
-    const storage = localStorage.getItem('refresh_token')
-    const refreshToken = JSON.parse(storage)
-    const res = await UserService.getDetailsUser(id, token)
-    dispatch(updateUser({ ...res?.data, access_token: token,refreshToken }))
-  }
+    const storage = localStorage.getItem("refresh_token");
+    const refreshToken = JSON.parse(storage);
+    const res = await UserService.getDetailsUser(id, token);
+    dispatch(updateUser({ ...res?.data, access_token: token, refreshToken }));
+  };
 
   const handleOnchangeEmail = (value) => {
     setEmail(value);
@@ -139,6 +141,7 @@ const SignInPage = () => {
               type={isShowPassword ? "text" : "password"}
               value={password}
               onChange={handleOnchangePassword}
+              onPressEnter={handleSignIn}
             />
           </div>
           {data?.status === "ERR" && (
@@ -149,7 +152,7 @@ const SignInPage = () => {
               disabled={!email.length || !password.length}
               onClick={handleSignIn}
               size={40}
-              styleButton={{
+              buttonStyle={{
                 background: "rgb(255, 57, 69)",
                 height: "48px",
                 width: "100%",
@@ -157,8 +160,8 @@ const SignInPage = () => {
                 borderRadius: "4px",
                 margin: "10px 0 10px",
               }}
-              textbutton={"Đăng nhập"}
-              styleTextButton={{
+              buttonText={"Đăng nhập"}
+              buttonTextStyle={{
                 color: "#fff",
                 fontSize: "15px",
                 fontWeight: "700",
@@ -177,7 +180,7 @@ const SignInPage = () => {
             disabled={false}
             onClick={handleBackToHomePage}
             size={40}
-            styleButton={{
+            buttonStyle={{
               background: "rgb(255, 57, 69)",
               height: "48px",
               width: "100%",
@@ -185,8 +188,8 @@ const SignInPage = () => {
               borderRadius: "4px",
               margin: "26px 0 10px",
             }}
-            textbutton={"Quay lại trang chủ"}
-            styleTextButton={{
+            buttonText={"Quay lại trang chủ"}
+            buttonTextStyle={{
               color: "#fff",
               fontSize: "15px",
               fontWeight: "700",

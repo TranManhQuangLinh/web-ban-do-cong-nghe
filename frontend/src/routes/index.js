@@ -1,3 +1,4 @@
+import AdminPage from "../pages/AdminPage/AdminPage";
 import CategoryPage from "../pages/CategoryPage/CategoryPage";
 import HomePage from "../pages/HomePage/HomePage";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
@@ -36,6 +37,13 @@ export const routes = [
     path: "/product-details/:id",
     page: ProductDetailsPage,
     isShowHeader: true,
+  },
+  {
+    path: "/admin",
+    page: AdminPage,
+    errorPage: NotFoundPage,
+    isShowHeader: false,
+    isPrivate: true,
   },
   {
     path: "*",

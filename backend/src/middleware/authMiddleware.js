@@ -9,7 +9,7 @@ const authAdminMiddleWare = (req, res, next) => {
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
     if (err) {
       return res.status(401).json({
-        message: "authentication error",
+        message: "admin authentication error",
         status: "ERROR",
       });
     }
@@ -18,7 +18,7 @@ const authAdminMiddleWare = (req, res, next) => {
       next();
     } else {
       return res.status(401).json({
-        message: "authentication error",
+        message: "admin authentication error",
         status: "ERROR",
       });
     }
@@ -32,7 +32,7 @@ const authAdminUserMiddleWare = (req, res, next) => {
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
     if (err) {
       return res.status(401).json({
-        message: "authentication error",
+        message: "user admin authentication error",
         status: "ERROR",
       });
     }
@@ -42,7 +42,7 @@ const authAdminUserMiddleWare = (req, res, next) => {
       next();
     } else {
       return res.status(401).json({
-        message: "authentication error",
+        message: "user admin authentication error",
         status: "ERROR",
       });
     }

@@ -6,14 +6,14 @@ import { isJsonString } from "./utils";
 import { jwtDecode } from "jwt-decode";
 import * as UserService from "./services/UserService";
 import { useDispatch, useSelector } from "react-redux";
-import { resetUser, updateUser } from "./redux/slides/userSlide";
+import { resetUser, updateUser } from "./redux/slices/UserSlice";
 import Loading from "./components/LoadingComponent/Loading";
 
 function App() {
   const dispatch = useDispatch();
   const [isPending, setIsPending] = useState(false);
   const user = useSelector((state) => state.user);
-
+  // console.log(user);
   useEffect(() => {
     setIsPending(true);
     const { storageData, decoded } = handleDecoded();
@@ -77,6 +77,12 @@ function App() {
           <Routes>
             {routes.map((route) => {
               const Page = route.page;
+              const ErrorPage = route.errorPage;
+              const checkAuth =
+                !route.isPrivate ||
+                user?.role === "Admin" ||
+                user?.role === "Nhân viên";
+              // console.log("checkAuth", route.path, checkAuth);
               const Layout = route.isShowHeader ? DefaultComponent : Fragment;
               return (
                 <Route
@@ -84,7 +90,7 @@ function App() {
                   path={route.path}
                   element={
                     <Layout>
-                      <Page />
+                      {checkAuth ? <Page /> : <ErrorPage />}
                     </Layout>
                   }
                 />

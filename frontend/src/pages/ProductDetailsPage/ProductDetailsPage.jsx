@@ -2,10 +2,14 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProductDetailsComponent from "../../components/ProductDetailsComponent/ProductDetailsComponent";
 import { Breadcrumb } from "antd";
+import { WrapperBreadcrumbLink } from "./style";
 
 const ProductDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const handleNavigate = url => {
+    navigate(url)
+  }
   return (
     <div style={{ width: "100%", background: "#efefef", height: "100%" }}>
       <div
@@ -19,7 +23,7 @@ const ProductDetailsPage = () => {
         <Breadcrumb
           items={[
             {
-              title: <a href="/">Trang chủ</a>,
+              title: <WrapperBreadcrumbLink onClick={() => handleNavigate("/")}>Trang chủ</WrapperBreadcrumbLink>,
             },
             {
               title: "Chi tiết sản phẩm",

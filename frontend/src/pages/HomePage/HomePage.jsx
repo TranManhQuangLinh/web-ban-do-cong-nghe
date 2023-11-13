@@ -42,17 +42,13 @@ const HomePage = () => {
   const {
     isPending: isPendingCategories,
     data: categories,
-    isPreviousData: isPreviousDataCategories,
   } = useQuery({
-    queryKey: ["categories", limit],
+    queryKey: ["categories"],
     queryFn: fetchAllCategories,
-    retry: 3,
-    retryDelay: 1000,
-    keepPreviousData: true,
   });
   
 
-  console.log(isPendingProducts, isPendingCategories);
+  // console.log(isPendingProducts, isPendingCategories);
 
   return (
     <Loading isPending={isPendingProducts || isPendingCategories}>
@@ -91,12 +87,12 @@ const HomePage = () => {
           </WrapperProducts>
           <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
             <WrapperButtonMore
-              textbutton={isPreviousDataProducts ? 'Load more' : "Xem thêm"} type="outline" styleButton={{
+              buttonText={isPreviousDataProducts ? 'Load more' : "Xem thêm"} type="outline" buttonStyle={{
                 border: `1px solid ${products?.total === products?.data?.length ? '#f5f5f5' : '#9255FD'}`, color: `${products?.total === products?.data?.length ? '#f5f5f5' : '#9255FD'}`,
                 width: '240px', height: '38px', borderRadius: '4px'
               }}
               disabled={products?.total === products?.data?.length || products?.totalPage === 1}
-              styleTextButton={{ fontWeight: 500, color: products?.total === products?.data?.length && '#fff' }}
+              buttonTextStyle={{ fontWeight: 500, color: products?.total === products?.data?.length && '#fff' }}
               onClick={() => setLimit((prev) => prev + 6)}
             />
           </div>

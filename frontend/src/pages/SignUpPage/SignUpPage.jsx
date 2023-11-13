@@ -27,7 +27,7 @@ const SignUpPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const mutation = useMutationHooks((data) => UserService.signUpUser(data));
-  console.log("sign up mutation", mutation);
+  // console.log("sign up mutation", mutation);
 
   const { data, isPending, isSuccess } = mutation;
 
@@ -131,6 +131,7 @@ const SignUpPage = () => {
               type={isShowConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={handleOnchangeConfirmPassword}
+              onPressEnter={handleSignUp}
             />
           </div>
           {data?.status === "ERR" && (
@@ -143,7 +144,7 @@ const SignUpPage = () => {
               }
               onClick={handleSignUp}
               size={40}
-              styleButton={{
+              buttonStyle={{
                 background: "rgb(255, 57, 69)",
                 height: "48px",
                 width: "100%",
@@ -151,8 +152,8 @@ const SignUpPage = () => {
                 borderRadius: "4px",
                 margin: "10px 0 10px",
               }}
-              textbutton={"Đăng ký"}
-              styleTextButton={{
+              buttonText={"Đăng ký"}
+              buttonTextStyle={{
                 color: "#fff",
                 fontSize: "15px",
                 fontWeight: "700",
@@ -170,7 +171,7 @@ const SignUpPage = () => {
             disabled={false}
             onClick={handleBackToHomePage}
             size={40}
-            styleButton={{
+            buttonStyle={{
               background: "rgb(255, 57, 69)",
               height: "48px",
               width: "100%",
@@ -178,8 +179,8 @@ const SignUpPage = () => {
               borderRadius: "4px",
               margin: "7px 0 10px",
             }}
-            textbutton={"Quay lại trang chủ"}
-            styleTextButton={{
+            buttonText={"Quay lại trang chủ"}
+            buttonTextStyle={{
               color: "#fff",
               fontSize: "15px",
               fontWeight: "700",
