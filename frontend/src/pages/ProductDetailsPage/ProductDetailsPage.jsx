@@ -21,6 +21,7 @@ const ProductDetailsPage = () => {
         }}
       >
         <Breadcrumb
+        style={{padding: '10px 0'}}
           items={[
             {
               title: <WrapperBreadcrumbLink onClick={() => handleNavigate("/")}>Trang chủ</WrapperBreadcrumbLink>,

@@ -28,13 +28,13 @@ const AdminCategory = () => {
   const user = useSelector((state) => state?.user);
   const searchInput = useRef(null);
 
-  const [stateCategoryDetails, setStateCategoryDetails] = useState({
+  const [stateCategory, setStateCategory] = useState({
     name: "",
   });
 
   // lấy tất cả category từ db
   const getAllCategories = async () => {
-    const res = await CategoryService.getAllCategories(user?.access_token);
+    const res = await CategoryService.getAllCategories();
     return { data: res?.data, key: "categories" };
   };
 
@@ -90,7 +90,10 @@ const AdminCategory = () => {
             Search
           </Button>
           <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
+            onClick={() => {
+              clearFilters && handleReset(clearFilters);
+              handleSearch(selectedKeys, confirm, dataIndex);
+            }}
             size="small"
             style={{
               width: 90,
@@ -167,7 +170,7 @@ const AdminCategory = () => {
     {
       title: "Tên",
       dataIndex: "name",
-      sorter: (a, b) => a.name.length - b.name.length,
+      sorter: (a, b) => a.name - b.name,
       ...getColumnSearchProps("name"),
     },
     {
@@ -180,7 +183,7 @@ const AdminCategory = () => {
   // reset state khi bấm nút tạo
   useEffect(() => {
     if (isOpenModalCreate) {
-      setStateCategoryDetails({
+      setStateCategory({
         name: "",
       });
     }
@@ -195,12 +198,9 @@ const AdminCategory = () => {
   }, [rowSelected, isOpenModalUpdate]);
 
   const fetchGetDetailsCategory = async (rowSelected, access_token) => {
-    const res = await CategoryService.getDetailsCategory(
-      rowSelected,
-      access_token
-    );
+    const res = await CategoryService.getDetailsCategory(rowSelected);
     if (res?.data) {
-      setStateCategoryDetails({
+      setStateCategory({
         name: res?.data?.name,
       });
     }
@@ -211,12 +211,12 @@ const AdminCategory = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    form.setFieldsValue(stateCategoryDetails);
-  }, [form, stateCategoryDetails]);
+    form.setFieldsValue(stateCategory);
+  }, [form, stateCategory]);
 
   const handleOnchangeDetails = (e) => {
-    setStateCategoryDetails({
-      ...stateCategoryDetails,
+    setStateCategory({
+      ...stateCategory,
       [e.target.name]: e.target.value,
     });
   };
@@ -318,7 +318,7 @@ const AdminCategory = () => {
 
   const handleCreateCategory = () => {
     mutationCreate.mutate(
-      { token: user?.access_token, ...stateCategoryDetails },
+      { token: user?.access_token, ...stateCategory },
       {
         onSettled: () => {
           queryClient.invalidateQueries(["categories"]);
@@ -329,7 +329,7 @@ const AdminCategory = () => {
 
   const handleCloseModalCreate = () => {
     setIsOpenModalCreate(false);
-    setStateCategoryDetails({
+    setStateCategory({
       name: "",
     });
     form.resetFields();
@@ -340,7 +340,7 @@ const AdminCategory = () => {
       {
         id: rowSelected,
         token: user?.access_token,
-        ...stateCategoryDetails,
+        ...stateCategory,
       },
       {
         onSettled: () => {
@@ -352,7 +352,7 @@ const AdminCategory = () => {
 
   const handleCloseModalUpdate = () => {
     setIsOpenModalUpdate(false);
-    setStateCategoryDetails({
+    setStateCategory({
       name: "",
     });
     form.resetFields();
@@ -481,7 +481,7 @@ const AdminCategory = () => {
               rules={[{ required: true, message: "Mời nhập tên!" }]}
             >
               <InputComponent
-                value={stateCategoryDetails.name}
+                value={stateCategory.name}
                 onChange={handleOnchangeDetails}
                 name="name"
               />

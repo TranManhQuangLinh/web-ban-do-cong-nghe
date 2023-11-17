@@ -6,7 +6,9 @@ export const WrapperCategory = styled.div`
     align-items: center;
     gap: 24px;
     justify-content: flex-start;
-    height: 44px;
+    height: 43px;
+    background-color: white;
+    border-radius: 4px;
 `
 
 export const WrapperButtonMore = styled(ButtonComponent)`

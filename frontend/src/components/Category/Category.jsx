@@ -2,13 +2,13 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { WrapperType } from './styled'
 
-const Category = ({ name }) => {
+const Category = ({ category }) => {
   const navigate = useNavigate()
-  const handleNavigatetype = (type) => {
-    navigate(`/category/${type.normalize('NFD').replace(/[\u0300-\u036f]/g, '')?.replace(/ /g, '_')}`, {state: type})
+  const handleNavigate = (id) => {
+    navigate(`/category/${id}`)
   }
   return (
-    <WrapperType onClick={() => handleNavigatetype(name)}>{name}</WrapperType>
+    <WrapperType key={category._id} onClick={() => handleNavigate(category._id)}>{category.name}</WrapperType>
   )
 }
 

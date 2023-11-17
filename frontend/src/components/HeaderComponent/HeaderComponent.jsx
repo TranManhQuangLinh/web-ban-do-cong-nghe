@@ -6,13 +6,9 @@ import {
   WrapperTextHeader,
   WrapperTextHeaderSmall,
 } from "./style";
-import {
-  UserOutlined,
-  CaretDownOutlined,
-  ShoppingCartOutlined,
-} from "@ant-design/icons";
-import ButttonInputSearch from "../ButtonInputSearch/ButttonInputSearch";
-import { Badge, Col, Flex, Popover } from "antd";
+import { CaretDownOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import ButtonInputSearch from "../ButtonInputSearch/ButtonInputSearch";
+import { Badge, Col, Popover } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
@@ -24,57 +20,72 @@ const HeaderComponent = ({
   isHiddenSearch = false,
   isHiddenCart = false,
   isAdminPage = false,
-  style
+  style,
 }) => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const order = useSelector((state) => state.order);
   const dispatch = useDispatch();
-  const [userName, setUserName] = useState("");
-  const [userAvatar, setUserAvatar] = useState("");
-  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isOpenPopover, setIsOpenPopover] = useState(false);
 
-  const content = (
-    <div>
-      <WrapperContentPopup onClick={() => handleClickNavigate("profile")}>
-        Thông tin người dùng
+  const content = () => {
+    if (user.id !== "") {
+      return (
+        <div>
+          <WrapperContentPopup onClick={() => handleClickNavigate("profile")}>
+            Thông tin người dùng
+          </WrapperContentPopup>
+          {(user?.role === "Admin" || user?.role === "Nhân viên") && (
+            <WrapperContentPopup onClick={() => handleClickNavigate("admin")}>
+              Quản lí hệ thống
+            </WrapperContentPopup>
+          )}
+          {user?.role === "Khách hàng" && (
+            <WrapperContentPopup
+              onClick={() => handleClickNavigate(`my-order`)}
+            >
+              Đơn hàng của tôi
+            </WrapperContentPopup>
+          )}
+          <WrapperContentPopup onClick={() => handleClickNavigate()}>
+            Đăng xuất
+          </WrapperContentPopup>
+        </div>
+      );
+    }
+    return (
+      <WrapperContentPopup onClick={handleSignInClick}>
+        Đăng nhập để sử dụng
       </WrapperContentPopup>
-      {(user?.role === "Admin" || user?.role === "Nhân viên") && (
-        <WrapperContentPopup onClick={() => handleClickNavigate("admin")}>
-          Quản lí hệ thống
-        </WrapperContentPopup>
-      )}
-      {user?.role === "Khách hàng" && (
-        <WrapperContentPopup onClick={() => handleClickNavigate(`my-order`)}>
-          Đơn hàng của tôi
-        </WrapperContentPopup>
-      )}
-      <WrapperContentPopup onClick={() => handleClickNavigate()}>
-        Đăng xuất
-      </WrapperContentPopup>
-    </div>
-  );
+    );
+  };
 
   const handleClickNavigate = (type) => {
-    if (type === "profile") {
-      navigate("/profile-user");
-    } else if (type === "admin") {
-      navigate("/admin");
-    } else if (type === "my-order") {
-      navigate("/my-order", {
-        state: {
-          id: user?.id,
-          token: user?.access_token,
-        },
-      });
-    } else {
-      handleLogout();
-      if (isAdminPage) navigate("/");
+    switch (type) {
+      case "profile":
+        navigate("/profile-user");
+        break;
+      case "admin":
+        navigate("/admin");
+        break;
+      case "my-order":
+        navigate("/my-order", {
+          state: {
+            id: user?.id,
+            token: user?.access_token,
+          },
+        });
+        break;
+      default:
+        handleLogout();
+        if (isAdminPage) navigate("/");
+        break;
     }
   };
 
   const handleLogout = async () => {
+    setIsOpenPopover(false);
     setLoading(true);
     await UserService.logout();
     dispatch(resetUser());
@@ -86,6 +97,10 @@ const HeaderComponent = ({
   };
   const handleSignUpClick = () => {
     navigate("/sign-up");
+  };
+  const handleCartClick = () => {
+    if (user?.id !== "") navigate("/cart");
+    else handleSignInClick();
   };
 
   return (
@@ -110,7 +125,7 @@ const HeaderComponent = ({
         </Col>
         {!isHiddenSearch && (
           <Col span={13}>
-            <ButttonInputSearch
+            <ButtonInputSearch
               size="large"
               bordered={false}
               buttonText="Tìm kiếm"
@@ -128,11 +143,16 @@ const HeaderComponent = ({
           }}
         >
           <Loading isPending={loading}>
-            <Popover content={content} trigger="click">
+            <Popover
+              content={content}
+              trigger="click"
+              open={isOpenPopover}
+              onOpenChange={(newOpen) => setIsOpenPopover(newOpen)}
+            >
               <WrapperHeaderAccount>
-                {userAvatar ? (
+                {user?.avatar ? (
                   <img
-                    src={userAvatar}
+                    src={user?.avatar}
                     alt="avatar"
                     style={{
                       height: "30px",
@@ -156,7 +176,7 @@ const HeaderComponent = ({
                       textOverflow: "ellipsis",
                     }}
                   >
-                    {userName?.length ? userName : user?.email}
+                    {user?.name?.length ? user?.name : user?.email}
                   </div>
                 ) : (
                   <div>
@@ -167,10 +187,6 @@ const HeaderComponent = ({
                     <WrapperTextHeaderSmall onClick={handleSignUpClick}>
                       Đăng ký
                     </WrapperTextHeaderSmall>
-                    <div>
-                      <WrapperTextHeaderSmall>Tài khoản</WrapperTextHeaderSmall>
-                      <CaretDownOutlined />
-                    </div>
                   </div>
                 )}
               </WrapperHeaderAccount>
@@ -178,7 +194,7 @@ const HeaderComponent = ({
           </Loading>
           {!isHiddenCart && (
             <div
-              onClick={() => navigate("/order")}
+              onClick={handleCartClick}
               style={{
                 cursor: "pointer",
                 display: "flex",

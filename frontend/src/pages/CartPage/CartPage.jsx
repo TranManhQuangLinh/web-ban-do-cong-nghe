@@ -9,7 +9,6 @@ import {
   WrapperListOrder,
   WrapperRight,
   WrapperStyleHeader,
-  WrapperStyleHeaderDilivery,
   WrapperTotal,
 } from "./style";
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
@@ -34,9 +33,8 @@ import Loading from "../../components/LoadingComponent/Loading";
 import * as message from "../../components/Message/Message";
 import { updateUser } from "../../redux/slices/UserSlice";
 import { useNavigate } from "react-router-dom";
-import StepComponent from "../../components/StepConponent/StepComponent";
 
-const OrderPage = () => {
+const CartPage = () => {
   const order = useSelector((state) => state.order);
   const user = useSelector((state) => state.user);
 
@@ -46,7 +44,6 @@ const OrderPage = () => {
     name: "",
     phone: "",
     address: "",
-    city: "",
   });
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -102,7 +99,6 @@ const OrderPage = () => {
   useEffect(() => {
     if (isOpenModalUpdateInfo) {
       setStateUserDetails({
-        city: user?.city,
         name: user?.name,
         address: user?.address,
         phone: user?.phone,
@@ -172,24 +168,23 @@ const OrderPage = () => {
 
   const { isPending, data } = mutationUpdate;
 
-  const handleCancleUpdate = () => {
+  const handleCancelUpdate = () => {
     setStateUserDetails({
       name: "",
       email: "",
       phone: "",
-      isAdmin: false,
     });
     form.resetFields();
     setIsOpenModalUpdateInfo(false);
   };
-  const handleUpdateInforUser = () => {
-    const { name, address, city, phone } = stateUserDetails;
-    if (name && address && city && phone) {
+  const handleUpdateInfoUser = () => {
+    const { name, address, phone } = stateUserDetails;
+    if (name && address && phone) {
       mutationUpdate.mutate(
         { id: user?.id, token: user?.access_token, ...stateUserDetails },
         {
           onSuccess: () => {
-            dispatch(updateUser({ name, address, city, phone }));
+            dispatch(updateUser({ name, address, phone }));
             setIsOpenModalUpdateInfo(false);
           },
         }
@@ -203,40 +198,13 @@ const OrderPage = () => {
       [e.target.name]: e.target.value,
     });
   };
-  const itemsDelivery = [
-    {
-      title: "20.000 VND",
-      description: "Dưới 200.000 VND",
-    },
-    {
-      title: "10.000 VND",
-      description: "Từ 200.000 VND đến dưới 500.000 VND",
-    },
-    {
-      title: "Free ship",
-      description: "Trên 500.000 VND",
-    },
-  ];
+  
   return (
     <div style={{ background: "#f5f5fa", with: "100%", height: "100vh" }}>
       <div style={{ height: "100%", width: "1270px", margin: "0 auto" }}>
-        <h3 style={{ fontWeight: "bold" }}>Giỏ hàng</h3>
+        <h2 style={{ padding: "10px 0" }}>Giỏ hàng</h2>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <WrapperLeft>
-            <WrapperStyleHeaderDilivery>
-              <StepComponent
-                items={itemsDelivery}
-                current={
-                  diliveryPriceMemo === 10000
-                    ? 2
-                    : diliveryPriceMemo === 20000
-                    ? 1
-                    : order.orderItemsSelected.length === 0
-                    ? 0
-                    : 3
-                }
-              />
-            </WrapperStyleHeaderDilivery>
             <WrapperStyleHeader>
               <span style={{ display: "inline-block", width: "390px" }}>
                 <CustomCheckbox
@@ -490,22 +458,22 @@ const OrderPage = () => {
       <ModalComponent
         title="Cập nhật thông tin giao hàng"
         open={isOpenModalUpdateInfo}
-        onCancel={handleCancleUpdate}
-        onOk={handleUpdateInforUser}
+        onCancel={handleCancelUpdate}
+        onOk={() => form.submit()}
       >
         <Loading isPending={isPending}>
           <Form
             name="basic"
-            labelCol={{ span: 4 }}
-            wrapperCol={{ span: 20 }}
-            // onFinish={handleUpdateUser}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            onFinish={handleUpdateInfoUser}
             autoComplete="on"
             form={form}
           >
             <Form.Item
-              label="Name"
+              label="Tên"
               name="name"
-              rules={[{ required: true, message: "Please input your name!" }]}
+              rules={[{ required: true, message: "Mời nhập tên!" }]}
             >
               <InputComponent
                 value={stateUserDetails["name"]}
@@ -513,21 +481,11 @@ const OrderPage = () => {
                 name="name"
               />
             </Form.Item>
+            
             <Form.Item
-              label="City"
-              name="city"
-              rules={[{ required: true, message: "Please input your city!" }]}
-            >
-              <InputComponent
-                value={stateUserDetails["city"]}
-                onChange={handleOnchangeDetails}
-                name="city"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Phone"
+              label="Số điện thoại"
               name="phone"
-              rules={[{ required: true, message: "Please input your  phone!" }]}
+              rules={[{ required: true, message: "Mời nhập số điện thoại!" }]}
             >
               <InputComponent
                 value={stateUserDetails.phone}
@@ -537,10 +495,10 @@ const OrderPage = () => {
             </Form.Item>
 
             <Form.Item
-              label="Address"
+              label="Địa chỉ"
               name="address"
               rules={[
-                { required: true, message: "Please input your  address!" },
+                { required: true, message: "Mời nhập địa chỉ!" },
               ]}
             >
               <InputComponent
@@ -556,4 +514,4 @@ const OrderPage = () => {
   );
 };
 
-export default OrderPage;
+export default CartPage;

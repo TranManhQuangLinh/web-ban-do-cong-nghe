@@ -38,15 +38,11 @@ const HomePage = () => {
     retryDelay: 1000,
     keepPreviousData: true,
   });
-  
-  const {
-    isPending: isPendingCategories,
-    data: categories,
-  } = useQuery({
+
+  const { isPending: isPendingCategories, data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchAllCategories,
   });
-  
 
   // console.log(isPendingProducts, isPendingCategories);
 
@@ -54,8 +50,9 @@ const HomePage = () => {
     <Loading isPending={isPendingProducts || isPendingCategories}>
       <div style={{ width: "1270px", margin: "0 auto" }}>
         <WrapperCategory>
+          <h3 style={{marginLeft: "10px"}}>Danh mục:</h3>
           {categories?.data?.map((item) => {
-            return <Category name={item.name} key={item.name} />;
+            return <Category category={item} key={item._id} />;
           })}
         </WrapperCategory>
       </div>
@@ -85,14 +82,40 @@ const HomePage = () => {
               );
             })}
           </WrapperProducts>
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "10px",
+            }}
+          >
             <WrapperButtonMore
-              buttonText={isPreviousDataProducts ? 'Load more' : "Xem thêm"} type="outline" buttonStyle={{
-                border: `1px solid ${products?.total === products?.data?.length ? '#f5f5f5' : '#9255FD'}`, color: `${products?.total === products?.data?.length ? '#f5f5f5' : '#9255FD'}`,
-                width: '240px', height: '38px', borderRadius: '4px'
+              buttonText={isPreviousDataProducts ? "Load more" : "Xem thêm"}
+              type="outline"
+              buttonStyle={{
+                border: `1px solid ${
+                  products?.total === products?.data?.length
+                    ? "#f5f5f5"
+                    : "#9255FD"
+                }`,
+                color: `${
+                  products?.total === products?.data?.length
+                    ? "#f5f5f5"
+                    : "#9255FD"
+                }`,
+                width: "240px",
+                height: "38px",
+                borderRadius: "4px",
               }}
-              disabled={products?.total === products?.data?.length || products?.totalPage === 1}
-              buttonTextStyle={{ fontWeight: 500, color: products?.total === products?.data?.length && '#fff' }}
+              disabled={
+                products?.total === products?.data?.length ||
+                products?.totalPage === 1
+              }
+              buttonTextStyle={{
+                fontWeight: 500,
+                color: products?.total === products?.data?.length && "#fff",
+              }}
               onClick={() => setLimit((prev) => prev + 6)}
             />
           </div>

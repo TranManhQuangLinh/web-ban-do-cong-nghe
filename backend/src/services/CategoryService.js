@@ -38,7 +38,7 @@ const updateCategory = (id, data) => {
       if (checkCategory === null) {
         resolve({
           status: "ERR",
-          message: "category is not defined",
+          message: "category not found",
         });
       }
 
@@ -77,7 +77,7 @@ const deleteCategory = (id) => {
       if (checkCategory === null) {
         resolve({
           status: "ERR",
-          message: "category is not defined",
+          message: "category not found",
         });
       }
 
@@ -134,7 +134,7 @@ const getDetailsCategory = (id) => {
       if (category === null) {
         resolve({
           status: "ERR",
-          message: "category is not defined",
+          message: "category not found",
         });
       }
       resolve({

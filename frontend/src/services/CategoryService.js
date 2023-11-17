@@ -1,25 +1,15 @@
 import { axiosJWT } from "./UserService";
 
-export const getAllCategories = async (access_token) => {
+export const getAllCategories = async () => {
   const res = await axiosJWT.get(
-    `${process.env.REACT_APP_API_URL}/category/get-all-categories`,
-    {
-      headers: {
-        token: `Bearer ${access_token}`,
-      },
-    }
+    `${process.env.REACT_APP_API_URL}/category/get-all-categories`
   );
   return res.data;
 };
 
-export const getDetailsCategory = async (id, access_token) => {
+export const getDetailsCategory = async (id) => {
   const res = await axiosJWT.get(
-    `${process.env.REACT_APP_API_URL}/category/get-details-category/${id}`,
-    {
-      headers: {
-        token: `Bearer ${access_token}`,
-      },
-    }
+    `${process.env.REACT_APP_API_URL}/category/get-details-category/${id}`
   );
   return res.data;
 };

@@ -1,16 +1,17 @@
-import { Input } from 'antd'
-import React from 'react'
+import { Input } from 'antd';
+import React, { forwardRef } from 'react';
 
-const InputComponent = ({size, placeholder, bordered, style, ...rests }) => {
+const InputComponent = forwardRef(({ size, placeholder, bordered, style, ...rests }, ref) => {
   return (
-    <Input 
-        size={size} 
-        placeholder={placeholder} 
-        bordered={bordered} 
-        style={style}
-        {...rests} 
+    <Input
+      ref={ref}
+      size={size}
+      placeholder={placeholder}
+      bordered={bordered}
+      style={style}
+      {...rests}
     />
-  )
-}
+  );
+});
 
-export default InputComponent
+export default InputComponent;

@@ -84,7 +84,7 @@ const updateUser = (id, data, loggedInUserRole) => {
       if (checkUser === null) {
         resolve({
           status: "ERR",
-          message: "user is not defined",
+          message: "user not found",
         });
       }
       if (data.email) {
@@ -125,7 +125,7 @@ const deleteUser = (id) => {
       if (checkUser === null) {
         resolve({
           status: "ERR",
-          message: "user is not defined",
+          message: "user not found",
         });
       }
 
@@ -178,7 +178,7 @@ const getDetailsUser = (id) => {
       if (user === null) {
         resolve({
           status: "ERR",
-          message: "user is not defined",
+          message: "user not found",
         });
       }
       resolve({

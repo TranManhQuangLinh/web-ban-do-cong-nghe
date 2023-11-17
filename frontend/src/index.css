@@ -8,6 +8,15 @@
   /* --primary-color: #9255FD; */
 }
 
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 0;
+  color: rgb(11, 116, 229);
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -18,5 +27,8 @@ body {
 }
 
 html {
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  background-color: #efefef;
   /* font-size: 62.5%; */
 }

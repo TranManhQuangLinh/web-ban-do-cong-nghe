@@ -15,7 +15,7 @@ import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as ShippingPriceService from "../../services/ShippingPriceService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SearchOutlined } from "@ant-design/icons";
-import { convertPrice } from "../../utils";
+import { convertPrice, validateNumber } from "../../utils";
 
 const AdminShippingPrice = () => {
   const queryClient = useQueryClient();
@@ -29,7 +29,7 @@ const AdminShippingPrice = () => {
   const user = useSelector((state) => state?.user);
   const searchInput = useRef(null);
 
-  const [stateShippingPriceDetails, setStateShippingPriceDetails] = useState({
+  const [stateShippingPrice, setStateShippingPrice] = useState({
     maxOrderAmount: "",
     shippingFee: "",
   });
@@ -103,7 +103,10 @@ const AdminShippingPrice = () => {
             Search
           </Button>
           <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
+            onClick={() => {
+              clearFilters && handleReset(clearFilters);
+              handleSearch(selectedKeys, confirm, dataIndex);
+            }}
             size="small"
             style={{
               width: 90,
@@ -199,7 +202,7 @@ const AdminShippingPrice = () => {
   // reset state khi bấm nút tạo
   useEffect(() => {
     if (isOpenModalCreate) {
-      setStateShippingPriceDetails({
+      setStateShippingPrice({
         maxOrderAmount: "",
         shippingFee: "",
       });
@@ -220,7 +223,7 @@ const AdminShippingPrice = () => {
       access_token
     );
     if (res?.data) {
-      setStateShippingPriceDetails({
+      setStateShippingPrice({
         maxOrderAmount: res?.data?.maxOrderAmount,
         shippingFee: res?.data?.shippingFee,
       });
@@ -232,25 +235,16 @@ const AdminShippingPrice = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    form.setFieldsValue(stateShippingPriceDetails);
-  }, [form, stateShippingPriceDetails]);
+    form.setFieldsValue(stateShippingPrice);
+  }, [form, stateShippingPrice]);
 
   const handleOnchangeDetails = (e) => {
-    setStateShippingPriceDetails({
-      ...stateShippingPriceDetails,
+    setStateShippingPrice({
+      ...stateShippingPrice,
       [e.target.name]: e.target.value,
     });
   };
 
-  const validateNumber = (rule, value) => {
-    return new Promise((resolve, reject) => {
-      if (isNaN(value)) {
-        reject("Please enter a valid number");
-      } else {
-        resolve();
-      }
-    });
-  };
 
   // call api thêm sửa, xóa
   const mutationCreate = useMutationHooks((data) => {
@@ -354,7 +348,7 @@ const AdminShippingPrice = () => {
 
   const handleCreateShippingPrice = () => {
     mutationCreate.mutate(
-      { token: user?.access_token, ...stateShippingPriceDetails },
+      { token: user?.access_token, ...stateShippingPrice },
       {
         onSettled: () => {
           queryClient.invalidateQueries(["shipping prices"]);
@@ -365,7 +359,7 @@ const AdminShippingPrice = () => {
 
   const handleCloseModalCreate = () => {
     setIsOpenModalCreate(false);
-    setStateShippingPriceDetails({
+    setStateShippingPrice({
       maxOrderAmount: "",
       shippingFee: "",
     });
@@ -377,7 +371,7 @@ const AdminShippingPrice = () => {
       {
         id: rowSelected,
         token: user?.access_token,
-        ...stateShippingPriceDetails,
+        ...stateShippingPrice,
       },
       {
         onSettled: () => {
@@ -389,7 +383,7 @@ const AdminShippingPrice = () => {
 
   const handleCloseModalUpdate = () => {
     setIsOpenModalUpdate(false);
-    setStateShippingPriceDetails({
+    setStateShippingPrice({
       maxOrderAmount: "",
       shippingFee: "",
     });
@@ -510,6 +504,8 @@ const AdminShippingPrice = () => {
           30.000đ
           <br />
           Hóa đơn từ 1.000.000đ trở lên có phí giao hàng là 0đ
+          <br />
+          Mức giá tối đa để trống tương đương với MAX
         </div>
       </div>
 
@@ -550,7 +546,7 @@ const AdminShippingPrice = () => {
               ]}
             >
               <InputComponent
-                value={stateShippingPriceDetails.maxOrderAmount}
+                value={stateShippingPrice.maxOrderAmount}
                 onChange={handleOnchangeDetails}
                 name="maxOrderAmount"
               />
@@ -567,7 +563,7 @@ const AdminShippingPrice = () => {
               ]}
             >
               <InputComponent
-                value={stateShippingPriceDetails.shippingFee}
+                value={stateShippingPrice.shippingFee}
                 onChange={handleOnchangeDetails}
                 name="shippingFee"
               />

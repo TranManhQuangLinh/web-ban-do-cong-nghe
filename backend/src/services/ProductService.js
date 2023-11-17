@@ -52,7 +52,7 @@ const updateProduct = (id, data) => {
       if (checkProduct === null) {
         resolve({
           status: "ERR",
-          message: "The product is not defined",
+          message: "product not found",
         });
       }
       if ((data.name || data.image) && checkProduct.sold !== 0) {
@@ -87,7 +87,7 @@ const deleteProduct = (id) => {
       if (checkProduct === null) {
         resolve({
           status: "ERR",
-          message: "The product is not defined",
+          message: "product not found",
         });
       }
 
@@ -125,7 +125,7 @@ const getDetailsProduct = (id) => {
       if (product === null) {
         resolve({
           status: "ERR",
-          message: "The product is not defined",
+          message: "product not found",
         });
       }
 

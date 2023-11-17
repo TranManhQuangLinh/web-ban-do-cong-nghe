@@ -36,7 +36,7 @@ const updateShippingPrice = (id, data) => {
       if (checkShippingPrice === null) {
         resolve({
           status: "ERR",
-          message: "shippingPrice is not defined",
+          message: "shippingPrice not found",
         });
       }
 
@@ -78,11 +78,11 @@ const deleteShippingPrice = (id) => {
       const checkShippingPrice = await ShippingPrice.findOne({
         _id: id,
       });
-      console.log("checkShippingPrice", checkShippingPrice);
+      // console.log("checkShippingPrice", checkShippingPrice);
       if (checkShippingPrice === null) {
         resolve({
           status: "ERR",
-          message: "shippingPrice is not defined",
+          message: "shippingPrice not found",
         });
       }
 
@@ -139,7 +139,7 @@ const getDetailsShippingPrice = (id) => {
       if (shippingPrice === null) {
         resolve({
           status: "ERR",
-          message: "shippingPrice is not defined",
+          message: "shippingPrice not found",
         });
       }
       resolve({

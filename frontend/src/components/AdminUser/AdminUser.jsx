@@ -1,5 +1,5 @@
 import { Button, Form, Select, Space } from "antd";
-import React from "react";
+import React, { useRef } from "react";
 import { WrapperHeader, WrapperUploadFile } from "./style";
 import TableComponent from "../TableComponent/TableComponent";
 import InputComponent from "../InputComponent/InputComponent";
@@ -11,7 +11,6 @@ import { useEffect } from "react";
 import * as message from "../../components/Message/Message";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useRef } from "react";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as UserService from "../../services/UserService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -28,9 +27,9 @@ const AdminUser = () => {
   const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
   const [isOpenModalDeleteMany, setIsOpenModalDeleteMany] = useState(false);
   const user = useSelector((state) => state?.user);
-  const searchInput = useRef(null);
+  const searchInput = useRef();
 
-  const [stateUserDetails, setStateUserDetails] = useState({
+  const [stateUser, setStateUser] = useState({
     email: "",
     password: "",
     role: "",
@@ -58,7 +57,15 @@ const AdminUser = () => {
     users?.data?.map((user) => {
       return { ...user, key: user._id };
     });
-    
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+  };
+
   // search dropdown
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -99,7 +106,10 @@ const AdminUser = () => {
             Search
           </Button>
           <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
+            onClick={() => {
+              clearFilters && handleReset(clearFilters);
+              handleSearch(selectedKeys, confirm, dataIndex);
+            }}
             size="small"
             style={{
               width: 90,
@@ -125,14 +135,6 @@ const AdminUser = () => {
       }
     },
   });
-
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-  };
-
-  const handleReset = (clearFilters) => {
-    clearFilters();
-  };
 
   const renderAction = () => {
     return (
@@ -213,7 +215,7 @@ const AdminUser = () => {
   // reset state khi bấm nút tạo
   useEffect(() => {
     if (isOpenModalCreate) {
-      setStateUserDetails({
+      setStateUser({
         email: "",
         password: "",
         role: "",
@@ -237,7 +239,7 @@ const AdminUser = () => {
   const fetchGetDetailsUser = async (rowSelected, access_token) => {
     const res = await UserService.getDetailsUser(rowSelected, access_token);
     if (res?.data) {
-      setStateUserDetails({
+      setStateUser({
         email: res?.data?.email,
         password: res?.data?.password,
         role: res?.data?.role,
@@ -255,12 +257,12 @@ const AdminUser = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    form.setFieldsValue(stateUserDetails);
-  }, [form, stateUserDetails]);
+    form.setFieldsValue(stateUser);
+  }, [form, stateUser]);
 
   const handleOnchangeDetails = (e) => {
-    setStateUserDetails({
-      ...stateUserDetails,
+    setStateUser({
+      ...stateUser,
       [e.target.name]: e.target.value,
     });
   };
@@ -270,8 +272,8 @@ const AdminUser = () => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
     }
-    setStateUserDetails({
-      ...stateUserDetails,
+    setStateUser({
+      ...stateUser,
       avatar: file.preview,
     });
   };
@@ -373,7 +375,7 @@ const AdminUser = () => {
 
   const handleCreateUser = () => {
     mutationCreate.mutate(
-      { token: user?.access_token, ...stateUserDetails },
+      { token: user?.access_token, ...stateUser },
       {
         onSettled: () => {
           queryClient.invalidateQueries(["users"]);
@@ -384,7 +386,7 @@ const AdminUser = () => {
 
   const handleCloseModalCreate = () => {
     setIsOpenModalCreate(false);
-    setStateUserDetails({
+    setStateUser({
       email: "",
       password: "",
       role: "",
@@ -399,7 +401,7 @@ const AdminUser = () => {
 
   const handleUpdateUser = () => {
     mutationUpdate.mutate(
-      { id: rowSelected, token: user?.access_token, ...stateUserDetails },
+      { id: rowSelected, token: user?.access_token, ...stateUser },
       {
         onSettled: () => {
           queryClient.invalidateQueries(["users"]);
@@ -410,7 +412,7 @@ const AdminUser = () => {
 
   const handleCloseModalUpdate = () => {
     setIsOpenModalUpdate(false);
-    setStateUserDetails({
+    setStateUser({
       email: "",
       password: "",
       role: "",
@@ -545,13 +547,13 @@ const AdminUser = () => {
                 rules={[{ required: true, message: "Mời nhập email!" }]}
               >
                 <InputComponent
-                  value={stateUserDetails.email}
+                  value={stateUser.email}
                   onChange={handleOnchangeDetails}
                   name="email"
                 />
               </Form.Item>
             ) : (
-              <Form.Item label="Email">{stateUserDetails.email}</Form.Item>
+              <Form.Item label="Email">{stateUser.email}</Form.Item>
             )}
 
             <Form.Item
@@ -560,7 +562,7 @@ const AdminUser = () => {
               rules={[{ required: true, message: "Mời nhập mật khẩu!" }]}
             >
               <InputComponent
-                value={stateUserDetails.password}
+                value={stateUser.password}
                 onChange={handleOnchangeDetails}
                 name="password"
               />
@@ -572,7 +574,7 @@ const AdminUser = () => {
               rules={[{ required: true, message: "Mời chọn vai trò!" }]}
             >
               <Select
-                value={stateUserDetails.role}
+                value={stateUser.role}
                 onChange={(value) =>
                   handleOnchangeDetails({ target: { name: "role", value } })
                 }
@@ -586,7 +588,7 @@ const AdminUser = () => {
 
             <Form.Item label="Tên" name="name">
               <InputComponent
-                value={stateUserDetails.name}
+                value={stateUser.name}
                 onChange={handleOnchangeDetails}
                 name="name"
               />
@@ -594,7 +596,7 @@ const AdminUser = () => {
 
             <Form.Item label="Ngày sinh" name="dateOfBirth">
               <InputComponent
-                value={stateUserDetails.dateOfBirth}
+                value={stateUser.dateOfBirth}
                 onChange={handleOnchangeDetails}
                 name="dateOfBirth"
               />
@@ -602,7 +604,7 @@ const AdminUser = () => {
 
             <Form.Item label="Số điện thoại" name="phone">
               <InputComponent
-                value={stateUserDetails.phone}
+                value={stateUser.phone}
                 onChange={handleOnchangeDetails}
                 name="phone"
               />
@@ -610,7 +612,7 @@ const AdminUser = () => {
 
             <Form.Item label="Địa chỉ" name="address">
               <InputComponent
-                value={stateUserDetails.address}
+                value={stateUser.address}
                 onChange={handleOnchangeDetails}
                 name="address"
               />
@@ -621,10 +623,9 @@ const AdminUser = () => {
                 onChange={handleOnchangeAvatarDetails}
                 maxCount={1}
               >
-                <Button>Select File</Button>
-                {stateUserDetails?.avatar && (
+                {stateUser?.avatar && (
                   <img
-                    src={stateUserDetails?.avatar}
+                    src={stateUser?.avatar}
                     style={{
                       height: "60px",
                       width: "60px",
@@ -635,6 +636,7 @@ const AdminUser = () => {
                     alt="avatar"
                   />
                 )}
+                <Button>Chọn ảnh</Button>
               </WrapperUploadFile>
             </Form.Item>
           </Form>

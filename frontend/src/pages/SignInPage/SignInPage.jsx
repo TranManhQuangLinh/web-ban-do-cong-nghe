@@ -53,11 +53,9 @@ const SignInPage = () => {
         message.success("Đăng nhập thành công");
         if (location?.state) {
           navigate(location?.state);
-        }
-        else if(decoded.role === "Admin" || decoded.role === "Nhân viên"){
-          navigate("/admin")
-        }
-        else {
+        } else if (decoded.role === "Admin" || decoded.role === "Nhân viên") {
+          navigate("/admin");
+        } else {
           navigate("/");
         }
       } else {
@@ -90,7 +88,7 @@ const SignInPage = () => {
   };
 
   const handleSignIn = () => {
-    console.log("signing in");
+    // console.log("signing in");
     mutation.mutate({
       email,
       password,

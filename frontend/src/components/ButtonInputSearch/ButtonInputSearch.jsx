@@ -3,7 +3,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import InputComponent from "../InputComponent/InputComponent";
 import ButtonComponent from "../ButtonComponent/ButtonComponent";
 
-const ButttonInputSearch = (props) => {
+const ButtonInputSearch = (props) => {
   const {
     size,
     placeholder,
@@ -13,7 +13,13 @@ const ButttonInputSearch = (props) => {
     backgroundColorButton = "rgb(13, 92, 182)",
     colorButton = "#fff",
   } = props;
-
+  // <ButtonInputSearch
+  //   size="large"
+  //   bordered={false}
+  //   buttonText="Tìm kiếm"
+  //   placeholder="Tìm kiếm sản phẩm"
+  //   backgroundColorButton="var(--button-search-color)"
+  // />;
   return (
     <div style={{ display: "flex" }}>
       <InputComponent
@@ -21,7 +27,6 @@ const ButttonInputSearch = (props) => {
         placeholder={placeholder}
         bordered={bordered}
         style={{ backgroundColor: backgroundColorInput }}
-        {...props}
       />
       <ButtonComponent
         size={size}
@@ -37,4 +42,4 @@ const ButttonInputSearch = (props) => {
   );
 };
 
-export default ButttonInputSearch;
+export default ButtonInputSearch;

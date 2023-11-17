@@ -1,188 +1,95 @@
-import { Button, Form, Select, Space } from 'antd'
-import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons'
-import React, { useRef } from 'react'
-import { WrapperHeader, WrapperUploadFile } from './style'
-import TableComponent from '../TableComponent/TableComponent'
-import { useState } from 'react'
-import InputComponent from '../InputComponent/InputComponent'
-import { getBase64 } from '../../utils'
-import * as ProductService from '../../services/ProductService'
-import { useMutationHooks } from '../../hooks/useMutationHook'
-import Loading from '../../components/LoadingComponent/Loading'
-import { useEffect } from 'react'
-import * as message from '../../components/Message/Message'
-import { useQuery } from '@tanstack/react-query'
-import DrawerComponent from '../DrawerComponent/DrawerComponent'
-import { useSelector } from 'react-redux'
-import ModalComponent from '../ModalComponent/ModalComponent'
+import { Button, Form, Select, Space } from "antd";
+import React, { useRef } from "react";
+import { WrapperHeader, WrapperUploadFile } from "./style";
+import TableComponent from "../TableComponent/TableComponent";
+import InputComponent from "../InputComponent/InputComponent";
+import Loading from "../LoadingComponent/Loading";
+import ButtonComponent from "../ButtonComponent/ButtonComponent";
+import ModalComponent from "../ModalComponent/ModalComponent";
+import { getBase64, validateNumber } from "../../utils";
+import { useEffect } from "react";
+import * as message from "../../components/Message/Message";
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { useMutationHooks } from "../../hooks/useMutationHook";
+import * as ProductService from "../../services/ProductService";
+import * as CategoryService from "../../services/CategoryService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { SearchOutlined } from "@ant-design/icons";
+import { Option } from "antd/es/mentions";
 
 const AdminProduct = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [rowSelected, setRowSelected] = useState('')
-  const [isOpenDrawer, setIsOpenDrawer] = useState(false)
-  const [isPendingUpdate, setIsPendingUpdate] = useState(false)
-  const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
-  const user = useSelector((state) => state?.user)
-  const searchInput = useRef(null);
-  const initStateProduct = () => ({
-    name: '',
-    price: '',
-    description: '',
-    rating: '',
-    image: '',
-    type: '',
-    quantityInStock: '',
-    newType: '',
-    discount: '',
-  })
-  const [stateProduct, setStateProduct] = useState(initStateProduct())
-  const [stateProductDetails, setStateProductDetails] = useState(initStateProduct())
+  const queryClient = useQueryClient();
+  const [rowSelected, setRowSelected] = useState("");
+  const [rowSelectedKeys, setRowSelectedKeys] = useState([]);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(false);
+  const [isOpenModalCreate, setIsOpenModalCreate] = useState(false);
+  const [isOpenModalUpdate, setIsOpenModalUpdate] = useState(false);
+  const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
+  const [isOpenModalDeleteMany, setIsOpenModalDeleteMany] = useState(false);
+  const user = useSelector((state) => state?.user);
+  const searchInput = useRef();
 
-  const [form] = Form.useForm();
+  const [stateProduct, setStateProduct] = useState({
+    name: "",
+    image: "",
+    category: "",
+    price: "",
+    quantityInStock: "",
+    discount: "",
+    description: "",
+    sold: "",
+  });
 
-  const mutation = useMutationHooks(
-    (data) => {
-      const { name,
-        price,
-        description,
-        rating,
-        image,
-        type,
-        quantityInStock,discount } = data
-      const res = ProductService.createProduct({
-        name,
-        price,
-        description,
-        rating,
-        image,
-        type,
-        quantityInStock,
-        discount
-      })
-      return res
-    }
-  )
-  const mutationUpdate = useMutationHooks(
-    (data) => {
-      const { id,
-        token,
-        ...rests } = data
-      const res = ProductService.updateProduct(
-        id,
-        token,
-        { ...rests })
-      return res
-    },
-  )
+  // console.log(stateProduct.category);
 
-  const mutationDeleted = useMutationHooks(
-    (data) => {
-      const { id,
-        token,
-      } = data
-      const res = ProductService.deleteProduct(
-        id,
-        token)
-      return res
-    },
-  )
-
-  const mutationDeletedMany = useMutationHooks(
-    (data) => {
-      const { token, ...ids
-      } = data
-      const res = ProductService.deleteManyProducts(
-        ids,
-        token)
-      return res
-    },
-  )
-
+  // lấy tất cả product từ db
   const getAllProducts = async () => {
-    const res = await ProductService.getAllProducts()
-    return res
-  }
+    const res = await ProductService.getAllProducts();
+    return { data: res?.data, key: "products" };
+  };
 
-  const fetchGetDetailsProduct = async (rowSelected) => {
-    const res = await ProductService.getDetailsProduct(rowSelected)
-    if (res?.data) {
-      setStateProductDetails({
-        name: res?.data?.name,
-        price: res?.data?.price,
-        description: res?.data?.description,
-        rating: res?.data?.rating,
-        image: res?.data?.image,
-        type: res?.data?.type,
-        quantityInStock: res?.data?.quantityInStock,
-        discount: res?.data?.discount
-      })
-    }
-    setIsPendingUpdate(false)
-  }
+  const { data: products, isPending: isPendingProducts } = useQuery({
+    queryKey: ["products"],
+    queryFn: getAllProducts,
+  });
+  // console.log(products);
 
-  useEffect(() => {
-    if(!isModalOpen) {
-      form.setFieldsValue(stateProductDetails)
-    }else {
-      form.setFieldsValue(initStateProduct())
-    }
-  }, [form, stateProductDetails, isModalOpen])
+  // lấy tất cả category từ db
+  const getAllCategories = async () => {
+    const res = await CategoryService.getAllCategories();
+    return { data: res?.data, key: "categories" };
+  };
 
-  useEffect(() => {
-    if (rowSelected && isOpenDrawer) {
-      setIsPendingUpdate(true)
-      fetchGetDetailsProduct(rowSelected)
-    }
-  }, [rowSelected, isOpenDrawer])
+  const { data: categories, isPending: isPendingCategories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getAllCategories,
+  });
+  // console.log(categories);
 
-  const handleDetailsProduct = () => {
-    setIsOpenDrawer(true)
-  }
-
-  const handleDeleteManyProducts = (ids) => {
-    mutationDeletedMany.mutate({ ids: ids, token: user?.access_token }, {
-      onSettled: () => {
-        queryProduct.refetch()
-      }
-    })
-  }
-
-  // const fetchAllTypeProduct = async () => {
-  //   const res = await ProductService.getAllTypeProduct()
-  //   return res
-  // }
-
-  const { data, isPending, isSuccess, isError } = mutation
-  const { data: dataUpdated, isPending: isPendingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
-  const { data: dataDeleted, isPending: isPendingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDeleted
-  const { data: dataDeletedMany, isPending: isPendingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeletedMany
-
-
-  const queryProduct = useQuery({ queryKey: ['products'], queryFn: getAllProducts })
-  // const typeProduct = useQuery({ queryKey: ['type-product'], queryFn: fetchAllTypeProduct })
-  const { isPending: isPendingProducts, data: products } = queryProduct
-  const renderAction = () => {
-    return (
-      <div>
-        <DeleteOutlined style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }} onClick={() => setIsModalOpenDelete(true)} />
-        <EditOutlined style={{ color: 'orange', fontSize: '30px', cursor: 'pointer' }} onClick={handleDetailsProduct} />
-      </div>
-    )
-  }
-
+  // table
+  const dataTable =
+    products?.data?.length > 0 &&
+    products?.data?.map((product) => {
+      return { ...product, key: product._id };
+    });
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
-    // setSearchText(selectedKeys[0]);
-    // setSearchedColumn(dataIndex);
-  };
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    // setSearchText('');
   };
 
+  const handleReset = (clearFilters) => {
+    clearFilters();
+  };
+
+  // search dropdown
   const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
       <div
         style={{
           padding: 8,
@@ -193,11 +100,13 @@ const AdminProduct = () => {
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{
             marginBottom: 8,
-            display: 'block',
+            display: "block",
           }}
         />
         <Space>
@@ -213,7 +122,10 @@ const AdminProduct = () => {
             Search
           </Button>
           <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
+            onClick={() => {
+              clearFilters && handleReset(clearFilters);
+              handleSearch(selectedKeys, confirm, dataIndex);
+            }}
             size="small"
             style={{
               width: 90,
@@ -227,7 +139,7 @@ const AdminProduct = () => {
     filterIcon: (filtered) => (
       <SearchOutlined
         style={{
-          color: filtered ? '#1890ff' : undefined,
+          color: filtered ? "#1890ff" : undefined,
         }}
       />
     ),
@@ -238,443 +150,601 @@ const AdminProduct = () => {
         setTimeout(() => searchInput.current?.select(), 100);
       }
     },
-    // render: (text) =>
-    //   searchedColumn === dataIndex ? (
-    //     // <Highlighter
-    //     //   highlightStyle={{
-    //     //     backgroundColor: '#ffc069',
-    //     //     padding: 0,
-    //     //   }}
-    //     //   searchWords={[searchText]}
-    //     //   autoEscape
-    //     //   textToHighlight={text ? text.toString() : ''}
-    //     // />
-    //   ) : (
-    //     text
-    //   ),
   });
 
+  const renderAction = () => {
+    return (
+      <div>
+        <ButtonComponent
+          buttonStyle={{
+            background: "orange",
+            cursor: "pointer",
+            width: "fit-content",
+            border: "none",
+          }}
+          buttonTextStyle={{
+            color: "#fff",
+            fontWeight: "bold",
+          }}
+          onClick={() => {
+            setIsOpenModalUpdate(true);
+          }}
+          buttonText="Sửa"
+        />
+        <ButtonComponent
+          buttonStyle={{
+            background: "red",
+            cursor: "pointer",
+            width: "fit-content",
+            border: "none",
+            marginLeft: "10px",
+          }}
+          buttonTextStyle={{
+            color: "#fff",
+            fontWeight: "bold",
+          }}
+          onClick={() => setIsOpenModalDelete(true)}
+          buttonText="Xóa"
+        />
+      </div>
+    );
+  };
 
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      sorter: (a, b) => a.name.length - b.name.length,
-      ...getColumnSearchProps('name')
+      title: "Tên",
+      dataIndex: "name",
+      sorter: (a, b) => a.name - b.name,
+      ...getColumnSearchProps("name"),
     },
     {
-      title: 'Price',
-      dataIndex: 'price',
+      title: "Giá",
+      dataIndex: "price",
       sorter: (a, b) => a.price - b.price,
-      filters: [
-        {
-          text: '>= 50',
-          value: '>=',
-        },
-        {
-          text: '<= 50',
-          value: '<=',
-        }
-      ],
-      onFilter: (value, record) => {
-        if (value === '>=') {
-          return record.price >= 50
-        }
-        return record.price <= 50
-      },
+      ...getColumnSearchProps("price"),
     },
     {
-      title: 'Rating',
-      dataIndex: 'rating',
-      sorter: (a, b) => a.rating - b.rating,
-      filters: [
-        {
-          text: '>= 3',
-          value: '>=',
-        },
-        {
-          text: '<= 3',
-          value: '<=',
-        }
-      ],
-      onFilter: (value, record) => {
-        if (value === '>=') {
-          return Number(record.rating) >= 3
-        }
-        return Number(record.rating) <= 3
-      },
+      title: "Danh mục",
+      dataIndex: "category",
+      sorter: (a, b) => a.category - b.category,
+      ...getColumnSearchProps("category"),
     },
     {
-      title: 'Type',
-      dataIndex: 'type',
+      title: "Giảm giá (%)",
+      dataIndex: "discount",
+      sorter: (a, b) => a.discount - b.discount,
+      ...getColumnSearchProps("discount"),
     },
     {
-      title: 'Action',
-      dataIndex: 'action',
-      render: renderAction
+      title: "Số lượng trong kho",
+      dataIndex: "quantityInStock",
+      sorter: (a, b) => a.quantityInStock - b.quantityInStock,
+      ...getColumnSearchProps("quantityInStock"),
+    },
+    {
+      title: "Đã bán",
+      dataIndex: "sold",
+      sorter: (a, b) => a.sold - b.sold,
+      ...getColumnSearchProps("sold"),
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "action",
+      render: renderAction,
     },
   ];
-  const dataTable = products?.data?.length && products?.data?.map((product) => {
-    return { ...product, key: product._id }
-  })
 
+  // reset state khi bấm nút tạo
   useEffect(() => {
-    if (isSuccess && data?.status === 'OK') {
-      message.success()
-      handleCancel()
-    } else if (isError) {
-      message.error()
+    if (isOpenModalCreate) {
+      setStateProduct({
+        name: "",
+        image: "",
+        category: "",
+        price: "",
+        quantityInStock: "",
+        discount: "",
+        description: "",
+        sold: "",
+      });
     }
-  }, [isSuccess])
+  }, [isOpenModalCreate]);
 
+  // lấy details product khi bấm nút sửa
   useEffect(() => {
-    if (isSuccessDeletedMany && dataDeletedMany?.status === 'OK') {
-      message.success()
-    } else if (isErrorDeletedMany) {
-      message.error()
+    if (rowSelected && isOpenModalUpdate) {
+      setIsPendingUpdate(true);
+      fetchGetDetailsProduct(rowSelected, user?.access_token);
     }
-  }, [isSuccessDeletedMany])
+  }, [rowSelected, isOpenModalUpdate]);
 
-  useEffect(() => {
-    if (isSuccessDeleted && dataDeleted?.status === 'OK') {
-      message.success()
-      handleCloseModalDelete()
-    } else if (isErrorDeleted) {
-      message.error()
+  const fetchGetDetailsProduct = async (rowSelected, access_token) => {
+    const res = await ProductService.getDetailsProduct(
+      rowSelected,
+      access_token
+    );
+    categories?.data?.some((category) => category._id === res?.data?.category);
+    // console.log(res);
+    if (res?.data) {
+      setStateProduct({
+        name: res?.data?.name,
+        image: res?.data?.image,
+        category: categories?.data?.some(
+          (category) => category._id === res?.data?.category
+        )
+          ? res?.data?.category
+          : "Danh mục không tồn tại",
+        price: res?.data?.price,
+        quantityInStock: res?.data?.quantityInStock,
+        discount: res?.data?.discount,
+        description: res?.data?.description,
+        sold: res?.data?.sold,
+      });
     }
-  }, [isSuccessDeleted])
-
-  const handleCloseDrawer = () => {
-    setIsOpenDrawer(false);
-    setStateProductDetails({
-      name: '',
-      price: '',
-      description: '',
-      rating: '',
-      image: '',
-      type: '',
-      quantityInStock: ''
-    })
-    form.resetFields()
+    setIsPendingUpdate(false);
   };
 
+  // form chi tiết sản phẩm
+  const [form] = Form.useForm();
+
   useEffect(() => {
-    if (isSuccessUpdated && dataUpdated?.status === 'OK') {
-      message.success()
-      handleCloseDrawer()
-    } else if (isErrorUpdated) {
-      message.error()
-    }
-  }, [isSuccessUpdated])
-
-  const handleCloseModalDelete = () => {
-    setIsModalOpenDelete(false)
-  }
-
-
-  const handleDeleteProduct = () => {
-    mutationDeleted.mutate({ id: rowSelected, token: user?.access_token }, {
-      onSettled: () => {
-        queryProduct.refetch()
-      }
-    })
-  }
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    setStateProduct({
-      name: '',
-      price: '',
-      description: '',
-      rating: '',
-      image: '',
-      type: '',
-      quantityInStock: '',
-      discount: '',
-    })
-    form.resetFields()
-  };
-
-  const onFinish = () => {
-    const params = {
-      name: stateProduct.name,
-      price: stateProduct.price,
-      description: stateProduct.description,
-      rating: stateProduct.rating,
-      image: stateProduct.image,
-      type: stateProduct.type === 'add_type' ? stateProduct.newType : stateProduct.type,
-      quantityInStock: stateProduct.quantityInStock,
-      discount: stateProduct.discount
-    }
-    mutation.mutate(params, {
-      onSettled: () => {
-        queryProduct.refetch()
-      }
-    })
-  }
-
-  const handleOnchange = (e) => {
-    setStateProduct({
-      ...stateProduct,
-      [e.target.name]: e.target.value
-    })
-  }
+    form.setFieldsValue(stateProduct);
+  }, [form, stateProduct]);
 
   const handleOnchangeDetails = (e) => {
-    setStateProductDetails({
-      ...stateProductDetails,
-      [e.target.name]: e.target.value
-    })
-  }
+    setStateProduct({
+      ...stateProduct,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-  const handleOnchangeAvatar = async ({ fileList }) => {
-    const file = fileList[0]
+  const handleOnchangeAvatarDetails = async ({ fileList }) => {
+    const file = fileList[0];
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
     }
     setStateProduct({
       ...stateProduct,
-      image: file.preview
-    })
-  }
+      image: file.preview,
+    });
+  };
 
-  const handleOnchangeAvatarDetails = async ({ fileList }) => {
-    const file = fileList[0]
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    setStateProductDetails({
-      ...stateProductDetails,
-      image: file.preview
-    })
-  }
-  const onUpdateProduct = () => {
-    mutationUpdate.mutate({ id: rowSelected, token: user?.access_token, ...stateProductDetails }, {
-      onSettled: () => {
-        queryProduct.refetch()
+  // call api thêm sửa, xóa
+  const mutationCreate = useMutationHooks((data) => {
+    const { token, ...rests } = data;
+    // console.log(data);
+    const res = ProductService.createProduct({ ...rests }, token);
+    return res;
+  });
+
+  const mutationUpdate = useMutationHooks((data) => {
+    const { id, token, name, image, ...rests } = data;
+    const res = ProductService.updateProduct(id, { ...rests }, token);
+    return res;
+  });
+
+  const mutationDeleted = useMutationHooks((data) => {
+    const { id, token } = data;
+    // console.log(data);
+    const res = ProductService.deleteProduct(id, token);
+    return res;
+  });
+
+  const mutationDeletedMany = useMutationHooks((data) => {
+    const { token, ...ids } = data;
+    const res = ProductService.deleteManyProducts(ids, token);
+    return res;
+  });
+
+  const {
+    data: dataCreated,
+    isPending: isPendingCreated,
+    isSuccess: isSuccessCreated,
+  } = mutationCreate;
+
+  const {
+    data: dataUpdated,
+    isPending: isPendingUpdated,
+    isSuccess: isSuccessUpdated,
+  } = mutationUpdate;
+
+  const {
+    data: dataDeleted,
+    isPending: isPendingDeleted,
+    isSuccess: isSuccessDeleted,
+  } = mutationDeleted;
+
+  const {
+    data: dataDeletedMany,
+    isPending: isPendingDeletedMany,
+    isSuccess: isSuccessDeletedMany,
+  } = mutationDeletedMany;
+
+  useEffect(() => {
+    if (isSuccessCreated && dataCreated?.status === "OK") {
+      message.success();
+      handleCloseModalCreate();
+    } else {
+      if (dataCreated?.message) {
+        message.error(dataCreated?.message);
       }
-    })
-  }
+    }
+  }, [isSuccessCreated]);
 
-  const handleChangeSelect = (value) => {
-      setStateProduct({
-        ...stateProduct,
-        type: value
-      })
-  }
+  useEffect(() => {
+    if (isSuccessUpdated && dataUpdated?.status === "OK") {
+      message.success();
+      handleCloseModalUpdate();
+    } else {
+      if (dataUpdated?.message) {
+        message.error(dataUpdated?.message);
+      }
+    }
+  }, [isSuccessUpdated]);
+
+  useEffect(() => {
+    if (isSuccessDeleted && dataDeleted?.status === "OK") {
+      message.success();
+      handleCloseModalDelete();
+    } else {
+      if (dataDeleted?.message) {
+        message.error(dataDeleted?.message);
+      }
+    }
+  }, [isSuccessDeleted]);
+
+  useEffect(() => {
+    if (isSuccessDeletedMany && dataDeletedMany?.status === "OK") {
+      message.success();
+      handleCloseModalDeleteMany();
+    } else {
+      if (dataDeletedMany?.message) {
+        message.error(dataDeletedMany?.message);
+      }
+    }
+  }, [isSuccessDeletedMany]);
+
+  const handleCreateProduct = () => {
+    mutationCreate.mutate(
+      { token: user?.access_token, ...stateProduct },
+      {
+        onSettled: () => {
+          queryClient.invalidateQueries(["products"]);
+        },
+      }
+    );
+  };
+
+  const handleCloseModalCreate = () => {
+    setIsOpenModalCreate(false);
+    setStateProduct({
+      name: "",
+      image: "",
+      category: "",
+      price: "",
+      quantityInStock: "",
+      discount: "",
+      description: "",
+      sold: "",
+    });
+    form.resetFields();
+  };
+
+  const handleUpdateProduct = () => {
+    mutationUpdate.mutate(
+      { id: rowSelected, token: user?.access_token, ...stateProduct },
+      {
+        onSettled: () => {
+          queryClient.invalidateQueries(["products"]);
+        },
+      }
+    );
+  };
+
+  const handleCloseModalUpdate = () => {
+    setIsOpenModalUpdate(false);
+    setStateProduct({
+      name: "",
+      image: "",
+      category: "",
+      price: "",
+      quantityInStock: "",
+      discount: "",
+      description: "",
+      sold: "",
+    });
+    form.resetFields();
+  };
+
+  const handleCloseModalDelete = () => {
+    setIsOpenModalDelete(false);
+  };
+
+  const handleDeleteProduct = () => {
+    mutationDeleted.mutate(
+      { id: rowSelected, token: user?.access_token },
+      {
+        onSettled: () => {
+          queryClient.invalidateQueries(["products"]);
+        },
+      }
+    );
+  };
+
+  const handleCloseModalDeleteMany = () => {
+    setIsOpenModalDeleteMany(false);
+  };
+
+  const handleDeleteManyProducts = (ids) => {
+    mutationDeletedMany.mutate(
+      { ids: ids, token: user?.access_token },
+      {
+        onSettled: () => {
+          queryClient.invalidateQueries(["products"]);
+        },
+      }
+    );
+  };
 
   return (
     <div>
       <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
-      <div style={{ marginTop: '10px' }}>
-        <Button style={{ height: '150px', width: '150px', borderRadius: '6px', borderStyle: 'dashed' }} onClick={() => setIsModalOpen(true)}><PlusOutlined style={{ fontSize: '60px' }} /></Button>
-      </div>
-      <div style={{ marginTop: '20px' }}>
-        <TableComponent handleDeleteMany={handleDeleteManyProducts} columns={columns} isPending={isPendingProducts} data={dataTable} onRow={(record, rowIndex) => {
-          return {
-            onClick: event => {
-              setRowSelected(record._id)
-            }
-          };
-        }} />
-      </div>
-      <ModalComponent forceRender title="Tạo sản phẩm" open={isModalOpen} onCancel={handleCancel} footer={null}>
-        <Loading isPending={isPending}>
 
+      <div style={{ marginTop: "20px" }}>
+        <ButtonComponent
+          type="primary"
+          buttonStyle={{
+            marginBottom: "10px",
+            cursor: "pointer",
+            width: "fit-content",
+            border: "none",
+          }}
+          buttonTextStyle={{
+            color: "#fff",
+            fontWeight: "bold",
+          }}
+          onClick={() => {
+            setIsOpenModalCreate(true);
+          }}
+          buttonText="Tạo"
+        />
+
+        {!!rowSelectedKeys.length && (
+          <ButtonComponent
+            type="primary"
+            buttonStyle={{
+              background: "red",
+              marginLeft: "10px",
+              marginBottom: "10px",
+              cursor: "pointer",
+              width: "fit-content",
+              border: "none",
+            }}
+            buttonTextStyle={{
+              color: "#fff",
+              fontWeight: "bold",
+            }}
+            onClick={() => {
+              setIsOpenModalDeleteMany(true);
+            }}
+            buttonText="Xóa tất cả"
+          />
+        )}
+
+        <TableComponent
+          columns={columns}
+          isPending={isPendingProducts}
+          data={dataTable}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: () => {
+                setRowSelected(record._id);
+              },
+            };
+          }}
+          rowSelection={{
+            type: "checkbox",
+            onChange: (selectedRowKeys, selectedRows) => {
+              setRowSelectedKeys(selectedRowKeys);
+            },
+          }}
+        />
+      </div>
+
+      <ModalComponent
+        title={isOpenModalCreate ? "Tạo mới sản phẩm" : "Sửa sản phẩm"}
+        isOpen={isOpenModalCreate || isOpenModalUpdate}
+        onCancel={() => {
+          setIsOpenModalUpdate(false);
+          setIsOpenModalCreate(false);
+        }}
+        onOk={() => form.submit()}
+      >
+        <Loading
+          isPending={isPendingUpdate || isPendingUpdated || isPendingCreated}
+        >
           <Form
             name="basic"
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
-            onFinish={onFinish}
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
             autoComplete="on"
             form={form}
+            onFinish={
+              isOpenModalCreate ? handleCreateProduct : handleUpdateProduct
+            }
           >
-            <Form.Item
-              label="Name"
-              name="name"
-              rules={[{ required: true, message: 'Please input your name!' }]}
-            >
-              <InputComponent value={stateProduct['name']} onChange={handleOnchange} name="name" />
-            </Form.Item>
-
-            <Form.Item
-              label="Type"
-              name="type"
-              rules={[{ required: true, message: 'Please input your type!' }]}
-            >
-              <Select
-                name="type"
-                // defaultValue="lucy"
-                // style={{ width: 120 }}
-                value={stateProduct.type}
-                onChange={handleChangeSelect}
-                options={'a'}
-                />
-            </Form.Item>
-            {stateProduct.type === 'add_type' && (
+            {isOpenModalCreate || stateProduct.sold <= 0 ? (
               <Form.Item
-                label='New type'
-                name="newType"
-                rules={[{ required: true, message: 'Please input your type!' }]}
+                label="Tên"
+                name="name"
+                rules={[{ required: true, message: "Mời nhập tên!" }]}
               >
-                <InputComponent value={stateProduct.newType} onChange={handleOnchange} name="newType" />
+                <InputComponent
+                  value={stateProduct.name}
+                  onChange={handleOnchangeDetails}
+                  name="name"
+                />
+              </Form.Item>
+            ) : (
+              <Form.Item label="Tên">{stateProduct.name}</Form.Item>
+            )}
+            {/* {stateProduct.sold <= 0 ? ( */}
+            <Form.Item
+              label="Giá (đ)"
+              name="price"
+              rules={[
+                { required: true, message: "Mời nhập giá!" },
+                {
+                  validator: validateNumber,
+                },
+              ]}
+            >
+              <InputComponent
+                value={stateProduct.price}
+                onChange={handleOnchangeDetails}
+                name="price"
+              />
+            </Form.Item>
+            {/* ) : (
+              <Form.Item label="Giá">{stateProduct.price}</Form.Item>
+            )} */}
+            <Loading isPending={isPendingCategories}>
+              <Form.Item
+                label="Danh mục"
+                name="category"
+                rules={[{ required: true, message: "Mời chọn danh mục!" }]}
+              >
+                <Select
+                  value={stateProduct.category}
+                  onChange={(value) =>
+                    handleOnchangeDetails({
+                      target: { name: "category", value },
+                    })
+                  }
+                  placeholder="Chọn danh mục"
+                >
+                  {categories?.data?.map((category) => (
+                    <Option key={category._id} value={category._id}>
+                      {category.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Loading>
+            {stateProduct.sold <= 0 ? (
+              <Form.Item
+                label="Số lượng trong kho"
+                name="quantityInStock"
+                rules={[
+                  { required: true, message: "Mời nhập số lượng trong kho!" },
+                  {
+                    validator: validateNumber,
+                  },
+                ]}
+              >
+                <InputComponent
+                  value={stateProduct.quantityInStock}
+                  onChange={handleOnchangeDetails}
+                  name="quantityInStock"
+                />
+              </Form.Item>
+            ) : (
+              <Form.Item label="Số lượng trong kho">
+                {stateProduct.quantityInStock}
               </Form.Item>
             )}
+
             <Form.Item
-              label="Count inStock"
-              name="quantity"
-              rules={[{ required: true, message: 'Please input your count inStock!' }]}
-            >
-              <InputComponent value={stateProduct.quantityInStock} onChange={handleOnchange} name="quantity" />
-            </Form.Item>
-            <Form.Item
-              label="Price"
-              name="price"
-              rules={[{ required: true, message: 'Please input your count price!' }]}
-            >
-              <InputComponent value={stateProduct.price} onChange={handleOnchange} name="price" />
-            </Form.Item>
-            <Form.Item
-              label="Description"
-              name="description"
-              rules={[{ required: true, message: 'Please input your count description!' }]}
-            >
-              <InputComponent value={stateProduct.description} onChange={handleOnchange} name="description" />
-            </Form.Item>
-            <Form.Item
-              label="Rating"
-              name="rating"
-              rules={[{ required: true, message: 'Please input your count rating!' }]}
-            >
-              <InputComponent value={stateProduct.rating} onChange={handleOnchange} name="rating" />
-            </Form.Item>
-            <Form.Item
-              label="Discount"
+              label="Giảm giá (%)"
               name="discount"
-              rules={[{ required: true, message: 'Please input your discount of product!' }]}
+              rules={[
+                { required: true, message: "Mời nhập % giảm giá!" },
+                {
+                  validator: validateNumber,
+                },
+              ]}
             >
-              <InputComponent value={stateProduct.discount} onChange={handleOnchange} name="discount" />
+              <InputComponent
+                value={stateProduct.discount}
+                onChange={handleOnchangeDetails}
+                name="discount"
+              />
             </Form.Item>
-            <Form.Item
-              label="Image"
-              name="image"
-              rules={[{ required: true, message: 'Please input your count image!' }]}
-            >
-              <WrapperUploadFile onChange={handleOnchangeAvatar} maxCount={1}>
-                <Button >Select File</Button>
-                {stateProduct?.image && (
-                  <img src={stateProduct?.image} style={{
-                    height: '60px',
-                    width: '60px',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    marginLeft: '10px'
-                  }} alt="avatar" />
-                )}
-              </WrapperUploadFile>
+
+            <Form.Item label="Mô tả" name="description">
+              <InputComponent
+                value={stateProduct.description}
+                onChange={handleOnchangeDetails}
+                name="description"
+              />
             </Form.Item>
-            <Form.Item wrapperCol={{ offset: 20, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
+
+            {stateProduct.sold <= 0 ? (
+              <Form.Item
+                label="Ảnh"
+                name="image"
+                rules={[{ required: true, message: "Mời chọn ảnh!" }]}
+              >
+                <WrapperUploadFile
+                  onChange={handleOnchangeAvatarDetails}
+                  maxCount={1}
+                >
+                  {stateProduct?.image && (
+                    <img
+                      src={stateProduct?.image}
+                      style={{
+                        height: "60px",
+                        width: "60px",
+                        objectFit: "cover",
+                        margin: "0 10px",
+                      }}
+                      alt="ảnh"
+                    />
+                  )}
+                  <Button>Chọn ảnh</Button>
+                </WrapperUploadFile>
+              </Form.Item>
+            ) : (
+              <Form.Item label="Ảnh">
+                <img
+                  src={stateProduct?.image}
+                  style={{
+                    height: "60px",
+                    width: "60px",
+                    objectFit: "cover",
+                    marginLeft: "10px",
+                  }}
+                  alt="ảnh"
+                />
+              </Form.Item>
+            )}
           </Form>
         </Loading>
       </ModalComponent>
-      <DrawerComponent title='Chi tiết sản phẩm' isOpen={isOpenDrawer} onClose={() => setIsOpenDrawer(false)} width="90%">
-        <Loading isPending={isPendingUpdate || isPendingUpdated}>
 
-          <Form
-            name="basic"
-            labelCol={{ span: 2 }}
-            wrapperCol={{ span: 22 }}
-            onFinish={onUpdateProduct}
-            autoComplete="on"
-            form={form}
-          >
-            <Form.Item
-              label="Name"
-              name="name"
-              rules={[{ required: true, message: 'Please input your name!' }]}
-            >
-              <InputComponent value={stateProductDetails['name']} onChange={handleOnchangeDetails} name="name" />
-            </Form.Item>
-
-            <Form.Item
-              label="Type"
-              name="type"
-              rules={[{ required: true, message: 'Please input your type!' }]}
-            >
-              <InputComponent value={stateProductDetails['type']} onChange={handleOnchangeDetails} name="type" />
-            </Form.Item>
-            <Form.Item
-              label="Count inStock"
-              name="quantity"
-              rules={[{ required: true, message: 'Please input your count inStock!' }]}
-            >
-              <InputComponent value={stateProductDetails.quantityInStock} onChange={handleOnchangeDetails} name="quantity" />
-            </Form.Item>
-            <Form.Item
-              label="Price"
-              name="price"
-              rules={[{ required: true, message: 'Please input your count price!' }]}
-            >
-              <InputComponent value={stateProductDetails.price} onChange={handleOnchangeDetails} name="price" />
-            </Form.Item>
-            <Form.Item
-              label="Description"
-              name="description"
-              rules={[{ required: true, message: 'Please input your count description!' }]}
-            >
-              <InputComponent value={stateProductDetails.description} onChange={handleOnchangeDetails} name="description" />
-            </Form.Item>
-            <Form.Item
-              label="Rating"
-              name="rating"
-              rules={[{ required: true, message: 'Please input your count rating!' }]}
-            >
-              <InputComponent value={stateProductDetails.rating} onChange={handleOnchangeDetails} name="rating" />
-            </Form.Item>
-            <Form.Item
-              label="Discount"
-              name="discount"
-              rules={[{ required: true, message: 'Please input your discount of product!' }]}
-            >
-              <InputComponent value={stateProductDetails.discount} onChange={handleOnchangeDetails} name="discount" />
-            </Form.Item>
-            <Form.Item
-              label="Image"
-              name="image"
-              rules={[{ required: true, message: 'Please input your count image!' }]}
-            >
-              <WrapperUploadFile onChange={handleOnchangeAvatarDetails} maxCount={1}>
-                <Button >Select File</Button>
-                {stateProductDetails?.image && (
-                  <img src={stateProductDetails?.image} style={{
-                    height: '60px',
-                    width: '60px',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    marginLeft: '10px'
-                  }} alt="avatar" />
-                )}
-              </WrapperUploadFile>
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 20, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                Apply
-              </Button>
-            </Form.Item>
-          </Form>
-        </Loading>
-      </DrawerComponent>
-      <ModalComponent title="Xóa sản phẩm" open={isModalOpenDelete} onCancel={handleCloseModalDelete} onOk={handleDeleteProduct}>
+      <ModalComponent
+        title="Xóa sản phẩm"
+        open={isOpenModalDelete}
+        onCancel={handleCloseModalDelete}
+        onOk={handleDeleteProduct}
+      >
         <Loading isPending={isPendingDeleted}>
-          <div>Bạn có chắc xóa sản phẩm này không?</div>
+          <div>Bạn có chắc muốn xóa sản phẩm này không?</div>
+        </Loading>
+      </ModalComponent>
+
+      <ModalComponent
+        title="Xóa tất cả sản phẩm đã chọn"
+        open={isOpenModalDeleteMany}
+        onCancel={handleCloseModalDeleteMany}
+        onOk={handleDeleteManyProducts}
+      >
+        <Loading isPending={isPendingDeletedMany}>
+          <div>Bạn có chắc muốn xóa tất cả sản phẩm đã chọn không?</div>
         </Loading>
       </ModalComponent>
     </div>
-  )
-}
+  );
+};
 
-export default AdminProduct
+export default AdminProduct;

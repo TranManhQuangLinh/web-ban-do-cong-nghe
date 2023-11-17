@@ -20,7 +20,6 @@ router.delete(
 );
 router.get(
   "/get-all-categories",
-  authAdminMiddleWare,
   CategoryController.getAllCategories
 );
 router.post(
@@ -30,7 +29,6 @@ router.post(
 );
 router.get(
   "/get-details-category/:id",
-  authAdminMiddleWare,
   CategoryController.getDetailsCategory
 );
 module.exports = router;

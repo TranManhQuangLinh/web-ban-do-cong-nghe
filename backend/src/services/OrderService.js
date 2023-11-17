@@ -111,13 +111,13 @@ const getAllUserOrders = (id) => {
       if (order === null) {
         resolve({
           status: "ERR",
-          message: "The order is not defined",
+          message: "order not found",
         });
       }
 
       resolve({
         status: "OK",
-        message: "SUCCESSS",
+        message: "SUCCESS",
         data: order,
       });
     } catch (e) {
@@ -136,13 +136,13 @@ const getDetailsOrder = (id) => {
       if (order === null) {
         resolve({
           status: "ERR",
-          message: "The order is not defined",
+          message: "order not found",
         });
       }
 
       resolve({
         status: "OK",
-        message: "SUCCESSS",
+        message: "SUCCESS",
         data: order,
       });
     } catch (e) {
@@ -175,7 +175,7 @@ const cancelOrder = (id, data) => {
           if (order === null) {
             resolve({
               status: "ERR",
-              message: "The order is not defined",
+              message: "order not found",
             });
           }
         } else {
