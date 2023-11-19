@@ -35,7 +35,7 @@ const AdminCategory = () => {
   // lấy tất cả category từ db
   const getAllCategories = async () => {
     const res = await CategoryService.getAllCategories();
-    return { data: res?.data, key: "categories" };
+    return res?.data;
   };
 
   const { data: categories, isPending: isPendingCategories } = useQuery({
@@ -45,8 +45,8 @@ const AdminCategory = () => {
 
   // table
   const dataTable =
-    categories?.data?.length > 0 &&
-    categories?.data?.map((category) => {
+    categories?.length > 0 &&
+    categories?.map((category) => {
       return { ...category, key: category._id };
     });
 

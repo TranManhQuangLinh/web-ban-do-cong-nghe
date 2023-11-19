@@ -19,11 +19,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 import * as ProductService from "../../services/ProductService";
 import * as message from "../Message/Message";
 import { useQuery } from "@tanstack/react-query";
-import { addOrderItem } from "../../redux/slices/OrderSlice";
+import {
+  addOrderItem,
+} from "../../redux/slices/OrderSlice";
 
 const ProductDetailsComponent = ({ idProduct }) => {
   const user = useSelector((state) => state.user);
-  const order = useSelector((state) => state.order);
+  const order = useSelector((state) =>
+    state.orders?.find((order) => order.user === user.id)
+  );
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -66,12 +70,12 @@ const ProductDetailsComponent = ({ idProduct }) => {
     if (!user?.id) {
       navigate("/sign-in", { state: location?.pathname });
     } else {
-      const orderRedux = order?.orderItems?.find(
+      const orderItem = order?.orderItems?.find(
         (item) => item.product === productDetails?._id
       );
       if (
-        orderRedux?.quantity + numProduct <= orderRedux?.quantityInStock ||
-        (!orderRedux && productDetails?.quantityInStock > 0)
+        orderItem?.quantity + numProduct <= orderItem?.quantityInStock ||
+        (!orderItem && productDetails?.quantityInStock > 0)
       ) {
         dispatch(
           addOrderItem({
@@ -84,8 +88,10 @@ const ProductDetailsComponent = ({ idProduct }) => {
               product: productDetails?._id,
               quantityInStock: productDetails?.quantityInStock,
             },
+            userId: user.id,
           })
         );
+        message.success("Đã thêm vào giỏ hàng");
       } else {
         message.error(
           `Số lượng hàng trong kho không đủ. Còn ${productDetails?.quantityInStock} sản phẩm`

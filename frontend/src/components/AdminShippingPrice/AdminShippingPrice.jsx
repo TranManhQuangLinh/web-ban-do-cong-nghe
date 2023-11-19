@@ -39,10 +39,10 @@ const AdminShippingPrice = () => {
     const res = await ShippingPriceService.getAllShippingPrices(
       user?.access_token
     );
-    return { data: res?.data, key: "shipping prices" };
+    return res?.data;
   };
 
-  const { data: ShippingPrices, isPending: isPendingShippingPrices } = useQuery(
+  const { data: shippingPrices, isPending: isPendingShippingPrices } = useQuery(
     {
       queryKey: ["shipping prices"],
       queryFn: getAllShippingPrices,
@@ -51,8 +51,8 @@ const AdminShippingPrice = () => {
 
   // table
   const dataTable =
-    ShippingPrices?.data?.length > 0 &&
-    ShippingPrices?.data?.map((shippingPrice) => {
+    shippingPrices?.length > 0 &&
+    shippingPrices?.map((shippingPrice) => {
       return {
         ...shippingPrice,
         maxOrderAmount: shippingPrice.maxOrderAmount

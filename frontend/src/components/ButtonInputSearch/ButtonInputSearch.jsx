@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import InputComponent from "../InputComponent/InputComponent";
 import ButtonComponent from "../ButtonComponent/ButtonComponent";
@@ -12,14 +12,11 @@ const ButtonInputSearch = (props) => {
     backgroundColorInput = "#fff",
     backgroundColorButton = "rgb(13, 92, 182)",
     colorButton = "#fff",
+    handleSearch,
   } = props;
-  // <ButtonInputSearch
-  //   size="large"
-  //   bordered={false}
-  //   buttonText="Tìm kiếm"
-  //   placeholder="Tìm kiếm sản phẩm"
-  //   backgroundColorButton="var(--button-search-color)"
-  // />;
+  
+  const [searchValue, setSearchValue]  = useState('')
+
   return (
     <div style={{ display: "flex" }}>
       <InputComponent
@@ -27,6 +24,8 @@ const ButtonInputSearch = (props) => {
         placeholder={placeholder}
         bordered={bordered}
         style={{ backgroundColor: backgroundColorInput }}
+        onChange={e => setSearchValue(e.target.value)}
+        onPressEnter={() => handleSearch(searchValue)}
       />
       <ButtonComponent
         size={size}
@@ -37,6 +36,7 @@ const ButtonInputSearch = (props) => {
         icon={<SearchOutlined color={colorButton} style={{ color: "#fff" }} />}
         buttonText={buttonText}
         buttonTextStyle={{ color: colorButton }}
+        onClick={() => handleSearch(searchValue)}
       />
     </div>
   );

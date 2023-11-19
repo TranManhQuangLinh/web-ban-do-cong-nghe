@@ -2,26 +2,26 @@ const express = require("express");
 const router = express.Router();
 const OrderController = require("../controllers/OrderController");
 const {
-  authAdminUserMiddleWare,
+  authUserMiddleWare,
   authAdminMiddleWare,
 } = require("../middleware/authMiddleware");
 
 router.post(
-  "/create-order/:id",
-  authAdminUserMiddleWare,
+  "/create-order/:userId",
+  authUserMiddleWare,
   OrderController.createOrder
 );
 router.get(
-  "/get-all-user-orders/:id",
-  authAdminUserMiddleWare,
+  "/get-all-user-orders/:userId",
+  authUserMiddleWare,
   OrderController.getAllUserOrders
 );
-router.get("/get-details-order/:id", OrderController.getDetailsOrder);
-router.delete(
-  "/cancel-order/:id",
-  authAdminUserMiddleWare,
+router.put(
+  "/cancel-order/:userId",
+  authUserMiddleWare,
   OrderController.cancelOrder
 );
+router.get("/get-details-order/:id", OrderController.getDetailsOrder);
 router.get(
   "/get-all-orders",
   authAdminMiddleWare,

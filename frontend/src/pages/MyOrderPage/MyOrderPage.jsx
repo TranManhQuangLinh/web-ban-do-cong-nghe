@@ -11,34 +11,30 @@ import {
   WrapperFooterItem,
   WrapperContainer,
   WrapperStatus,
+  WrapperCurrentStatus,
 } from "./style";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as message from "../../components/Message/Message";
 
 const MyOrderPage = () => {
-  const location = useLocation();
-  const { state } = location;
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
   const fetchMyOrder = async () => {
-    const res = await OrderService.getAllUserOrders(state?.id, state?.token);
+    const res = await OrderService.getAllUserOrders(user?.id, user?.access_token);
     return res.data;
   };
-  const user = useSelector((state) => state.user);
 
-  const queryOrder = useQuery(
-    { queryKey: ["orders"], queryFn: fetchMyOrder,enabled: !!(state?.id && state?.token), },
-    
-  );
+  const queryOrder = useQuery({
+    queryKey: ["orders"],
+    queryFn: fetchMyOrder,
+    enabled: !!(user?.id && user?.access_token),
+  });
   const { isPending, data } = queryOrder;
 
   const handleDetailsOrder = (id) => {
-    navigate(`/order-details/${id}`, {
-      state: {
-        token: state?.token,
-      },
-    });
+    navigate(`/order-details/${id}`);
   };
 
   const mutation = useMutationHooks((data) => {
@@ -51,7 +47,7 @@ const MyOrderPage = () => {
     mutation.mutate(
       {
         id: order._id,
-        token: state?.token,
+        token: user?.access_token,
         orderItems: order?.orderItems,
         userId: user.id,
       },
@@ -71,7 +67,7 @@ const MyOrderPage = () => {
 
   useEffect(() => {
     if (isSuccessCancel && dataCancel?.status === "OK") {
-      message.success();
+      message.success("Hủy thành công");
     } else if (isSuccessCancel && dataCancel?.status === "ERR") {
       message.error(dataCancel?.message);
     } else if (isErrorCancel) {
@@ -80,11 +76,11 @@ const MyOrderPage = () => {
   }, [isErrorCancel, isSuccessCancel]);
 
   const renderProduct = (data) => {
-    return data?.map((order) => {
+    return data?.map((item) => {
       return (
-        <WrapperHeaderItem key={order?._id}>
+        <WrapperHeaderItem key={item?._id}>
           <img
-            src={order?.image}
+            src={item?.image}
             alt="ảnh sản phẩm"
             style={{
               width: "70px",
@@ -103,12 +99,12 @@ const MyOrderPage = () => {
               marginLeft: "10px",
             }}
           >
-            {order?.name}
+            {item?.name}
           </div>
           <span
             style={{ fontSize: "13px", color: "#242424", marginLeft: "auto" }}
           >
-            Đơn giá: {convertPrice(order?.price)}
+            Đơn giá: {convertPrice(item?.price)}
           </span>
         </WrapperHeaderItem>
       );
@@ -118,42 +114,26 @@ const MyOrderPage = () => {
   return (
     <Loading isPending={isPending || isPendingCancel}>
       <WrapperContainer>
-        <div style={{ minHeight: "90vh", height: "100%", width: "1270px", margin: "0 auto" }}>
-          <h2 style={{padding: "10px 0"}}>Đơn hàng của tôi</h2>
+        <div
+          style={{
+            minHeight: "90vh",
+            height: "100%",
+            width: "1270px",
+            margin: "0 auto",
+          }}
+        >
+          <h2 style={{ padding: "10px 0" }}>Đơn hàng của tôi</h2>
           <WrapperListOrder>
             {data?.map((order) => {
               return (
                 <WrapperItemOrder key={order?._id}>
                   <WrapperStatus>
                     <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                      Trạng thái
+                      Trạng thái:
+                      <WrapperCurrentStatus>
+                        {" " + order?.currentStatus}
+                      </WrapperCurrentStatus>
                     </span>
-                    <div>
-                      <span style={{ color: "rgb(255, 66, 78)" }}>
-                        Giao hàng:{" "}
-                      </span>
-                      <span
-                        style={{
-                          color: "rgb(90, 32, 193)",
-                          fontWeight: "bold",
-                        }}
-                      >{`${
-                        order.isDelivered ? "Đã giao hàng" : "Chưa giao hàng"
-                      }`}</span>
-                    </div>
-                    <div>
-                      <span style={{ color: "rgb(255, 66, 78)" }}>
-                        Thanh toán:{" "}
-                      </span>
-                      <span
-                        style={{
-                          color: "rgb(90, 32, 193)",
-                          fontWeight: "bold",
-                        }}
-                      >{`${
-                        order.isPaid ? "Đã thanh toán" : "Chưa thanh toán"
-                      }`}</span>
-                    </div>
                   </WrapperStatus>
                   {renderProduct(order?.orderItems)}
                   <WrapperFooterItem>
@@ -174,7 +154,6 @@ const MyOrderPage = () => {
                     <div style={{ display: "flex", gap: "10px" }}>
                       <ButtonComponent
                         onClick={() => handleCancelOrder(order)}
-                        size={40}
                         buttonStyle={{
                           height: "36px",
                           border: "1px solid #9255FD",
@@ -182,10 +161,10 @@ const MyOrderPage = () => {
                         }}
                         buttonText={"Hủy đặt hàng"}
                         buttonTextStyle={{ color: "#9255FD", fontSize: "14px" }}
+                        disabled={order?.currentStatus !== "Chờ xử lý"}
                       ></ButtonComponent>
                       <ButtonComponent
                         onClick={() => handleDetailsOrder(order?._id)}
-                        size={40}
                         buttonStyle={{
                           height: "36px",
                           border: "1px solid #9255FD",

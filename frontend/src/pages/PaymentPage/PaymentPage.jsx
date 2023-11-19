@@ -8,128 +8,89 @@ import {
   WrapperRight,
   WrapperTotal,
 } from "./style";
-
+import { orderConstant } from "../../constant";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { convertPrice } from "../../utils";
-import { useMemo } from "react";
 import ModalComponent from "../../components/ModalComponent/ModalComponent";
 import InputComponent from "../../components/InputComponent/InputComponent";
 import { useMutationHooks } from "../../hooks/useMutationHook";
-import * as UserService from "../../services/UserService";
 import * as OrderService from "../../services/OrderService";
 import Loading from "../../components/LoadingComponent/Loading";
 import * as message from "../../components/Message/Message";
-import { updateUser } from "../../redux/slices/UserSlice";
 import { useNavigate } from "react-router-dom";
-import { removeAllOrderItem } from "../../redux/slices/OrderSlice";
+import {
+  removeAllOrderItem,
+  updateShippingAddress,
+} from "../../redux/slices/OrderSlice";
 
 const PaymentPage = () => {
-  const order = useSelector((state) => state.order);
   const user = useSelector((state) => state.user);
-
-  const [delivery, setDelivery] = useState("fast");
-  const [payment, setPayment] = useState("later_money");
+  const order = useSelector((state) =>
+    state.orders?.find((order) => order.user === user.id)
+  );
+  const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
   const navigate = useNavigate();
 
-  const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
-  const [stateUserDetails, setStateUserDetails] = useState({
-    name: "",
+  const [isOpenModalUpdateAddress, setIsOpenModalUpdateAddress] =
+    useState(false);
+  const [shippingAddress, setShippingAddress] = useState({
+    recipientName: "",
     phone: "",
     address: "",
-    city: "",
   });
   const [form] = Form.useForm();
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    form.setFieldsValue(stateUserDetails);
-  }, [form, stateUserDetails]);
+    form.setFieldsValue(shippingAddress);
+  }, [form, shippingAddress]);
 
   useEffect(() => {
-    if (isOpenModalUpdateInfo) {
-      setStateUserDetails({
-        city: user?.city,
-        name: user?.name,
-        address: user?.address,
-        phone: user?.phone,
+    if (isOpenModalUpdateAddress) {
+      setShippingAddress({
+        recipientName: order?.shippingAddress?.recipientName ?? user?.name,
+        address: order?.shippingAddress?.address ?? user?.address,
+        phone: order?.shippingAddress?.phone ?? user?.phone,
       });
     }
-  }, [isOpenModalUpdateInfo]);
+  }, [isOpenModalUpdateAddress]);
 
   const handleChangeAddress = () => {
-    setIsOpenModalUpdateInfo(true);
+    setIsOpenModalUpdateAddress(true);
   };
-
-  const priceMemo = useMemo(() => {
-    const result = order?.orderItemsSelected?.reduce((total, cur) => {
-      return total + cur.price * cur.quantity;
-    }, 0);
-    return result;
-  }, [order]);
-
-  const priceDiscountMemo = useMemo(() => {
-    const result = order?.orderItemsSelected?.reduce((total, cur) => {
-      const totalDiscount = cur.discount ? cur.discount : 0;
-      return total + (priceMemo * (totalDiscount * cur.quantity)) / 100;
-    }, 0);
-    if (Number(result)) {
-      return result;
-    }
-    return 0;
-  }, [order]);
-
-  const diliveryPriceMemo = useMemo(() => {
-    if (priceMemo > 200000) {
-      return 10000;
-    } else if (priceMemo === 0) {
-      return 0;
-    } else {
-      return 20000;
-    }
-  }, [priceMemo]);
-
-  const totalPriceMemo = useMemo(() => {
-    return (
-      Number(priceMemo) - Number(priceDiscountMemo) + Number(diliveryPriceMemo)
-    );
-  }, [priceMemo, priceDiscountMemo, diliveryPriceMemo]);
 
   const handleAddOrder = () => {
     if (
       user?.access_token &&
       order?.orderItemsSelected &&
-      user?.name &&
-      user?.address &&
-      user?.phone &&
-      user?.city &&
-      priceMemo &&
-      user?.id
+      order?.shippingAddress.recipientName &&
+      order?.shippingAddress.address &&
+      order?.shippingAddress.phone &&
+      paymentMethod &&
+      order?.itemsPrice &&
+      order?.shippingFee &&
+      order?.shippingPrice &&
+      order?.totalPrice &&
+      order?.user
     ) {
       // eslint-disable-next-line no-unused-expressions
       mutationAddOrder.mutate({
         token: user?.access_token,
         orderItems: order?.orderItemsSelected,
-        recipientName: user?.name,
-        address: user?.address,
-        phone: user?.phone,
-        city: user?.city,
-        paymentMethod: payment,
-        itemsPrice: priceMemo,
-        shippingPrice: diliveryPriceMemo,
-        totalPrice: totalPriceMemo,
-        user: user?.id,
-        email: user?.email,
+        recipientName: order?.shippingAddress.recipientName,
+        address: order?.shippingAddress.address,
+        phone: order?.shippingAddress.phone,
+        paymentMethod: paymentMethod,
+        itemsPrice: order?.itemsPrice,
+        shippingFee: order?.shippingFee,
+        shippingPrice: order?.shippingPrice,
+        totalPrice: order?.totalPrice,
+        user: order?.user,
       });
     }
   };
-
-  const mutationUpdate = useMutationHooks((data) => {
-    const { id, token, ...rests } = data;
-    const res = UserService.updateUser(id, { ...rests }, token);
-    return res;
-  });
 
   const mutationAddOrder = useMutationHooks((data) => {
     const { token, ...rests } = data;
@@ -137,7 +98,6 @@ const PaymentPage = () => {
     return res;
   });
 
-  const { isPending, data } = mutationUpdate;
   const {
     data: dataAdded,
     isPending: isPendingAddOrder,
@@ -151,91 +111,74 @@ const PaymentPage = () => {
       order?.orderItemsSelected?.forEach((element) => {
         arrayOrdered.push(element.product);
       });
-      dispatch(removeAllOrderItem({ listChecked: arrayOrdered }));
+      dispatch(
+        removeAllOrderItem({ listChecked: arrayOrdered, userId: user.id })
+      );
       message.success("Đặt hàng thành công");
+      // console.log(dataAdded);
       navigate(`/order-details/${dataAdded.data._id}`);
+    } else if (dataAdded?.status === "ERR") {
+      console.log(dataAdded?.message);
+      message.error(dataAdded?.message);
     } else if (isError) {
       message.error();
     }
   }, [isSuccess, isError]);
 
   const handleCancelUpdate = () => {
-    setStateUserDetails({
-      name: "",
+    setShippingAddress({
+      recipientName: "",
       email: "",
       phone: "",
-      isAdmin: false,
     });
     form.resetFields();
-    setIsOpenModalUpdateInfo(false);
+    setIsOpenModalUpdateAddress(false);
   };
 
-  
-
-  const handleUpdateInfoUser = () => {
-    const { name, address, city, phone } = stateUserDetails;
-    if (name && address && city && phone) {
-      mutationUpdate.mutate(
-        { id: user?.id, token: user?.access_token, ...stateUserDetails },
-        {
-          onSuccess: () => {
-            dispatch(updateUser({ name, address, city, phone }));
-            setIsOpenModalUpdateInfo(false);
-          },
-        }
+  const handleUpdateShippingAddress = () => {
+    const { recipientName, address, phone } = shippingAddress;
+    if (recipientName && address && phone) {
+      dispatch(
+        updateShippingAddress({
+          recipientName,
+          address,
+          phone,
+          userId: user.id,
+        })
       );
     }
+    setIsOpenModalUpdateAddress(false);
   };
 
   const handleOnchangeDetails = (e) => {
-    setStateUserDetails({
-      ...stateUserDetails,
+    setShippingAddress({
+      ...shippingAddress,
       [e.target.name]: e.target.value,
     });
   };
-  const handleDilivery = (e) => {
-    setDelivery(e.target.value);
-  };
 
-  const handlePayment = (e) => {
-    setPayment(e.target.value);
+  const handleChangePayment = (e) => {
+    setPaymentMethod(e.target.value);
   };
 
   return (
     <div style={{ background: "#f5f5fa", with: "100%", height: "100vh" }}>
       <Loading isPending={isPendingAddOrder}>
         <div style={{ height: "100%", width: "1270px", margin: "0 auto" }}>
-          <h2>Thanh toán</h2>
+          <h2 style={{ padding: "10px 0" }}>Thanh toán</h2>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <WrapperLeft>
               <WrapperInfo>
                 <div>
-                  <Label>Chọn phương thức giao hàng</Label>
-                  <WrapperRadio onChange={handleDilivery} value={delivery}>
-                    <Radio value="fast">
-                      <span style={{ color: "#ea8500", fontWeight: "bold" }}>
-                        FAST
-                      </span>{" "}
-                      Giao hàng tiết kiệm
-                    </Radio>
-                    <Radio value="gojek">
-                      <span style={{ color: "#ea8500", fontWeight: "bold" }}>
-                        GO_JEK
-                      </span>{" "}
-                      Giao hàng tiết kiệm
-                    </Radio>
-                  </WrapperRadio>
-                </div>
-              </WrapperInfo>
-              <WrapperInfo>
-                <div>
                   <Label>Chọn phương thức thanh toán</Label>
-                  <WrapperRadio onChange={handlePayment} value={payment}>
-                    <Radio value="later_money">
-                      {" "}
-                      Thanh toán tiền mặt khi nhận hàng
+                  <WrapperRadio
+                    onChange={handleChangePayment}
+                    value={paymentMethod}
+                  >
+                    <Radio value="cash_on_delivery">
+                      {" " + orderConstant.payment["cash_on_delivery"]}
                     </Radio>
-                    <Radio value="paypal"> Thanh toán tiền bằng paypal</Radio>
+                    <Radio value="online">{" " + orderConstant.payment["online"]}</Radio>
                   </WrapperRadio>
                 </div>
               </WrapperInfo>
@@ -246,7 +189,7 @@ const PaymentPage = () => {
                   <div>
                     <span>Địa chỉ: </span>
                     <span style={{ fontWeight: "bold" }}>
-                      {`${user?.address} ${user?.city}`}{" "}
+                      {order?.shippingAddress?.address + " "}
                     </span>
                     <span
                       onClick={handleChangeAddress}
@@ -272,25 +215,7 @@ const PaymentPage = () => {
                         fontWeight: "bold",
                       }}
                     >
-                      {convertPrice(priceMemo)}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <span>Giảm giá</span>
-                    <span
-                      style={{
-                        color: "#000",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {convertPrice(priceDiscountMemo)}
+                      {convertPrice(order.itemsPrice)}
                     </span>
                   </div>
                   <div
@@ -308,7 +233,7 @@ const PaymentPage = () => {
                         fontWeight: "bold",
                       }}
                     >
-                      {convertPrice(diliveryPriceMemo)}
+                      {convertPrice(order.shippingFee)}
                     </span>
                   </div>
                 </WrapperInfo>
@@ -322,10 +247,7 @@ const PaymentPage = () => {
                         fontWeight: "bold",
                       }}
                     >
-                      {convertPrice(totalPriceMemo)}
-                    </span>
-                    <span style={{ color: "#000", fontSize: "11px" }}>
-                      (Đã bao gồm VAT nếu có)
+                      {convertPrice(order.totalPrice)}
                     </span>
                   </span>
                 </WrapperTotal>
@@ -353,70 +275,54 @@ const PaymentPage = () => {
         </div>
         <ModalComponent
           title="Cập nhật thông tin giao hàng"
-          open={isOpenModalUpdateInfo}
+          open={isOpenModalUpdateAddress}
           onCancel={handleCancelUpdate}
-          onOk={handleUpdateInfoUser}
+          onOk={() => form.submit()}
         >
-          <Loading isPending={isPending}>
-            <Form
-              name="basic"
-              labelCol={{ span: 4 }}
-              wrapperCol={{ span: 20 }}
-              // onFinish={handleUpdateUser}
-              autoComplete="on"
-              form={form}
+          <Form
+            name="basic"
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            onFinish={handleUpdateShippingAddress}
+            autoComplete="on"
+            form={form}
+          >
+            <Form.Item
+              label="Tên người nhận"
+              name="recipientName"
+              rules={[{ required: true, message: "Mời nhập tên người nhận!" }]}
             >
-              <Form.Item
-                label="Name"
-                name="name"
-                rules={[{ required: true, message: "Please input your name!" }]}
-              >
-                <InputComponent
-                  value={stateUserDetails["name"]}
-                  onChange={handleOnchangeDetails}
-                  name="name"
-                />
-              </Form.Item>
-              <Form.Item
-                label="City"
-                name="city"
-                rules={[{ required: true, message: "Please input your city!" }]}
-              >
-                <InputComponent
-                  value={stateUserDetails["city"]}
-                  onChange={handleOnchangeDetails}
-                  name="city"
-                />
-              </Form.Item>
-              <Form.Item
-                label="Phone"
-                name="phone"
-                rules={[
-                  { required: true, message: "Please input your  phone!" },
-                ]}
-              >
-                <InputComponent
-                  value={stateUserDetails.phone}
-                  onChange={handleOnchangeDetails}
-                  name="phone"
-                />
-              </Form.Item>
+              <InputComponent
+                value={shippingAddress.recipientName}
+                onChange={handleOnchangeDetails}
+                name="recipientName"
+              />
+            </Form.Item>
 
-              <Form.Item
-                label="Address"
+            <Form.Item
+              label="Số điện thoại"
+              name="phone"
+              rules={[{ required: true, message: "Mời nhập số điện thoại!" }]}
+            >
+              <InputComponent
+                value={shippingAddress.phone}
+                onChange={handleOnchangeDetails}
+                name="phone"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Địa chỉ"
+              name="address"
+              rules={[{ required: true, message: "Mời nhập địa chỉ!" }]}
+            >
+              <InputComponent
+                value={shippingAddress.address}
+                onChange={handleOnchangeDetails}
                 name="address"
-                rules={[
-                  { required: true, message: "Please input your  address!" },
-                ]}
-              >
-                <InputComponent
-                  value={stateUserDetails.address}
-                  onChange={handleOnchangeDetails}
-                  name="address"
-                />
-              </Form.Item>
-            </Form>
-          </Loading>
+              />
+            </Form.Item>
+          </Form>
         </ModalComponent>
       </Loading>
     </div>

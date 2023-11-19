@@ -43,7 +43,7 @@ const AdminUser = () => {
   // lấy tất cả user từ db
   const getAllUsers = async () => {
     const res = await UserService.getAllUsers(user?.access_token);
-    return { data: res?.data, key: "users" };
+    return res?.data;
   };
 
   const { data: users, isPending: isPendingUsers } = useQuery({
@@ -53,8 +53,8 @@ const AdminUser = () => {
 
   // table
   const dataTable =
-    users?.data?.length > 0 &&
-    users?.data?.map((user) => {
+    users?.length > 0 &&
+    users?.map((user) => {
       return { ...user, key: user._id };
     });
 

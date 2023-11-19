@@ -13,6 +13,7 @@ import Loading from "../../components/LoadingComponent/Loading";
 const HomePage = () => {
   const searchProduct = useSelector((state) => state?.product?.search);
   const searchDebounce = useDebounce(searchProduct, 500);
+  // console.log('searchDebounce:', searchDebounce);
   const [limit, setLimit] = useState(6);
 
   const fetchAllProducts = async (context) => {
@@ -47,14 +48,16 @@ const HomePage = () => {
   // console.log(isPendingProducts, isPendingCategories);
 
   return (
-    <Loading isPending={isPendingProducts || isPendingCategories}>
+    <>
       <div style={{ width: "1270px", margin: "0 auto" }}>
-        <WrapperCategory>
-          <h3 style={{marginLeft: "10px"}}>Danh mục:</h3>
-          {categories?.data?.map((item) => {
-            return <Category category={item} key={item._id} />;
-          })}
-        </WrapperCategory>
+        <Loading isPending={isPendingCategories}>
+          <WrapperCategory>
+            <h3 style={{ marginLeft: "10px" }}>Danh mục:</h3>
+            {categories?.data?.map((item) => {
+              return <Category category={item} key={item._id} />;
+            })}
+          </WrapperCategory>
+        </Loading>
       </div>
       <div
         className="body"
@@ -64,24 +67,26 @@ const HomePage = () => {
           id="container"
           style={{ height: "1000px", width: "1270px", margin: "0 auto" }}
         >
-          <WrapperProducts>
-            {products?.data?.map((product) => {
-              return (
-                <CardComponent
-                  key={product._id}
-                  quantityInStock={product.quantityInStock}
-                  description={product.description}
-                  image={product.image}
-                  name={product.name}
-                  price={product.price}
-                  category={product.category}
-                  sold={product.sold}
-                  discount={product.discount}
-                  id={product._id}
-                />
-              );
-            })}
-          </WrapperProducts>
+          <Loading isPending={isPendingProducts}>
+            <WrapperProducts>
+              {products?.data?.map((product) => {
+                return (
+                  <CardComponent
+                    key={product._id}
+                    quantityInStock={product.quantityInStock}
+                    description={product.description}
+                    image={product.image}
+                    name={product.name}
+                    price={product.price}
+                    category={product.category}
+                    sold={product.sold}
+                    discount={product.discount}
+                    id={product._id}
+                  />
+                );
+              })}
+            </WrapperProducts>
+          </Loading>
           <div
             style={{
               width: "100%",
@@ -121,7 +126,7 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-    </Loading>
+    </>
   );
 };
 

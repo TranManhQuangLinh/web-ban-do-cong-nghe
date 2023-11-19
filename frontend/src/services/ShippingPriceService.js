@@ -1,5 +1,14 @@
 import { axiosJWT } from "./UserService";
 
+export const getShippingPrice = async (data) => {
+  // console.log('data:', data);
+  const res = await axiosJWT.post(
+    `${process.env.REACT_APP_API_URL}/shipping-price/get-shipping-price`,
+    data
+  );
+  return res.data;
+};
+
 export const getAllShippingPrices = async (access_token) => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}/shipping-price/get-all-shipping-prices`,

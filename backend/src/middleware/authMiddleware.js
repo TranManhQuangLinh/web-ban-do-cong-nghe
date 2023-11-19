@@ -26,6 +26,30 @@ const authAdminMiddleWare = (req, res, next) => {
   });
 };
 
+// chỉ user có id giống id trên param
+const authUserMiddleWare = (req, res, next) => {
+  const token = req.headers.token?.split(" ")[1];
+  const userId = req.params.userId;
+  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
+    if (err) {
+      return res.status(401).json({
+        message: err.message,
+        status: "ERROR",
+      });
+    }
+    // console.log(user.id === userId);
+    if (user?.id === userId) {
+      req.loggedInUserRole = user.role;
+      next();
+    } else {
+      return res.status(401).json({
+        message: "user authentication error",
+        status: "ERROR",
+      });
+    }
+  });
+};
+
 // chỉ admin và user có id giống id trên param
 const authAdminUserMiddleWare = (req, res, next) => {
   const token = req.headers.token.split(" ")[1];
@@ -52,5 +76,6 @@ const authAdminUserMiddleWare = (req, res, next) => {
 
 module.exports = {
   authAdminMiddleWare,
+  authUserMiddleWare,
   authAdminUserMiddleWare,
 };

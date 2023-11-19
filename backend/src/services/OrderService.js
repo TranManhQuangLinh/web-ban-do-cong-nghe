@@ -5,30 +5,29 @@ const createOrder = (newOrder) => {
   return new Promise(async (resolve, reject) => {
     const {
       orderItems,
-      paymentMethod,
-      itemsPrice,
-      shippingPrice,
-      totalPrice,
       recipientName,
       address,
-      city,
       phone,
+      paymentMethod,
+      itemsPrice,
+      shippingFee,
+      shippingPrice,
+      totalPrice,
       user,
-      isPaid,
-      paidAt,
-      email,
     } = newOrder;
     try {
-      const promises = orderItems.map(async (order) => {
+      const promises = orderItems.map(async (item) => {
         const productData = await Product.findOneAndUpdate(
           {
-            _id: order.product,
-            quantityInStock: { $gte: order.quantity },
+            // find
+            _id: item.product,
+            quantityInStock: { $gte: item.quantity }, // quantityInStock >= item.quantity
           },
           {
+            // update
             $inc: {
-              quantityInStock: -order.quantity,
-              sold: +order.quantity,
+              quantityInStock: -item.quantity,
+              sold: +item.quantity,
             },
           },
           { new: true }
@@ -40,22 +39,22 @@ const createOrder = (newOrder) => {
           };
         } else {
           return {
-            status: "OK",
-            message: "ERR",
-            id: order.product,
+            status: "ERR",
+            name: item.name,
           };
         }
       });
       const results = await Promise.all(promises);
-      const newData = results && results.filter((item) => item.id);
-      if (newData.length) {
-        const arrId = [];
-        newData.forEach((item) => {
-          arrId.push(item.id);
+      const errorData =
+        results && results.filter((item) => item.status === "ERR");
+      if (errorData.length) {
+        const arr = [];
+        errorData.forEach((item) => {
+          arr.push(item.name);
         });
         resolve({
           status: "ERR",
-          message: `San pham voi id: ${arrId.join(",")} khong du hang`,
+          message: `Sản phẩm: ${arr.join(",")} không đủ hàng`,
         });
       } else {
         const createdOrder = await Order.create({
@@ -63,21 +62,20 @@ const createOrder = (newOrder) => {
           shippingAddress: {
             recipientName,
             address,
-            city,
             phone,
           },
           paymentMethod,
           itemsPrice,
+          shippingFee,
           shippingPrice,
           totalPrice,
-          user: user,
-          isPaid,
-          paidAt,
+          user,
         });
         if (createdOrder) {
           resolve({
             status: "OK",
-            message: "success",
+            message: "SUCCESS",
+            data: createdOrder,
           });
         }
       }
@@ -87,20 +85,6 @@ const createOrder = (newOrder) => {
     }
   });
 };
-
-// const deleteManyProducts = (ids) => {
-//     return new Promise(async (resolve, reject) => {
-//         try {
-//             await Product.deleteMany({ _id: ids })
-//             resolve({
-//                 status: 'OK',
-//                 message: 'Delete product success',
-//             })
-//         } catch (e) {
-//             reject(e)
-//         }
-//     })
-// }
 
 const getAllUserOrders = (id) => {
   return new Promise(async (resolve, reject) => {
@@ -152,54 +136,54 @@ const getDetailsOrder = (id) => {
   });
 };
 
-const cancelOrder = (id, data) => {
+const cancelOrder = (id, orderItems) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let order = [];
-      const promises = data.map(async (order) => {
+      let order;
+      const promises = orderItems.map(async (item) => {
         const productData = await Product.findOneAndUpdate(
           {
-            _id: order.product,
-            sold: { $gte: order.quantity },
+            // find
+            _id: item.product,
+            sold: { $gte: item.quantity }, // sold >= item.quantity
           },
           {
+            // update
             $inc: {
-              quantityInStock: +order.quantity,
-              sold: -order.quantity,
+              quantityInStock: +item.quantity,
+              sold: -item.quantity,
             },
           },
           { new: true }
         );
         if (productData) {
-          order = await Order.findByIdAndDelete(id);
-          if (order === null) {
-            resolve({
-              status: "ERR",
-              message: "order not found",
-            });
-          }
-        } else {
           return {
             status: "OK",
-            message: "ERR",
-            id: order.product,
+            message: "SUCCESS",
+          };
+        } else {
+          return {
+            status: "ERR",
+            name: item.name,
           };
         }
       });
       const results = await Promise.all(promises);
-      const newData = results && results[0] && results[0].id;
 
-      if (newData) {
+      order = await Order.findByIdAndDelete(id);
+      if (order === null) {
         resolve({
           status: "ERR",
-          message: `San pham voi id: ${newData} khong ton tai`,
+          message: "order not found",
+        });
+      } else {
+        resolve({
+          status: "OK",
+          message: "SUCCESS",
+          data: order,
         });
       }
-      resolve({
-        status: "OK",
-        message: "success",
-        data: order,
-      });
+      
     } catch (e) {
       reject(e);
     }

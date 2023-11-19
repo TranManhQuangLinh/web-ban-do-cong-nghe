@@ -1,4 +1,4 @@
-import styled  from "styled-components";
+import styled from "styled-components";
 
 export const WrapperStyleHeader = styled.div`
   background: rgb(255, 255, 255);
@@ -11,7 +11,7 @@ export const WrapperStyleHeader = styled.div`
     font-weight: 400;
     font-size: 13px;
   }
-`
+`;
 export const WrapperStyleHeaderDelivery = styled.div`
   background: rgb(255, 255, 255);
   padding: 9px 16px;
@@ -22,41 +22,41 @@ export const WrapperStyleHeaderDelivery = styled.div`
     color: rgb(36, 36, 36);
     font-weight: 400;
     font-size: 13px;
-  };
+  }
   margin-bottom: 4px;
-`
+`;
 
 export const WrapperContainer = styled.div`
   width: 100%;
   background-color: #f5f5fa;
-`
+`;
 
 export const WrapperLeft = styled.div`
   width: 910px;
-`
+`;
 
 export const WrapperListOrder = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding-top: 20px;
-`
+`;
 export const WrapperFooterItem = styled.div`
   display: flex;
-  flex-direction : column;
+  flex-direction: column;
   gap: 10px;
   border-top: 1px solid rgb(235, 235, 240);
   width: 100%;
-  align-items:flex-end;
+  align-items: flex-end;
   padding-top: 10px;
-`
+`;
 
 export const WrapperHeaderItem = styled.div`
   display: flex;
-  align-items:flex-start;
+  align-items: flex-start;
   height: 90px;
   width: 100%;
-`
+`;
 
 export const WrapperItemOrder = styled.div`
   display: flex;
@@ -70,14 +70,18 @@ export const WrapperItemOrder = styled.div`
   background: #fff;
   border-radius: 6px;
   box-shadow: 0 12px 12px #ccc;
-`
+`;
 
 export const WrapperStatus = styled.div`
-  display:flex;
-  align-item:flex-start;
+  display: flex;
+  align-item: flex-start;
   width: 100%;
   margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgb(235, 235, 240);
-  flex-direction:column;
-`
+  flex-direction: column;
+`;
+
+export const WrapperCurrentStatus = styled.span`
+  color: #faad14;
+`;

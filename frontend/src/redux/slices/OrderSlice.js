@@ -1,47 +1,81 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
-  orderItems: [],
-  orderItemsSelected: [],
-  shippingAddress: {},
-  user: "",
-  paymentMethod: "",
-  itemsPrice: 0,
-  shippingFee: 0,
-  shippingPrice: "",
-  totalPrice: 0,
-  currentStatus: "",
-  updateHistory: [],
-};
+const initialState = [
+  {
+    orderItems: [],
+    orderItemsSelected: [],
+    shippingAddress: {},
+    user: "",
+    paymentMethod: "",
+    itemsPrice: 0,
+    shippingFee: 0,
+    shippingPrice: "",
+    totalPrice: 0,
+    currentStatus: "",
+    updateHistory: [],
+  },
+];
 
 export const orderSlice = createSlice({
-  name: "order",
+  name: "orders",
   initialState,
   reducers: {
+    initOrder: (state, action) => {
+      const { userId } = action.payload;
+      const order = state.find((order) => order.user === "");
+      if (order) order.user = userId;
+      else
+        state.push({
+          orderItems: [],
+          orderItemsSelected: [],
+          shippingAddress: {},
+          user: userId,
+          paymentMethod: "",
+          itemsPrice: 0,
+          shippingFee: 0,
+          shippingPrice: "",
+          totalPrice: 0,
+          currentStatus: "",
+          updateHistory: [],
+        });
+    },
     addOrderItem: (state, action) => {
-      const { orderItem } = action.payload;
-      const itemOrder = state?.orderItems?.find(
-        (item) => item?.product === orderItem.product
+      const { orderItem, userId } = action.payload;
+      const userOrder = state.find((order) => order.user === userId);
+      const itemOrder = userOrder.orderItems.find(
+        (item) => item.product === orderItem.product
       );
+
       if (itemOrder) {
         if (itemOrder.quantity <= itemOrder.quantityInStock) {
-          itemOrder.quantity += orderItem?.quantity;
-          state.isSuccessOrder = true;
-          state.isErrorOrder = false;
+          itemOrder.quantity += orderItem.quantity;
         }
       } else {
-        state.orderItems.push(orderItem);
+        userOrder.orderItems.push(orderItem);
       }
     },
-    resetOrder: (state) => {
-      state.isSuccessOrder = false;
-    },
-    increaseAmount: (state, action) => {
-      const { idProduct } = action.payload;
-      const itemOrder = state?.orderItems?.find(
+    changeAmount: (state, action) => {
+      const { idProduct, value, userId } = action.payload;
+      const userOrder = state.find((order) => order.user === userId);
+      const itemOrder = userOrder.orderItems?.find(
         (item) => item?.product === idProduct
       );
-      const itemOrderSelected = state?.orderItemsSelected?.find(
+      const itemOrderSelected = userOrder.orderItemsSelected?.find(
+        (item) => item?.product === idProduct
+      );
+      itemOrder.quantity = value;
+      if (itemOrderSelected) {
+        itemOrderSelected.quantity = value;
+      }
+    },
+    increaseAmount: (state, action) => {
+      const { idProduct, userId } = action.payload;
+      const userOrder = state.find((order) => order.user === userId);
+
+      const itemOrder = userOrder.orderItems?.find(
+        (item) => item?.product === idProduct
+      );
+      const itemOrderSelected = userOrder.orderItemsSelected?.find(
         (item) => item?.product === idProduct
       );
       itemOrder.quantity++;
@@ -50,11 +84,13 @@ export const orderSlice = createSlice({
       }
     },
     decreaseAmount: (state, action) => {
-      const { idProduct } = action.payload;
-      const itemOrder = state?.orderItems?.find(
+      const { idProduct, userId } = action.payload;
+      const userOrder = state.find((order) => order.user === userId);
+
+      const itemOrder = userOrder.orderItems?.find(
         (item) => item?.product === idProduct
       );
-      const itemOrderSelected = state?.orderItemsSelected?.find(
+      const itemOrderSelected = userOrder.orderItemsSelected?.find(
         (item) => item?.product === idProduct
       );
       itemOrder.quantity--;
@@ -63,52 +99,87 @@ export const orderSlice = createSlice({
       }
     },
     removeOrderItem: (state, action) => {
-      const { idProduct } = action.payload;
+      const { idProduct, userId } = action.payload;
+      const userOrder = state.find((order) => order.user === userId);
 
-      const itemOrder = state?.orderItems?.filter(
+      const itemOrder = userOrder.orderItems?.filter(
         (item) => item?.product !== idProduct
       );
-      const itemOrderSeleted = state?.orderItemsSelected?.filter(
+      const itemOrderSelected = userOrder.orderItemsSelected?.filter(
         (item) => item?.product !== idProduct
       );
 
-      state.orderItems = itemOrder;
-      state.orderItemsSelected = itemOrderSeleted;
+      userOrder.orderItems = itemOrder;
+      userOrder.orderItemsSelected = itemOrderSelected;
     },
     removeAllOrderItem: (state, action) => {
-      const { listChecked } = action.payload;
+      const { listChecked, userId } = action.payload;
+      const userOrder = state.find((order) => order.user === userId);
 
-      const itemOrders = state?.orderItems?.filter(
+      const itemOrders = userOrder.orderItems?.filter(
         (item) => !listChecked.includes(item.product)
       );
-      const itemOrdersSelected = state?.orderItems?.filter(
+      const itemOrdersSelected = userOrder.orderItems?.filter(
         (item) => !listChecked.includes(item.product)
       );
-      state.orderItems = itemOrders;
-      state.orderItemsSelected = itemOrdersSelected;
+      userOrder.orderItems = itemOrders;
+      userOrder.orderItemsSelected = itemOrdersSelected;
     },
     selectedOrderItem: (state, action) => {
-      const { listChecked } = action.payload;
+      const { listChecked, userId } = action.payload;
+      const userOrder = state.find((order) => order.user === userId);
+
       const orderItemsSelected = [];
-      state.orderItems.forEach((order) => {
+      userOrder.orderItems.forEach((order) => {
         if (listChecked.includes(order.product)) {
           orderItemsSelected.push(order);
         }
       });
-      state.orderItemsSelected = orderItemsSelected;
+      userOrder.orderItemsSelected = orderItemsSelected;
+    },
+    updateShippingAddress: (state, action) => {
+      const { recipientName, address, phone, userId } = action.payload;
+      const userOrder = state.find((order) => order.user === userId);
+
+      userOrder.shippingAddress = {
+        recipientName: recipientName,
+        address: address,
+        phone: phone,
+      };
+    },
+    updateOrder: (state, action) => {
+      const {
+        userId,
+        itemsPrice,
+        shippingFee,
+        shippingPrice,
+        totalPrice,
+        paymentMethod,
+      } = action.payload;
+      const userOrder = state.find((order) => order.user === userId);
+
+      userOrder.itemsPrice = itemsPrice;
+      userOrder.shippingFee = shippingFee;
+      userOrder.shippingPrice = shippingPrice;
+      userOrder.totalPrice = totalPrice;
+      userOrder.paymentMethod = paymentMethod;
     },
   },
 });
 
 // Action creators are generated for each case reducer function
 export const {
+  initOrder,
   addOrderItem,
+  changeAmount,
   increaseAmount,
   decreaseAmount,
   removeOrderItem,
   removeAllOrderItem,
   selectedOrderItem,
   resetOrder,
+  updateShippingAddress,
+  updateOrder,
 } = orderSlice.actions;
 
 export default orderSlice.reducer;

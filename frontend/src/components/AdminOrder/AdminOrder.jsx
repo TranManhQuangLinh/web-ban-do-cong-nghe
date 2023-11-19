@@ -20,11 +20,11 @@ const AdminOrder = () => {
 
   const getAllOrders = async () => {
     const res = await OrderService.getAllOrders(user?.access_token);
-    return res;
+    return res?.data;
   };
 
   const queryOrder = useQuery({ queryKey: ["orders"], queryFn: getAllOrders });
-  const { isPending: isPendingOrders, data: orders } = queryOrder;
+  const { data: orders, isPending: isPendingOrders } = queryOrder;
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -152,8 +152,8 @@ const AdminOrder = () => {
   ];
 
   const dataTable =
-    orders?.data?.length &&
-    orders?.data?.map((order) => {
+    orders?.length &&
+    orders?.map((order) => {
       console.log("order", order);
       return {
         ...order,

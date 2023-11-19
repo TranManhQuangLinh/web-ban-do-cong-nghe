@@ -42,6 +42,13 @@ export const WrapperCountOrder = styled.div`
   border-radius: 4px;
 `;
 
+export const WrapperLimitOrder = styled.div`
+  color: rgb(252, 130, 10);
+  margin: 4px 0px 0px;
+  font-size: 12px;
+  font-weight: 400;
+`;
+
 export const WrapperRight = styled.div`
   width: 320px;
   margin-left: 20px;
@@ -57,6 +64,13 @@ export const WrapperInfo = styled.div`
   background: #fff;
   border-top-right-radius: 6px;
   border-top-left-radius: 6px;
+  width: 100%;
+`;
+
+export const WrapperInfoBody = styled.div`
+  padding: 17px 20px;
+  border-bottom: 1px solid #f5f5f5;
+  background: #fff;
   width: 100%;
 `;
 

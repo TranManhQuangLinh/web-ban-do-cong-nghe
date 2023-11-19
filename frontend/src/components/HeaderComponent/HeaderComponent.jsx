@@ -6,15 +6,17 @@ import {
   WrapperTextHeader,
   WrapperTextHeaderSmall,
 } from "./style";
-import { CaretDownOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 import ButtonInputSearch from "../ButtonInputSearch/ButtonInputSearch";
 import { Badge, Col, Popover } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import Loading from "../LoadingComponent/Loading";
 import * as UserService from "../../services/UserService";
 import { resetUser } from "../../redux/slices/UserSlice";
+import { searchProduct } from "../../redux/slices/productSlide";
+import { initOrder } from "../../redux/slices/OrderSlice";
 
 const HeaderComponent = ({
   isHiddenSearch = false,
@@ -23,11 +25,17 @@ const HeaderComponent = ({
   style,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const user = useSelector((state) => state.user);
-  const order = useSelector((state) => state.order);
+  const order = useSelector((state) =>
+    state.orders?.find((order) => order.user === user.id)
+  );
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [isOpenPopover, setIsOpenPopover] = useState(false);
+  if (!order && !!user) {
+    dispatch(initOrder({ userId: user.id }));
+  }
 
   const content = () => {
     if (user.id !== "") {
@@ -70,12 +78,7 @@ const HeaderComponent = ({
         navigate("/admin");
         break;
       case "my-order":
-        navigate("/my-order", {
-          state: {
-            id: user?.id,
-            token: user?.access_token,
-          },
-        });
+        navigate("/my-order");
         break;
       default:
         handleLogout();
@@ -93,7 +96,7 @@ const HeaderComponent = ({
   };
 
   const handleSignInClick = () => {
-    navigate("/sign-in");
+    navigate('/sign-in', {state: location?.pathname})
   };
   const handleSignUpClick = () => {
     navigate("/sign-up");
@@ -101,6 +104,11 @@ const HeaderComponent = ({
   const handleCartClick = () => {
     if (user?.id !== "") navigate("/cart");
     else handleSignInClick();
+  };
+
+  const handleSearch = (value) => {
+    dispatch(searchProduct(value));
+    if (location.pathname !== "/") navigate("/");
   };
 
   return (
@@ -131,6 +139,7 @@ const HeaderComponent = ({
               buttonText="Tìm kiếm"
               placeholder="Tìm kiếm sản phẩm"
               backgroundColorButton="var(--button-search-color)"
+              handleSearch={handleSearch}
             />
           </Col>
         )}

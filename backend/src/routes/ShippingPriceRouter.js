@@ -4,6 +4,10 @@ const ShippingPriceController = require("../controllers/ShippingPriceController"
 const { authAdminMiddleWare } = require("../middleware/authMiddleware");
 
 router.post(
+  "/get-shipping-price",
+  ShippingPriceController.getShippingPrice
+);
+router.post(
   "/create-shipping-price",
   authAdminMiddleWare,
   ShippingPriceController.createShippingPrice
