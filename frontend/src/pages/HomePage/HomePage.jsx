@@ -102,12 +102,12 @@ const HomePage = () => {
                 border: `1px solid ${
                   products?.total === products?.data?.length
                     ? "#f5f5f5"
-                    : "#9255FD"
+                    : "var(--primary-color)"
                 }`,
                 color: `${
                   products?.total === products?.data?.length
                     ? "#f5f5f5"
-                    : "#9255FD"
+                    : "var(--primary-color)"
                 }`,
                 width: "240px",
                 height: "38px",

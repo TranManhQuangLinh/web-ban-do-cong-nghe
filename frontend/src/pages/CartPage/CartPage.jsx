@@ -6,9 +6,9 @@ import {
   WrapperInfo,
   WrapperInfoBody,
   WrapperItemOrder,
+  WrapperItemPrice,
   WrapperLeft,
   WrapperLimitOrder,
-  WrapperListOrder,
   WrapperRight,
   WrapperStyleHeader,
   WrapperTotal,
@@ -193,7 +193,9 @@ const CartPage = () => {
   }, [priceMemo]);
 
   const totalPriceMemo = useMemo(() => {
-    return Number(priceMemo) + Number(shippingPrice?.shippingFee);
+    if (priceMemo)
+      return Number(priceMemo) + Number(shippingPrice?.shippingFee);
+    else return 0;
   }, [priceMemo, shippingPrice?.shippingFee]);
 
   const handleRemoveAllOrder = () => {
@@ -269,16 +271,12 @@ const CartPage = () => {
                   onChange={handleOnchangeCheckAll}
                   checked={listChecked?.length === order?.orderItems?.length}
                 ></CustomCheckbox>
-                <span> Tất cả ({order?.orderItems?.length} sản phẩm)</span>
+                <span style={{ marginLeft: "15px" }}>
+                  {" "}
+                  Tất cả ({order?.orderItems?.length} sản phẩm)
+                </span>
               </span>
-              <div
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
+              <WrapperItemPrice>
                 <span>Đơn giá</span>
                 <span>Giảm giá</span>
                 <span>Số lượng</span>
@@ -287,9 +285,9 @@ const CartPage = () => {
                   style={{ cursor: "pointer" }}
                   onClick={handleRemoveAllOrder}
                 />
-              </div>
+              </WrapperItemPrice>
             </WrapperStyleHeader>
-            <WrapperListOrder>
+            <div>
               {order?.orderItems?.map((orderItem) => {
                 return (
                   <WrapperItemOrder key={orderItem?.product}>
@@ -312,7 +310,7 @@ const CartPage = () => {
                         style={{
                           width: "77px",
                           height: "79px",
-                          objectFit: "cover",
+                          objectFit: "contain",
                         }}
                       />
                       <div
@@ -320,20 +318,13 @@ const CartPage = () => {
                           width: 260,
                           overflow: "hidden",
                           textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
+                          textWrap: "wrap",
                         }}
                       >
                         {orderItem?.name}
                       </div>
                     </div>
-                    <div
-                      style={{
-                        flex: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
+                    <WrapperItemPrice>
                       <span style={{ fontSize: "13px", color: "#242424" }}>
                         {convertPrice(orderItem?.price)}
                       </span>
@@ -417,11 +408,11 @@ const CartPage = () => {
                         style={{ cursor: "pointer" }}
                         onClick={() => handleDeleteOrder(orderItem?.product)}
                       />
-                    </div>
+                    </WrapperItemPrice>
                   </WrapperItemOrder>
                 );
               })}
-            </WrapperListOrder>
+            </div>
           </WrapperLeft>
           <WrapperRight>
             <div style={{ width: "100%" }}>
@@ -433,7 +424,7 @@ const CartPage = () => {
                   </span>
                   <span
                     onClick={handleChangeAddress}
-                    style={{ color: "#9255FD", cursor: "pointer" }}
+                    style={{ color: "var(--primary-color)", cursor: "pointer" }}
                   >
                     Thay đổi
                   </span>
@@ -474,7 +465,9 @@ const CartPage = () => {
                         fontWeight: "bold",
                       }}
                     >
-                      {convertPrice(shippingPrice?.shippingFee)}
+                      {priceMemo
+                        ? convertPrice(shippingPrice?.shippingFee)
+                        : "0đ"}
                     </span>
                   </Loading>
                 </div>
@@ -489,7 +482,13 @@ const CartPage = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {totalPriceMemo ? convertPrice(totalPriceMemo) : ""}
+                    {totalPriceMemo ? (
+                      convertPrice(totalPriceMemo)
+                    ) : (
+                      <div style={{ fontSize: "16px" }}>
+                        Vui lòng chọn sản phẩm
+                      </div>
+                    )}
                   </span>
                 </span>
               </WrapperTotal>

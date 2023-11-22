@@ -14,13 +14,13 @@ export const WrapperCategory = styled.div`
 export const WrapperButtonMore = styled(ButtonComponent)`
     &:hover {
         color: #fff;
-        background: #9255FD;
+        background: var(--primary-color);
         span {
             color: #fff;
         }
     }
     width: 100%;
-    color: #9255FD;
+    color: var(--primary-color);
     text-align: center;
     cursor: ${(props) => props.disabled ? 'not-allowed' : 'pointers'}
 `

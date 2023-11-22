@@ -46,9 +46,7 @@ const createProduct = (newProduct) => {
 const updateProduct = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkProduct = await Product.findOne({
-        _id: id,
-      });
+      const checkProduct = await Product.findById(id);
       if (checkProduct === null) {
         resolve({
           status: "ERR",
@@ -81,9 +79,7 @@ const updateProduct = (id, data) => {
 const deleteProduct = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkProduct = await Product.findOne({
-        _id: id,
-      });
+      const checkProduct = await Product.findById(id);
       if (checkProduct === null) {
         resolve({
           status: "ERR",
@@ -119,9 +115,7 @@ const deleteManyProducts = (ids) => {
 const getDetailsProduct = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const product = await Product.findOne({
-        _id: id,
-      });
+      const product = await Product.findById(id);
       if (product === null) {
         resolve({
           status: "ERR",

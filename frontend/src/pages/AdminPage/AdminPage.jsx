@@ -1,6 +1,6 @@
 import { Menu } from "antd";
-import React, { useState } from "react";
-import { getItem } from "../../utils";
+import React from "react";
+import { Link, Route, Routes } from "react-router-dom";
 import {
   UserOutlined,
   ShoppingOutlined,
@@ -17,41 +17,18 @@ import AdminOrder from "../../components/AdminOrder/AdminOrder";
 
 const AdminPage = () => {
   const items = [
-    getItem("Người dùng", "users", <UserOutlined />),
-    getItem("Danh mục", "categories", <BarsOutlined />),
-    getItem("Sản phẩm", "products", <ShoppingOutlined />),
-    getItem("Phí giao hàng", "shipping prices", <CarOutlined />),
-    getItem("Đơn hàng", "orders", <ShoppingCartOutlined />),
+    { label: "Người dùng", key: "users", icon: <UserOutlined /> },
+    { label: "Danh mục", key: "categories", icon: <BarsOutlined /> },
+    { label: "Sản phẩm", key: "products", icon: <ShoppingOutlined /> },
+    { label: "Phí giao hàng", key: "shipping-prices", icon: <CarOutlined /> },
+    { label: "Đơn hàng", key: "orders", icon: <ShoppingCartOutlined /> },
   ];
 
-  const [keySelected, setKeySelected] = useState("");
-
-  const renderPage = (key) => {
-    switch (key) {
-      case "users":
-        return <AdminUser />;
-      case "categories":
-        return <AdminCategory />;
-      case "products":
-        return <AdminProduct />;
-      case "shipping prices":
-        return <AdminShippingPrice />;
-      case "orders":
-        return <AdminOrder />;
-      default:
-        return <></>;
-    }
-  };
-
-  const handleOnCLick = ({ key }) => {
-    setKeySelected(key);
-  };
   return (
     <>
       <HeaderComponent
         isHiddenSearch
         isHiddenCart
-        isAdminPage
         style={{ position: "fixed", zIndex: 1000 }}
       />
       <div style={{ display: "flex", overflowX: "hidden" }}>
@@ -64,9 +41,13 @@ const AdminPage = () => {
             position: "fixed",
             marginTop: "52px",
           }}
-          items={items}
-          onClick={handleOnCLick}
-        />
+        >
+          {items.map((item) => (
+            <Menu.Item key={item.key} icon={item.icon}>
+              <Link to={`/admin/${item.key}`}>{item.label}</Link>
+            </Menu.Item>
+          ))}
+        </Menu>
         <div
           style={{
             flex: 1,
@@ -75,7 +56,13 @@ const AdminPage = () => {
             marginTop: "52px",
           }}
         >
-          {renderPage(keySelected)}
+          <Routes>
+            <Route path="users" element={<AdminUser />} />
+            <Route path="categories" element={<AdminCategory />} />
+            <Route path="products" element={<AdminProduct />} />
+            <Route path="shipping-prices" element={<AdminShippingPrice />} />
+            <Route path="orders" element={<AdminOrder />} />
+          </Routes>
         </div>
       </div>
     </>

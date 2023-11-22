@@ -169,18 +169,18 @@ const PaymentPage = () => {
           <div style={{ display: "flex", justifyContent: "center" }}>
             <WrapperLeft>
               <WrapperInfo>
-                <div>
-                  <Label>Chọn phương thức thanh toán</Label>
-                  <WrapperRadio
-                    onChange={handleChangePayment}
-                    value={paymentMethod}
-                  >
-                    <Radio value="cash_on_delivery">
-                      {" " + orderConstant.payment["cash_on_delivery"]}
-                    </Radio>
-                    <Radio value="online">{" " + orderConstant.payment["online"]}</Radio>
-                  </WrapperRadio>
-                </div>
+                <Label>Chọn phương thức thanh toán</Label>
+                <WrapperRadio
+                  onChange={handleChangePayment}
+                  value={paymentMethod}
+                >
+                  <Radio value="cash_on_delivery">
+                    {" " + orderConstant.payment["cash_on_delivery"]}
+                  </Radio>
+                  <Radio value="online">
+                    {" " + orderConstant.payment["online"]}
+                  </Radio>
+                </WrapperRadio>
               </WrapperInfo>
             </WrapperLeft>
             <WrapperRight>
@@ -193,7 +193,7 @@ const PaymentPage = () => {
                     </span>
                     <span
                       onClick={handleChangeAddress}
-                      style={{ color: "#9255FD", cursor: "pointer" }}
+                      style={{ color: "var(--primary-color)", cursor: "pointer" }}
                     >
                       Thay đổi
                     </span>

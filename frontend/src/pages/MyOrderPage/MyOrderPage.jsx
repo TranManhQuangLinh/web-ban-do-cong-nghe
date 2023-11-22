@@ -85,7 +85,7 @@ const MyOrderPage = () => {
             style={{
               width: "70px",
               height: "70px",
-              objectFit: "cover",
+              objectFit: "contain",
               border: "1px solid rgb(238, 238, 238)",
               padding: "2px",
             }}
@@ -95,7 +95,7 @@ const MyOrderPage = () => {
               width: 260,
               overflow: "hidden",
               textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
+              textWrap: "wrap",
               marginLeft: "10px",
             }}
           >
@@ -129,9 +129,9 @@ const MyOrderPage = () => {
                 <WrapperItemOrder key={order?._id}>
                   <WrapperStatus>
                     <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                      Trạng thái:
+                      Trạng thái:{" "}
                       <WrapperCurrentStatus>
-                        {" " + order?.currentStatus}
+                        {order?.currentStatus}
                       </WrapperCurrentStatus>
                     </span>
                   </WrapperStatus>
@@ -156,23 +156,23 @@ const MyOrderPage = () => {
                         onClick={() => handleCancelOrder(order)}
                         buttonStyle={{
                           height: "36px",
-                          border: "1px solid #9255FD",
+                          border: "1px solid var(--primary-color)",
                           borderRadius: "4px",
                         }}
                         buttonText={"Hủy đặt hàng"}
-                        buttonTextStyle={{ color: "#9255FD", fontSize: "14px" }}
+                        buttonTextStyle={{ color: "var(--primary-color)", fontSize: "14px" }}
                         disabled={order?.currentStatus !== "Chờ xử lý"}
-                      ></ButtonComponent>
+                      />
                       <ButtonComponent
                         onClick={() => handleDetailsOrder(order?._id)}
                         buttonStyle={{
                           height: "36px",
-                          border: "1px solid #9255FD",
+                          border: "1px solid var(--primary-color)",
                           borderRadius: "4px",
                         }}
                         buttonText={"Xem chi tiết"}
-                        buttonTextStyle={{ color: "#9255FD", fontSize: "14px" }}
-                      ></ButtonComponent>
+                        buttonTextStyle={{ color: "var(--primary-color)", fontSize: "14px" }}
+                      />
                     </div>
                   </WrapperFooterItem>
                 </WrapperItemOrder>

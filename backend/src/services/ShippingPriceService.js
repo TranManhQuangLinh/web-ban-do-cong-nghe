@@ -30,9 +30,7 @@ const createShippingPrice = (newShippingPrice) => {
 const updateShippingPrice = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkShippingPrice = await ShippingPrice.findOne({
-        _id: id,
-      });
+      const checkShippingPrice = await ShippingPrice.findById(id);
       if (checkShippingPrice === null) {
         resolve({
           status: "ERR",
@@ -72,9 +70,7 @@ const updateShippingPrice = (id, data) => {
 const deleteShippingPrice = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkShippingPrice = await ShippingPrice.findOne({
-        _id: id,
-      });
+      const checkShippingPrice = await ShippingPrice.findById(id);
       // console.log("checkShippingPrice", checkShippingPrice);
       if (checkShippingPrice === null) {
         resolve({
@@ -159,9 +155,7 @@ const getShippingPrice = (price) => {
 const getDetailsShippingPrice = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const shippingPrice = await ShippingPrice.findOne({
-        _id: id,
-      });
+      const shippingPrice = await ShippingPrice.findById(id);
       if (shippingPrice === null) {
         resolve({
           status: "ERR",

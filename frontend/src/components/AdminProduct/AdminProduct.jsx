@@ -16,7 +16,6 @@ import * as ProductService from "../../services/ProductService";
 import * as CategoryService from "../../services/CategoryService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SearchOutlined } from "@ant-design/icons";
-import { Option } from "antd/es/mentions";
 
 const AdminProduct = () => {
   const queryClient = useQueryClient();
@@ -46,14 +45,14 @@ const AdminProduct = () => {
   // lấy tất cả product từ db
   const getAllProducts = async () => {
     const res = await ProductService.getAllProducts();
-    return { data: res?.data, key: "products" };
+    return res?.data;
   };
 
   const { data: products, isPending: isPendingProducts } = useQuery({
     queryKey: ["products"],
     queryFn: getAllProducts,
   });
-  // console.log(products);
+  // console.log("products:", products);
 
   // lấy tất cả category từ db
   const getAllCategories = async () => {
@@ -624,9 +623,9 @@ const AdminProduct = () => {
                   placeholder="Chọn danh mục"
                 >
                   {categories?.data?.map((category) => (
-                    <Option key={category._id} value={category._id}>
+                    <Select.Option key={category._id} value={category._id}>
                       {category.name}
-                    </Option>
+                    </Select.Option>
                   ))}
                 </Select>
               </Form.Item>
@@ -695,7 +694,7 @@ const AdminProduct = () => {
                       style={{
                         height: "60px",
                         width: "60px",
-                        objectFit: "cover",
+                        objectFit: "contain",
                         margin: "0 10px",
                       }}
                       alt="ảnh"
@@ -711,7 +710,7 @@ const AdminProduct = () => {
                   style={{
                     height: "60px",
                     width: "60px",
-                    objectFit: "cover",
+                    objectFit: "contain",
                     marginLeft: "10px",
                   }}
                   alt="ảnh"

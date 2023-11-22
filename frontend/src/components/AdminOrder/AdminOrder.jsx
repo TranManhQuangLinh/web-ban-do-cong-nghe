@@ -1,31 +1,52 @@
 import { Button, Space } from "antd";
-import React from "react";
-import { WrapperHeader } from "./style";
+import React, { useEffect, useRef, useState } from "react";
+import { WrapperCurrentStatus, WrapperHeader } from "./style";
 import TableComponent from "../TableComponent/TableComponent";
 import InputComponent from "../InputComponent/InputComponent";
 import Loading from "../LoadingComponent/Loading";
 import { convertPrice } from "../../utils";
-import { useEffect } from "react";
 
+import * as UserService from "../../services/UserService";
 import * as OrderService from "../../services/OrderService";
 import { useQuery } from "@tanstack/react-query";
-import {
-  SearchOutlined,
-} from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { orderConstant } from "../../constant";
+import ButtonComponent from "../ButtonComponent/ButtonComponent";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AdminOrder = () => {
   const user = useSelector((state) => state?.user);
+  const [rowSelected, setRowSelected] = useState("");
+  const searchInput = useRef(null);
+  const [navigateOrderDetails, setNavigateOrderDetails] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const getDetailsUser = async (id) => {
+    const res = await UserService.getDetailsUser(id, user.access_token);
+    return res.data;
+  };
 
   const getAllOrders = async () => {
     const res = await OrderService.getAllOrders(user?.access_token);
-    return res?.data;
+    // Use Promise.all to asynchronously fetch details for each user
+    const ordersWithUserDetails = await Promise.all(
+      res.data.map(async (order) => {
+        order.user = await getDetailsUser(order.user, user?.access_token);
+        return order;
+      })
+    );
+
+    return ordersWithUserDetails;
   };
 
   const queryOrder = useQuery({ queryKey: ["orders"], queryFn: getAllOrders });
   const { data: orders, isPending: isPendingOrders } = queryOrder;
+  // console.log(orders);
 
+  // search dropdown
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -40,13 +61,13 @@ const AdminOrder = () => {
         onKeyDown={(e) => e.stopPropagation()}
       >
         <InputComponent
-          // ref={searchInput}
+          ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
           onChange={(e) =>
             setSelectedKeys(e.target.value ? [e.target.value] : [])
           }
-          // onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{
             marginBottom: 8,
             display: "block",
@@ -55,7 +76,7 @@ const AdminOrder = () => {
         <Space>
           <Button
             type="primary"
-            // onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
             icon={<SearchOutlined />}
             size="small"
             style={{
@@ -65,7 +86,10 @@ const AdminOrder = () => {
             Search
           </Button>
           <Button
-            // onClick={() => clearFilters && handleReset(clearFilters)}
+            onClick={() => {
+              clearFilters && handleReset(clearFilters);
+              handleSearch(selectedKeys, confirm, dataIndex);
+            }}
             size="small"
             style={{
               width: 90,
@@ -87,96 +111,114 @@ const AdminOrder = () => {
       record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
     onFilterDropdownOpenChange: (visible) => {
       if (visible) {
-        // setTimeout(() => searchInput.current?.select(), 100);
+        setTimeout(() => searchInput.current?.select(), 100);
       }
     },
-    // render: (text) =>
-    //   searchedColumn === dataIndex ? (
-    //     // <Highlighter
-    //     //   highlightStyle={{
-    //     //     backgroundColor: '#ffc069',
-    //     //     padding: 0,
-    //     //   }}
-    //     //   searchWords={[searchText]}
-    //     //   autoEscape
-    //     //   textToHighlight={text ? text.toString() : ''}
-    //     // />
-    //   ) : (
-    //     text
-    //   ),
   });
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+  };
+
+  const renderAction = () => {
+    return (
+      <div>
+        <ButtonComponent
+          buttonStyle={{
+            background: "orange",
+            cursor: "pointer",
+            width: "fit-content",
+            border: "none",
+          }}
+          buttonTextStyle={{
+            color: "#fff",
+            fontWeight: "bold",
+          }}
+          onClick={() => {
+            setNavigateOrderDetails(true);
+          }}
+          buttonText="Sửa"
+        />
+      </div>
+    );
+  };
 
   const columns = [
     {
-      title: "User name",
+      title: "Tên người dùng",
       dataIndex: "userName",
-      sorter: (a, b) => a.userName.length - b.userName.length,
+      sorter: (a, b) => a.userName - b.userName,
       ...getColumnSearchProps("userName"),
     },
     {
-      title: "Phone",
-      dataIndex: "phone",
-      sorter: (a, b) => a.phone.length - b.phone.length,
-      ...getColumnSearchProps("phone"),
+      title: "Trạng thái",
+      dataIndex: "currentStatus",
+      sorter: (a, b) => a.userName - b.userName,
+      ...getColumnSearchProps("currentStatus"),
     },
     {
-      title: "Address",
-      dataIndex: "address",
-      sorter: (a, b) => a.address.length - b.address.length,
-      ...getColumnSearchProps("address"),
-    },
-    {
-      title: "Paided",
-      dataIndex: "isPaid",
-      sorter: (a, b) => a.isPaid.length - b.isPaid.length,
-      ...getColumnSearchProps("isPaid"),
-    },
-    {
-      title: "Shipped",
-      dataIndex: "isDelivered",
-      sorter: (a, b) => a.isDelivered.length - b.isDelivered.length,
-      ...getColumnSearchProps("isDelivered"),
-    },
-    {
-      title: "Payment method",
+      title: "Phương thức thanh toán",
       dataIndex: "paymentMethod",
-      sorter: (a, b) => a.paymentMethod.length - b.paymentMethod.length,
+      sorter: (a, b) => a.paymentMethod - b.paymentMethod,
       ...getColumnSearchProps("paymentMethod"),
     },
     {
-      title: "Total price",
+      title: "Tổng giá",
       dataIndex: "totalPrice",
-      sorter: (a, b) => a.totalPrice.length - b.totalPrice.length,
+      sorter: (a, b) => a.totalPrice - b.totalPrice,
       ...getColumnSearchProps("totalPrice"),
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "action",
+      render: renderAction,
     },
   ];
 
   const dataTable =
     orders?.length &&
     orders?.map((order) => {
-      console.log("order", order);
+      // console.log("order", order);
       return {
         ...order,
-        key: order._id,
-        userName: order?.shippingAddress?.recipientName,
-        phone: order?.shippingAddress?.phone,
-        address: order?.shippingAddress?.address,
+        key: order?._id,
+        currentStatus: (
+          <WrapperCurrentStatus>{order?.currentStatus}</WrapperCurrentStatus>
+        ),
+        userName: order?.user?.name || order?.user?.email, // first truthy value or the last falsy value
         paymentMethod: orderConstant.payment[order?.paymentMethod],
-        isPaid: order?.isPaid ? "TRUE" : "FALSE",
-        isDelivered: order?.isDelivered ? "TRUE" : "FALSE",
         totalPrice: convertPrice(order?.totalPrice),
       };
     });
+
+  useEffect(() => {
+    if (navigateOrderDetails) {
+      navigate(`/order-details/${rowSelected}`, { state: location?.pathname });
+    }
+  }, [rowSelected, navigateOrderDetails]);
 
   return (
     <div>
       <WrapperHeader>Quản lý đơn hàng</WrapperHeader>
       <div style={{ marginTop: "20px" }}>
-        <TableComponent
-          columns={columns}
-          isPending={isPendingOrders}
-          data={dataTable}
-        />
+        <Loading isPending={isPendingOrders}>
+          <TableComponent
+            columns={columns}
+            isPending={isPendingOrders}
+            data={dataTable}
+            onRow={(record, rowIndex) => {
+              return {
+                onClick: () => {
+                  setRowSelected(record._id);
+                },
+              };
+            }}
+          />
+        </Loading>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ const UserController = require("../controllers/UserController");
 const {
   authAdminUserMiddleWare,
   authAdminMiddleWare,
+  authAdminStaffUserMiddleWare,
 } = require("../middleware/authMiddleware");
 
 router.post("/sign-up", UserController.signUp);
@@ -23,7 +24,7 @@ router.delete(
 router.get("/get-all-users", authAdminMiddleWare, UserController.getAllUsers);
 router.get(
   "/get-details-user/:id",
-  authAdminUserMiddleWare,
+  authAdminStaffUserMiddleWare,
   UserController.getDetailsUser
 );
 router.post("/refresh-token", UserController.refreshToken);

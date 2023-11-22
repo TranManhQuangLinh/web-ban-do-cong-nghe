@@ -18,14 +18,27 @@ export const WrapperLeft = styled.div`
   width: 910px;
 `;
 
-export const WrapperListOrder = styled.div``;
-
 export const WrapperItemOrder = styled.div`
   display: flex;
   align-items: center;
   padding: 9px 16px;
   background: #fff;
   margin-top: 12px;
+`;
+
+export const WrapperItemPrice = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  >* {
+    min-width: 90px;
+    text-align: center;
+  }
+  > :last-child {
+    min-width: unset; /* Remove min-width for the last child */
+    text-align: unset; /* Remove text-align for the last child */
+  }
 `;
 
 export const WrapperPriceDiscount = styled.span`

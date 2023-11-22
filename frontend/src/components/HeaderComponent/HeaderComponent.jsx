@@ -21,7 +21,6 @@ import { initOrder } from "../../redux/slices/OrderSlice";
 const HeaderComponent = ({
   isHiddenSearch = false,
   isHiddenCart = false,
-  isAdminPage = false,
   style,
 }) => {
   const navigate = useNavigate();
@@ -73,22 +72,25 @@ const HeaderComponent = ({
     switch (type) {
       case "profile":
         navigate("/profile-user");
+        setIsOpenPopover(false);
         break;
       case "admin":
         navigate("/admin");
+        setIsOpenPopover(false);
         break;
       case "my-order":
         navigate("/my-order");
+        setIsOpenPopover(false);
         break;
       default:
+        setIsOpenPopover(false);
         handleLogout();
-        if (isAdminPage) navigate("/");
+        navigate("/sign-in");
         break;
     }
   };
 
   const handleLogout = async () => {
-    setIsOpenPopover(false);
     setLoading(true);
     await UserService.logout();
     dispatch(resetUser());
@@ -96,7 +98,7 @@ const HeaderComponent = ({
   };
 
   const handleSignInClick = () => {
-    navigate('/sign-in', {state: location?.pathname})
+    navigate("/sign-in", { state: location?.pathname });
   };
   const handleSignUpClick = () => {
     navigate("/sign-up");
@@ -138,7 +140,7 @@ const HeaderComponent = ({
               bordered={false}
               buttonText="Tìm kiếm"
               placeholder="Tìm kiếm sản phẩm"
-              backgroundColorButton="var(--button-search-color)"
+              backgroundColorButton="var(--button-color)"
               handleSearch={handleSearch}
             />
           </Col>
@@ -167,7 +169,7 @@ const HeaderComponent = ({
                       height: "30px",
                       width: "30px",
                       borderRadius: "50%",
-                      objectFit: "cover",
+                      objectFit: "contain",
                     }}
                   />
                 ) : (

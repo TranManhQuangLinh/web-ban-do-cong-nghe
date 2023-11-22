@@ -26,16 +26,6 @@ export const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-export function getItem(label, key, icon, children, type) {
-  return {
-    key,
-    icon,
-    children,
-    label,
-    type,
-  };
-}
-
 export const validateNumber = (rule, value) => {
   return new Promise((resolve, reject) => {
     if (isNaN(value)) {

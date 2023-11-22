@@ -77,9 +77,7 @@ const login = (userLogin) => {
 const updateUser = (id, data, loggedInUserRole) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkUser = await User.findOne({
-        _id: id,
-      });
+      const checkUser = await User.findById(id);
 
       if (checkUser === null) {
         resolve({
@@ -119,9 +117,7 @@ const updateUser = (id, data, loggedInUserRole) => {
 const deleteUser = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkUser = await User.findOne({
-        _id: id,
-      });
+      const checkUser = await User.findById(id);
       if (checkUser === null) {
         resolve({
           status: "ERR",
@@ -172,9 +168,7 @@ const getAllUsers = () => {
 const getDetailsUser = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const user = await User.findOne({
-        _id: id,
-      });
+      const user = await User.findById(id);
       if (user === null) {
         resolve({
           status: "ERR",

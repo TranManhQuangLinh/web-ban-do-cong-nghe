@@ -32,9 +32,7 @@ const createCategory = (newCategory) => {
 const updateCategory = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkCategory = await Category.findOne({
-        _id: id,
-      });
+      const checkCategory = await Category.findById(id);
       if (checkCategory === null) {
         resolve({
           status: "ERR",
@@ -70,9 +68,7 @@ const updateCategory = (id, data) => {
 const deleteCategory = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkCategory = await Category.findOne({
-        _id: id,
-      });
+      const checkCategory = await Category.findById(id);
       console.log("checkCategory", checkCategory);
       if (checkCategory === null) {
         resolve({
@@ -128,9 +124,7 @@ const getAllCategories = () => {
 const getDetailsCategory = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const category = await Category.findOne({
-        _id: id,
-      });
+      const category = await Category.findById(id);
       if (category === null) {
         resolve({
           status: "ERR",

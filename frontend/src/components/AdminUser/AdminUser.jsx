@@ -14,8 +14,7 @@ import { useSelector } from "react-redux";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as UserService from "../../services/UserService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { SearchOutlined } from "@ant-design/icons";
-import { Option } from "antd/es/mentions";
+import { SearchOutlined } from "@ant-design/icons"
 
 const AdminUser = () => {
   const queryClient = useQueryClient();
@@ -580,9 +579,9 @@ const AdminUser = () => {
                 }
                 placeholder="Chọn vai trò"
               >
-                <Option value="Khách hàng">Khách hàng</Option>
-                <Option value="Admin">Admin</Option>
-                <Option value="Nhân viên">Nhân viên</Option>
+                <Select.Option value="Khách hàng">Khách hàng</Select.Option>
+                <Select.Option value="Admin">Admin</Select.Option>
+                <Select.Option value="Nhân viên">Nhân viên</Select.Option>
               </Select>
             </Form.Item>
 
@@ -630,7 +629,7 @@ const AdminUser = () => {
                       height: "60px",
                       width: "60px",
                       borderRadius: "50%",
-                      objectFit: "cover",
+                      objectFit: "contain",
                       marginLeft: "10px",
                     }}
                     alt="avatar"

@@ -27,5 +27,10 @@ router.get(
   authAdminMiddleWare,
   OrderController.getAllOrders
 );
+router.put(
+  "/update-status/:id",
+  authAdminMiddleWare,
+  OrderController.updateStatus
+);
 
 module.exports = router;

@@ -50,9 +50,8 @@ export const routes = [
     page: OrderDetailsPage,
     isShowHeader: true,
   },
-
   {
-    path: "/admin",
+    path: "/admin/*",
     page: AdminPage,
     errorPage: NotFoundPage,
     isShowHeader: false,

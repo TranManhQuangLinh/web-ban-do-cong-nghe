@@ -13,7 +13,7 @@ import * as UserService from "../../services/UserService";
 import * as message from "../../components/Message/Message";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import Loading from "../../components/LoadingComponent/Loading";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import { useEffect } from "react";
@@ -51,10 +51,11 @@ const SignInPage = () => {
           handleGetDetailsUser(decoded?.id, data?.access_token);
         }
         message.success("Đăng nhập thành công");
-        if (location?.state) {
-          navigate(location?.state);
-        } else if (decoded.role === "Admin" || decoded.role === "Nhân viên") {
+        if (decoded.role === "Admin" || decoded.role === "Nhân viên") {
           navigate("/admin");
+        }
+        else if (location?.state) {
+          navigate(location?.state);
         } else {
           navigate("/");
         }

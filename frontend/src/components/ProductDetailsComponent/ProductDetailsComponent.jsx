@@ -210,7 +210,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
                   fontSize: "15px",
                   fontWeight: "700",
                 }}
-              ></ButtonComponent>
+              />
             </div>
           </div>
         </Col>

@@ -45,7 +45,7 @@ export const WrapperFooterItem = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  border-top: 1px solid rgb(235, 235, 240);
+  // border-top: 1px solid rgb(235, 235, 240);
   width: 100%;
   align-items: flex-end;
   padding-top: 10px;
@@ -56,6 +56,8 @@ export const WrapperHeaderItem = styled.div`
   align-items: flex-start;
   height: 90px;
   width: 100%;
+  border-bottom: 1px solid rgb(235, 235, 240);
+  margin-top: 10px;
 `;
 
 export const WrapperItemOrder = styled.div`
@@ -74,14 +76,25 @@ export const WrapperItemOrder = styled.div`
 
 export const WrapperStatus = styled.div`
   display: flex;
-  align-item: flex-start;
+  align-items: flex-start;
   width: 100%;
-  margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgb(235, 235, 240);
   flex-direction: column;
 `;
 
 export const WrapperCurrentStatus = styled.span`
-  color: #faad14;
+  color: ${props => {
+    switch (props.children) {
+      case "Chờ xử lý":
+        return "#faad14";
+      case "Đang giao":
+        return "#1890ff";
+      case "Đã giao":
+        return "#52c41a";
+      default:
+        return "inherit";
+    }
+  }};
 `;
+

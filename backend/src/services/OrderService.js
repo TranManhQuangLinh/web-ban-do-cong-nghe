@@ -114,9 +114,7 @@ const getAllUserOrders = (id) => {
 const getDetailsOrder = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const order = await Order.findById({
-        _id: id,
-      });
+      const order = await Order.findById(id);
       if (order === null) {
         resolve({
           status: "ERR",
@@ -139,7 +137,6 @@ const getDetailsOrder = (id) => {
 const cancelOrder = (id, orderItems) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let order;
       const promises = orderItems.map(async (item) => {
         const productData = await Product.findOneAndUpdate(
           {
@@ -168,9 +165,9 @@ const cancelOrder = (id, orderItems) => {
           };
         }
       });
-      const results = await Promise.all(promises);
+      await Promise.all(promises);
 
-      order = await Order.findByIdAndDelete(id);
+      const order = await Order.findByIdAndDelete(id);
       if (order === null) {
         resolve({
           status: "ERR",
@@ -183,7 +180,6 @@ const cancelOrder = (id, orderItems) => {
           data: order,
         });
       }
-      
     } catch (e) {
       reject(e);
     }
@@ -208,10 +204,41 @@ const getAllOrders = () => {
   });
 };
 
+const updateStatus = (id, data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkOrder = await Order.findById(id);
+
+      if (checkOrder === null) {
+        resolve({
+          status: "ERR",
+          message: "order not found",
+        });
+      }
+
+      checkOrder.currentStatus = data.status;
+      checkOrder.updateHistory.push(data);
+
+      const order = await Order.findByIdAndUpdate(id, checkOrder, {
+        new: true,
+      });
+
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: order,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   createOrder,
   getAllUserOrders,
   getDetailsOrder,
   cancelOrder,
   getAllOrders,
+  updateStatus,
 };
