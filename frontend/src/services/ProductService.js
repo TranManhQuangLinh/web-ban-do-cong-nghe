@@ -1,6 +1,6 @@
 import axios from "axios";
 import { axiosJWT } from "./UserService";
-import { getDetailsCategory } from "./CategoryService";
+// import { getDetailsCategory } from "./CategoryService";
 export const getAllProducts = async (search, limit) => {
   try {
     let res = {};
@@ -14,23 +14,24 @@ export const getAllProducts = async (search, limit) => {
         `${process.env.REACT_APP_API_URL}/product/get-all-products?limit=${limit}`
       );
     }
+    // console.log(res);
 
-    await Promise.all(
-      res.data.data.map(async (product) => {
-        const detail = await getDetailsCategory(product.category);
-        if(detail.status === "OK"){
-            product.category = detail.data.name
-        }
-        else {
-            product.category = detail.message
-        }
-      })
-    );
+    // await Promise.all(
+    //   res.data.data.map(async (product) => {
+    //     const detail = await getDetailsCategory(product.category);
+    //     if(detail.status === "OK"){
+    //         product.category = detail.data.name
+    //     }
+    //     else {
+    //         product.category = detail.message
+    //     }
+    //   })
+    // );
 
     // console.log(res.data);
     return res.data;
   } catch (error) {
-    console.error("Error in getAllProducts:", error);
+    console.error("Error in getAllProducts in ProductService:", error);
     throw error; 
   }
 };

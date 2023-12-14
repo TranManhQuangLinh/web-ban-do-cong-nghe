@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "frontend"
+		},
+		{
+			"path": "backend"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../thuc_tap_he/phan-mem-quan-ly-du-an"
+		},
+		{
+			"path": "../mern/Ecommerce-master"
+		}
+	],
+	"settings": {
+	}
+}

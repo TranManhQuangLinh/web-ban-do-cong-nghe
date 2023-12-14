@@ -157,12 +157,13 @@ export const orderSlice = createSlice({
         paymentMethod,
       } = action.payload;
       const userOrder = state.find((order) => order.user === userId);
-
+      
       userOrder.itemsPrice = itemsPrice;
       userOrder.shippingFee = shippingFee;
       userOrder.shippingPrice = shippingPrice;
       userOrder.totalPrice = totalPrice;
       userOrder.paymentMethod = paymentMethod;
+
     },
   },
 });

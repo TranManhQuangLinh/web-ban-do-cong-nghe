@@ -31,6 +31,7 @@ const PaymentPage = () => {
   );
   const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
   const navigate = useNavigate();
+  console.log("paymentMethod:", paymentMethod);
 
   const [isOpenModalUpdateAddress, setIsOpenModalUpdateAddress] =
     useState(false);
@@ -62,6 +63,10 @@ const PaymentPage = () => {
   };
 
   const handleAddOrder = () => {
+    // console.log("user:", user);
+    // console.log("order:", order);
+    // console.log("paymentMethod:", paymentMethod);
+
     if (
       user?.access_token &&
       order?.orderItemsSelected &&
@@ -89,6 +94,21 @@ const PaymentPage = () => {
         totalPrice: order?.totalPrice,
         user: order?.user,
       });
+    } else {
+      message.error("Thiếu thông tin order");
+      console.log(
+        !!user?.access_token,
+        !!order?.orderItemsSelected,
+        !!order?.shippingAddress.recipientName,
+        !!order?.shippingAddress.address,
+        !!order?.shippingAddress.phone,
+        !!paymentMethod,
+        !!order?.itemsPrice,
+        !!order?.shippingFee,
+        !!order?.shippingPrice,
+        !!order?.totalPrice,
+        !!order?.user
+      );
     }
   };
 
@@ -193,7 +213,10 @@ const PaymentPage = () => {
                     </span>
                     <span
                       onClick={handleChangeAddress}
-                      style={{ color: "var(--primary-color)", cursor: "pointer" }}
+                      style={{
+                        color: "var(--primary-color)",
+                        cursor: "pointer",
+                      }}
                     >
                       Thay đổi
                     </span>

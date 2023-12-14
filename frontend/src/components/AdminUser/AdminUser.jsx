@@ -629,8 +629,8 @@ const AdminUser = () => {
                       height: "60px",
                       width: "60px",
                       borderRadius: "50%",
-                      objectFit: "contain",
-                      marginLeft: "10px",
+                      objectFit: "cover",
+                      margin: "0 10px",
                     }}
                     alt="avatar"
                   />

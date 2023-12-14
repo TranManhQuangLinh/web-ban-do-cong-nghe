@@ -694,7 +694,7 @@ const AdminProduct = () => {
                       style={{
                         height: "60px",
                         width: "60px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         margin: "0 10px",
                       }}
                       alt="ảnh"
@@ -710,7 +710,7 @@ const AdminProduct = () => {
                   style={{
                     height: "60px",
                     width: "60px",
-                    objectFit: "contain",
+                    objectFit: "cover",
                     marginLeft: "10px",
                   }}
                   alt="ảnh"

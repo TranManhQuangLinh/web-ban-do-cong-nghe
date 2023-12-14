@@ -200,7 +200,7 @@ const OrderDetailsPage = () => {
                         style={{
                           width: "77px",
                           height: "79px",
-                          objectFit: "contain",
+                          objectFit: "cover",
                         }}
                       />
                       <div

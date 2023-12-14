@@ -85,7 +85,7 @@ const MyOrderPage = () => {
             style={{
               width: "70px",
               height: "70px",
-              objectFit: "contain",
+              objectFit: "cover",
               border: "1px solid rgb(238, 238, 238)",
               padding: "2px",
             }}

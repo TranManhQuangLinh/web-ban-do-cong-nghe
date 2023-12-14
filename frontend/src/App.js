@@ -41,13 +41,16 @@ function App() {
       const { decoded } = handleDecoded();
       let storageRefreshToken = localStorage.getItem("refresh_token");
       const refreshToken = JSON.parse(storageRefreshToken);
-      const decodedRefreshToken = jwtDecode(refreshToken);
-      if (decoded?.exp < currentTime.getTime() / 1000) {
-        if (decodedRefreshToken?.exp > currentTime.getTime() / 1000) {
-          const data = await UserService.refreshToken(refreshToken);
-          config.headers["token"] = `Bearer ${data?.access_token}`;
-        } else {
-          dispatch(resetUser());
+      // console.log(!!refreshToken);
+      if (refreshToken) {
+        const decodedRefreshToken = jwtDecode(refreshToken);
+        if (decoded?.exp < currentTime.getTime() / 1000) {
+          if (decodedRefreshToken?.exp > currentTime.getTime() / 1000) {
+            const data = await UserService.refreshToken(refreshToken);
+            config.headers["token"] = `Bearer ${data?.access_token}`;
+          } else {
+            dispatch(resetUser());
+          }
         }
       }
       return config;
@@ -89,9 +92,7 @@ function App() {
                   key={route.path}
                   path={route.path}
                   element={
-                    <Layout>
-                      {checkAuth ? <Page /> : <ErrorPage />}
-                    </Layout>
+                    <Layout>{checkAuth ? <Page /> : <ErrorPage />}</Layout>
                   }
                 />
               );

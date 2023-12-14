@@ -20,11 +20,13 @@ const HomePage = () => {
     const limit = context?.queryKey && context?.queryKey[1];
     const search = context?.queryKey && context?.queryKey[2];
     const res = await ProductService.getAllProducts(search, limit);
+    // console.log(res);
     return res;
   };
 
   const fetchAllCategories = async () => {
     const res = await CategoryService.getAllCategories();
+    // console.log(res);
     return res;
   };
 
@@ -40,10 +42,16 @@ const HomePage = () => {
     keepPreviousData: true,
   });
 
-  const { isPending: isPendingCategories, data: categories } = useQuery({
+  const {
+    isPending: isPendingCategories,
+    data: categories,
+    error: categoryError,
+  } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchAllCategories,
   });
+  if (categoryError) console.log(categoryError);
+  // console.log(categories);
 
   // console.log(isPendingProducts, isPendingCategories);
 

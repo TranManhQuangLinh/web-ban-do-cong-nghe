@@ -76,7 +76,7 @@ const authAdminUserMiddleWare = (req, res, next) => {
 
 const authAdminStaffUserMiddleWare = (req, res, next) => {
   const token = req.headers.token.split(" ")[1];
-  console.log('token:', token);
+  // console.log('token:', token);
   const userId = req.params.id;
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
     if (err) {
@@ -86,7 +86,7 @@ const authAdminStaffUserMiddleWare = (req, res, next) => {
         status: "ERROR",
       });
     }
-    console.log('user:', user);
+    // console.log('user:', user);
     if (user?.role === "Admin" || user?.role === "Nhân viên" || user?.id === userId) {
       req.loggedInUserRole = user.role;
       next();

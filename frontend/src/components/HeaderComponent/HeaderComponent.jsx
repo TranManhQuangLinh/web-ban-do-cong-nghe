@@ -71,7 +71,7 @@ const HeaderComponent = ({
   const handleClickNavigate = (type) => {
     switch (type) {
       case "profile":
-        navigate("/profile-user");
+        navigate("/profile", { state: location?.pathname });
         setIsOpenPopover(false);
         break;
       case "admin":
@@ -169,7 +169,7 @@ const HeaderComponent = ({
                       height: "30px",
                       width: "30px",
                       borderRadius: "50%",
-                      objectFit: "contain",
+                      objectFit: "cover",
                     }}
                   />
                 ) : (
@@ -190,11 +190,10 @@ const HeaderComponent = ({
                     {user?.name?.length ? user?.name : user?.email}
                   </div>
                 ) : (
-                  <div>
+                  <div style={{display: 'flex'}}>
                     <WrapperTextHeaderSmall onClick={handleSignInClick}>
-                      Đăng nhập
+                      Đăng nhập/
                     </WrapperTextHeaderSmall>
-                    /
                     <WrapperTextHeaderSmall onClick={handleSignUpClick}>
                       Đăng ký
                     </WrapperTextHeaderSmall>
@@ -214,7 +213,11 @@ const HeaderComponent = ({
             >
               <Badge count={order?.orderItems?.length} size="small">
                 <ShoppingCartOutlined
-                  style={{ fontSize: "30px", color: "#fff" }}
+                  style={{
+                    fontSize: "30px",
+                    color: "#fff",
+                    marginRight: "5px",
+                  }}
                 />
               </Badge>
               <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>

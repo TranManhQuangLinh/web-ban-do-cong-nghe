@@ -4,6 +4,7 @@ export const getAllCategories = async () => {
   const res = await axiosJWT.get(
     `${process.env.REACT_APP_API_URL}/category/get-all-categories`
   );
+  // console.log(res.data);
   return res.data;
 };
 

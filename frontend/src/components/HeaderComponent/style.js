@@ -31,11 +31,13 @@ export const WrapperHeaderAccount = styled.div`
   cursor: pointer;
 `;
 
-export const WrapperTextHeaderSmall = styled.span`
+export const WrapperTextHeaderSmall = styled.div`
+  height: 30px;
+  display: flex;
+  align-items: center;
   font-size: 12px;
   color: #fff;
   white-space: nowrap;
-  margin-left: 5px;
 `;
 export const WrapperContentPopup = styled.p`
   cursor: pointer;

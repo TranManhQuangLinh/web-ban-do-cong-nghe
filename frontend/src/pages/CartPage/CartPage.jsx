@@ -310,7 +310,7 @@ const CartPage = () => {
                         style={{
                           width: "77px",
                           height: "79px",
-                          objectFit: "contain",
+                          objectFit: "cover",
                         }}
                       />
                       <div
@@ -510,9 +510,9 @@ const CartPage = () => {
                 fontWeight: "700",
               }}
               disabled={
-                user?.role !== "Khách hàng" &&
-                !isPendingShippingPrice &&
-                totalPriceMemo
+                user?.role !== "Khách hàng" ||
+                isPendingShippingPrice ||
+                !totalPriceMemo
               }
             />
           </WrapperRight>
