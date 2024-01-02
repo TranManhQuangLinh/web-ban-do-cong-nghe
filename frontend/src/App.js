@@ -5,6 +5,7 @@ import DefaultComponent from "./components/DefaultComponent/DefaultComponent";
 import { isJsonString } from "./utils";
 import { jwtDecode } from "jwt-decode";
 import * as UserService from "./services/UserService";
+import { useGetDetailsUserQuery } from "./services/userApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { resetUser, updateUser } from "./redux/slices/UserSlice";
 import Loading from "./components/LoadingComponent/Loading";
@@ -13,6 +14,8 @@ function App() {
   const dispatch = useDispatch();
   const [isPending, setIsPending] = useState(false);
   const user = useSelector((state) => state.user);
+  // const [userId, setUserId] = useState("");
+
   // console.log(user);
   useEffect(() => {
     setIsPending(true);
@@ -22,6 +25,14 @@ function App() {
     }
     setIsPending(false);
   }, []);
+
+  // const {
+  //   data: userDetails,
+  //   isLoading,
+  //   isSuccess,
+  //   isError,
+  //   error,
+  // } = useGetDetailsUserQuery();
 
   const handleDecoded = () => {
     let storageData =
@@ -63,10 +74,11 @@ function App() {
   const handleGetDetailsUser = async (id, token) => {
     let storageRefreshToken = localStorage.getItem("refresh_token");
     const refreshToken = JSON.parse(storageRefreshToken);
-    const res = await UserService.getDetailsUser(id, token);
+    const userDetails = await UserService.getDetailsUser(id, token);
+
     dispatch(
       updateUser({
-        ...res?.data,
+        ...userDetails?.data,
         access_token: token,
         refreshToken: refreshToken,
       })
