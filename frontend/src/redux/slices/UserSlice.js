@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { userApi } from "../../services/userApi";
 
 const initialState = {
   id: "",
@@ -9,7 +10,8 @@ const initialState = {
   address: "",
   avatar: "",
   access_token: "",
-  refreshToken: "",
+  refresh_token: "",
+  isRefresh: false,
 };
 
 export const userSlice = createSlice({
@@ -17,6 +19,7 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     updateUser: (state, action) => {
+      console.log("updateUser in UserSlice.js");
       const {
         name = "",
         email = "",
@@ -26,8 +29,9 @@ export const userSlice = createSlice({
         avatar = "",
         _id = "",
         role = "",
-        refreshToken = "",
+        refresh_token = "",
       } = action.payload;
+      console.log("same access_token:", access_token === state.access_token);
       state.id = _id ? _id : state.id;
       state.name = name ? name : state.name;
       state.email = email ? email : state.email;
@@ -36,9 +40,10 @@ export const userSlice = createSlice({
       state.avatar = avatar ? avatar : state.avatar;
       state.role = role ? role : state.role;
       state.access_token = access_token ? access_token : state.access_token;
-      state.refreshToken = refreshToken ? refreshToken : state.refreshToken;
+      state.refresh_token = refresh_token ? refresh_token : state.refresh_token;
     },
     resetUser: (state) => {
+      console.log("resetUser in UserSlice.js");
       state.id = "";
       state.name = "";
       state.email = "";
@@ -47,12 +52,23 @@ export const userSlice = createSlice({
       state.avatar = "";
       state.role = "";
       state.access_token = "";
-      state.refreshToken = "";
+      state.refresh_token = "";
     },
+    setIsRefresh: (state, action) => {
+      state.isRefresh = action.payload
+    }
   },
+  // extraReducers: (builder) => {
+  //   builder.addMatcher(
+  //     userApi.endpoints.login.matchFulfilled,
+  //     (state, { payload }) => {
+  //       state.user = payload.data;
+  //     }
+  //   );
+  // },
 });
 
 // Action creators are generated for each case reducer function
-export const { updateUser, resetUser } = userSlice.actions;
+export const { updateUser, resetUser, setIsRefresh } = userSlice.actions;
 
 export default userSlice.reducer;

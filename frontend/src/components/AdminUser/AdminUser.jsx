@@ -15,6 +15,7 @@ import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as UserService from "../../services/UserService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SearchOutlined } from "@ant-design/icons"
+import { useGetAllUsersQuery, useGetDetailsUserQuery } from "../../services/userApi";
 
 const AdminUser = () => {
   const queryClient = useQueryClient();
@@ -40,20 +41,13 @@ const AdminUser = () => {
   });
 
   // lấy tất cả user từ db
-  const getAllUsers = async () => {
-    const res = await UserService.getAllUsers(user?.access_token);
-    return res?.data;
-  };
-
-  const { data: users, isPending: isPendingUsers } = useQuery({
-    queryKey: ["users"],
-    queryFn: getAllUsers,
-  });
+  const {data: users, isLoading: isPendingUsers} = useGetAllUsersQuery()
+  // console.log('users', users);
 
   // table
   const dataTable =
-    users?.length > 0 &&
-    users?.map((user) => {
+    users?.data?.length > 0 &&
+    users?.data?.map((user) => {
       return { ...user, key: user._id };
     });
 
@@ -228,29 +222,27 @@ const AdminUser = () => {
   }, [isOpenModalCreate]);
 
   // lấy details user khi bấm nút sửa
+  const {data: res, isLoading, refetch: refetchGetDetailsUser} = useGetDetailsUserQuery(rowSelected)
+
   useEffect(() => {
     if (rowSelected && isOpenModalUpdate) {
       setIsPendingUpdate(true);
-      fetchGetDetailsUser(rowSelected, user?.access_token);
+      refetchGetDetailsUser()
+      if (res?.data) {
+        setStateUser({
+          email: res?.data?.email,
+          password: res?.data?.password,
+          role: res?.data?.role,
+          name: res?.data?.name,
+          dateOfBirth: res?.data?.dateOfBirth,
+          phone: res?.data?.phone,
+          address: res?.data?.address,
+          avatar: res.data?.avatar,
+        });
+      }
+      setIsPendingUpdate(false);
     }
   }, [rowSelected, isOpenModalUpdate]);
-
-  const fetchGetDetailsUser = async (rowSelected, access_token) => {
-    const res = await UserService.getDetailsUser(rowSelected, access_token);
-    if (res?.data) {
-      setStateUser({
-        email: res?.data?.email,
-        password: res?.data?.password,
-        role: res?.data?.role,
-        name: res?.data?.name,
-        dateOfBirth: res?.data?.dateOfBirth,
-        phone: res?.data?.phone,
-        address: res?.data?.address,
-        avatar: res.data?.avatar,
-      });
-    }
-    setIsPendingUpdate(false);
-  };
 
   // form chi tiết người dùng
   const [form] = Form.useForm();

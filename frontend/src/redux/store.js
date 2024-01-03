@@ -1,8 +1,8 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { combineReducers, compose, configureStore } from "@reduxjs/toolkit";
 import productReducer from "./slices/productSlide";
 import userReducer from "./slices/UserSlice";
 import orderReducer from "./slices/OrderSlice";
-import { userApiSlice } from '../services/userApiSlice'
+import { userApi } from "../services/userApi";
 
 import {
   persistStore,
@@ -20,26 +20,26 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  blacklist: ["product", "user"],
+  blacklist: ['user']
 };
 
 const rootReducer = combineReducers({
   product: productReducer,
-  user: userReducer,
+  user: persistReducer(persistConfig,userReducer) ,
   orders: orderReducer,
-  [userApiSlice.reducerPath]: userApiSlice.reducer,
+  [userApi.reducerPath]: userApi.reducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+// const persistedReducer = persistReducer(persistConfig, rootReducer);
+// const composeEnhancers = (process.env.REACT_APP_NODE_ENV !== 'production' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-      },
-    }),
+      serializableCheck: false,
+    }).concat(userApi.middleware),
+    // composeEnhancers,
 });
 
 export let persistor = persistStore(store);

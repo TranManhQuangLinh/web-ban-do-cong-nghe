@@ -52,7 +52,7 @@ const authUserMiddleWare = (req, res, next) => {
 
 // chỉ admin và user có id giống id trên param
 const authAdminUserMiddleWare = (req, res, next) => {
-  const token = req.headers.token.split(" ")[1];
+  const token = req.headers.token?.split(" ")[1];
   const userId = req.params.id;
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
     if (err) {
@@ -75,7 +75,7 @@ const authAdminUserMiddleWare = (req, res, next) => {
 };
 
 const authAdminStaffUserMiddleWare = (req, res, next) => {
-  const token = req.headers.token.split(" ")[1];
+  const token = req.headers.token?.split(" ")[1];
   // console.log('token:', token);
   const userId = req.params.id;
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
