@@ -1,9 +1,5 @@
 // api.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { isJsonString } from "../utils";
-import { jwtDecode } from "jwt-decode";
-import * as UserService from "../services/UserService";
-import { resetUser, updateUser } from "../redux/slices/UserSlice";
 import { userBaseQuery } from "./apiUtils";
 
 export const userApi = createApi({
@@ -33,6 +29,7 @@ export const userApi = createApi({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["User"],
     }),
     getDetailsUser: builder.query({
       query: (id) => ({
@@ -41,30 +38,43 @@ export const userApi = createApi({
       }),
     }),
     updateUser: builder.mutation({
-      query: (id, data) => ({
-        url: `/update-user/${id}`,
+      query: (input) => {
+        // console.log('data', input.data);
+        return ({
+        url: `/update-user/${input.id}`,
         method: "PUT",
-        body: data,
-      }),
+        body: input.data,
+      })},
+      invalidatesTags: ["User"],
     }),
     deleteUser: builder.mutation({
       query: (id) => ({
         url: `/delete-user/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["User"],
     }),
     deleteManyUsers: builder.mutation({
-      query: (data) => ({
+      query: (data) => {
+        console.log(data);
+        return ({
         url: "/delete-many-users",
         method: "POST",
         body: data,
-      }),
+      })},
+      invalidatesTags: ["User"],
     }),
     getAllUsers: builder.query({
       query: () => ({
         url: "/get-all-users",
         method: "GET",
       }),
+      providesTags: (result, error, arg) => {
+        // console.log(result);
+        return result
+          ? [...result?.data?.map(({ _id }) => ({ type: "User", _id })), "User"]
+          : ["User"];
+      },
     }),
   }),
 });

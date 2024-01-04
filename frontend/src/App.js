@@ -6,7 +6,7 @@ import { isJsonString } from "./utils";
 import { jwtDecode } from "jwt-decode";
 // import { useGetDetailsUserQuery } from "./services/userApi";
 import { useDispatch, useSelector } from "react-redux";
-import { resetUser, updateUser } from "./redux/slices/UserSlice";
+import { updateUser } from "./redux/slices/UserSlice";
 import Loading from "./components/LoadingComponent/Loading";
 import { useGetDetailsUserQuery } from "./services/userApi";
 
@@ -33,7 +33,7 @@ function App() {
     isSuccess,
     isError,
     error,
-  } = useGetDetailsUserQuery();
+  } = useGetDetailsUserQuery(user?.id, { skip: !user?.id });
 
   const handleDecoded = () => {
     let storageData =

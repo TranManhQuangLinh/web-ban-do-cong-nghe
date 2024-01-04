@@ -19,7 +19,7 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     updateUser: (state, action) => {
-      console.log("updateUser in UserSlice.js");
+      // console.log("UserSlice.js: updateUser");
       const {
         name = "",
         email = "",
@@ -31,7 +31,7 @@ export const userSlice = createSlice({
         role = "",
         refresh_token = "",
       } = action.payload;
-      console.log("same access_token:", access_token === state.access_token);
+      // console.log("UserSlice.js: same access_token:", access_token === state.access_token);
       state.id = _id ? _id : state.id;
       state.name = name ? name : state.name;
       state.email = email ? email : state.email;
@@ -43,7 +43,7 @@ export const userSlice = createSlice({
       state.refresh_token = refresh_token ? refresh_token : state.refresh_token;
     },
     resetUser: (state) => {
-      console.log("resetUser in UserSlice.js");
+      // console.log("UserSlice.js: resetUser");
       state.id = "";
       state.name = "";
       state.email = "";
@@ -56,6 +56,7 @@ export const userSlice = createSlice({
     },
     setIsRefresh: (state, action) => {
       state.isRefresh = action.payload
+      // console.log('UserSlice.js: set isRefresh:', action.payload);
     }
   },
   // extraReducers: (builder) => {

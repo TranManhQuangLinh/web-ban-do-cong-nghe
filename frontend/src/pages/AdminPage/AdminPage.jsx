@@ -9,7 +9,7 @@ import {
   CarOutlined,
 } from "@ant-design/icons";
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
-import AdminUser from "../../components/AdminUser/AdminUser";
+import AdminUser from "../../components/AdminUser";
 import AdminCategory from "../../components/AdminCategory/AdminCategory";
 import AdminProduct from "../../components/AdminProduct/AdminProduct";
 import AdminShippingPrice from "../../components/AdminShippingPrice/AdminShippingPrice";

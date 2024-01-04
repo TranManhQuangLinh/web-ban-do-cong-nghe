@@ -14,6 +14,7 @@ import { useSelector } from "react-redux";
 import { orderConstant } from "../../constant";
 import ButtonComponent from "../ButtonComponent/ButtonComponent";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useGetDetailsUserQuery } from "../../services/userApi";
 
 const AdminOrder = () => {
   const user = useSelector((state) => state?.user);
@@ -24,17 +25,22 @@ const AdminOrder = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const getDetailsUser = async (id) => {
-    const res = await UserService.getDetailsUser(id, user.access_token);
-    return res.data;
-  };
+  const {
+    data: userDetails,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+    refetch: refetchGetDetailsUser,
+  } = useGetDetailsUserQuery(user?.id, { skip: !user?.id });
 
   const getAllOrders = async () => {
     const res = await OrderService.getAllOrders(user?.access_token);
     // Use Promise.all to asynchronously fetch details for each user
     const ordersWithUserDetails = await Promise.all(
       res.data.map(async (order) => {
-        order.user = await getDetailsUser(order.user, user?.access_token);
+        await refetchGetDetailsUser()
+        order.user = userDetails;
         return order;
       })
     );

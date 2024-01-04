@@ -4,7 +4,7 @@ const JwtService = require("../services/JwtService");
 const createUser = async (req, res) => {
   try {
     const { email, password, role } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
     const isCheckEmail = reg.test(email) || email === "admin";
     if (!email || !password || !role) {
@@ -108,6 +108,7 @@ const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
     const data = req.body;
+    // console.log('data update:', data);
     const loggedInUserRole = req.loggedInUserRole;
     if (!userId) {
       return res.status(200).json({
@@ -148,7 +149,8 @@ const deleteUser = async (req, res) => {
 
 const deleteManyUsers = async (req, res) => {
   try {
-    const ids = req.body.ids;
+    const ids = req.body;
+    // console.log('ids', ids);
     if (!ids) {
       return res.status(200).json({
         status: "ERR",

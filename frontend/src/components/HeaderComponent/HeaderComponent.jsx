@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   WrapperContentPopup,
   WrapperHeader,
@@ -32,9 +32,12 @@ const HeaderComponent = ({
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [isOpenPopover, setIsOpenPopover] = useState(false);
-  if (!order && !!user) {
-    dispatch(initOrder({ userId: user.id }));
-  }
+  
+  useEffect(() => {
+    if (!order && !!user) {
+      dispatch(initOrder({ userId: user.id }));
+    }
+  }, [])
 
   const content = () => {
     if (user.id !== "") {
