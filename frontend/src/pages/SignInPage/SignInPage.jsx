@@ -1,5 +1,5 @@
 import React from "react";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 import InputForm from "../../components/InputForm/InputForm";
 import {
   WrapperContainerLeft,
@@ -14,7 +14,7 @@ import * as message from "../../components/Message/Message";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import Loading from "../../components/LoadingComponent/Loading";
+import Loading from "../../components/LoadingComponent";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";

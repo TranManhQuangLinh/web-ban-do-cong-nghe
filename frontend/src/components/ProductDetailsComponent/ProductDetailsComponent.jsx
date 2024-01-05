@@ -10,8 +10,8 @@ import {
   WrapperDiscountText,
 } from "./style";
 import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
-import ButtonComponent from "../ButtonComponent/ButtonComponent";
-import Loading from "../LoadingComponent/Loading";
+import ButtonComponent from "../ButtonComponent";
+import Loading from "../LoadingComponent";
 import { useState } from "react";
 import { convertPrice } from "../../utils";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,7 +26,7 @@ import {
 const ProductDetailsComponent = ({ idProduct }) => {
   const user = useSelector((state) => state.user);
   const order = useSelector((state) =>
-    state.orders?.find((order) => order.user === user.id)
+    state.orders?.find((order) => order.user === user._id)
   );
   const navigate = useNavigate();
   const location = useLocation();
@@ -88,7 +88,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
               product: productDetails?._id,
               quantityInStock: productDetails?.quantityInStock,
             },
-            userId: user.id,
+            userId: user._id,
           })
         );
         message.success("Đã thêm vào giỏ hàng");

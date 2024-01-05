@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import InputComponent from "../InputComponent/InputComponent";
-import ButtonComponent from "../ButtonComponent/ButtonComponent";
+import InputComponent from "../InputComponent";
+import ButtonComponent from "../ButtonComponent";
 
 const ButtonInputSearch = (props) => {
   const {

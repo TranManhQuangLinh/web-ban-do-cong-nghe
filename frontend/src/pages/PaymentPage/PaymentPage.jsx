@@ -9,14 +9,14 @@ import {
   WrapperTotal,
 } from "./style";
 import { orderConstant } from "../../constant";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { convertPrice } from "../../utils";
-import ModalComponent from "../../components/ModalComponent/ModalComponent";
-import InputComponent from "../../components/InputComponent/InputComponent";
+import ModalComponent from "../../components/ModalComponent";
+import InputComponent from "../../components/InputComponent";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as OrderService from "../../services/OrderService";
-import Loading from "../../components/LoadingComponent/Loading";
+import Loading from "../../components/LoadingComponent";
 import * as message from "../../components/Message/Message";
 import { useNavigate } from "react-router-dom";
 import {
@@ -27,7 +27,7 @@ import {
 const PaymentPage = () => {
   const user = useSelector((state) => state.user);
   const order = useSelector((state) =>
-    state.orders?.find((order) => order.user === user.id)
+    state.orders?.find((order) => order.user === user._id)
   );
   const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
   const navigate = useNavigate();
@@ -132,7 +132,7 @@ const PaymentPage = () => {
         arrayOrdered.push(element.product);
       });
       dispatch(
-        removeAllOrderItem({ listChecked: arrayOrdered, userId: user.id })
+        removeAllOrderItem({ listChecked: arrayOrdered, userId: user._id })
       );
       message.success("Đặt hàng thành công");
       // console.log(dataAdded);
@@ -163,7 +163,7 @@ const PaymentPage = () => {
           recipientName,
           address,
           phone,
-          userId: user.id,
+          userId: user._id,
         })
       );
     }

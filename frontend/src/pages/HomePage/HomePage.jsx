@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import { useDebounce } from "../../hooks/useDebounce";
-import Loading from "../../components/LoadingComponent/Loading";
+import Loading from "../../components/LoadingComponent";
 
 const HomePage = () => {
   const searchProduct = useSelector((state) => state?.product?.search);

@@ -1,5 +1,5 @@
 import React from "react";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 import InputForm from "../../components/InputForm/InputForm";
 import {
   WrapperContainerLeft,
@@ -13,7 +13,7 @@ import * as message from "../../components/Message/Message";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Loading from "../../components/LoadingComponent/Loading";
+import Loading from "../../components/LoadingComponent";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import { useEffect } from "react";
 
@@ -26,7 +26,7 @@ const SignUpPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const mutation = useMutationHooks((data) => UserService.signUpUser(data));
+  const mutation = useMutationHooks((data) => UserService.signUp(data));
   // console.log("sign up mutation", mutation);
 
   const { data, isPending, isSuccess } = mutation;

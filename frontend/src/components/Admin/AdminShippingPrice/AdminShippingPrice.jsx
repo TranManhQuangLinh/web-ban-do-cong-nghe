@@ -1,22 +1,23 @@
 import { Button, Form, Space } from "antd";
 import React from "react";
 import { WrapperHeader } from "./style";
-import TableComponent from "../TableComponent/TableComponent";
-import InputComponent from "../InputComponent/InputComponent";
-import Loading from "../LoadingComponent/Loading";
-import ButtonComponent from "../ButtonComponent/ButtonComponent";
-import ModalComponent from "../ModalComponent/ModalComponent";
+import TableComponent from "../../TableComponent";
+import InputComponent from "../../InputComponent";
+import Loading from "../../LoadingComponent";
+import ButtonComponent from "../../ButtonComponent";
+import ModalComponent from "../../ModalComponent";
 import { useEffect } from "react";
-import * as message from "../../components/Message/Message";
+import * as message from "../../Message/Message";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useRef } from "react";
-import { useMutationHooks } from "../../hooks/useMutationHook";
-import * as CategoryService from "../../services/CategoryService";
+import { useMutationHooks } from "../../../hooks/useMutationHook";
+import * as ShippingPriceService from "../../../services/ShippingPriceService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SearchOutlined } from "@ant-design/icons";
+import { convertPrice, validateNumber } from "../../../utils";
 
-const AdminCategory = () => {
+const AdminShippingPrice = () => {
   const queryClient = useQueryClient();
   const [rowSelected, setRowSelected] = useState("");
   const [rowSelectedKeys, setRowSelectedKeys] = useState([]);
@@ -28,26 +29,38 @@ const AdminCategory = () => {
   const user = useSelector((state) => state?.user);
   const searchInput = useRef(null);
 
-  const [stateCategory, setStateCategory] = useState({
-    name: "",
+  const [stateShippingPrice, setStateShippingPrice] = useState({
+    maxOrderAmount: "",
+    shippingFee: "",
   });
 
-  // lấy tất cả category từ db
-  const getAllCategories = async () => {
-    const res = await CategoryService.getAllCategories();
+  // lấy tất cả shipping price từ db
+  const getAllShippingPrices = async () => {
+    const res = await ShippingPriceService.getAllShippingPrices(
+      user?.access_token
+    );
     return res?.data;
   };
 
-  const { data: categories, isPending: isPendingCategories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getAllCategories,
-  });
+  const { data: shippingPrices, isPending: isPendingShippingPrices } = useQuery(
+    {
+      queryKey: ["shipping prices"],
+      queryFn: getAllShippingPrices,
+    }
+  );
 
   // table
   const dataTable =
-    categories?.length > 0 &&
-    categories?.map((category) => {
-      return { ...category, key: category._id };
+    shippingPrices?.length > 0 &&
+    shippingPrices?.map((shippingPrice) => {
+      return {
+        ...shippingPrice,
+        maxOrderAmount: shippingPrice.maxOrderAmount
+          ? convertPrice(shippingPrice.maxOrderAmount)
+          : "MAX",
+        shippingFee: convertPrice(shippingPrice.shippingFee),
+        key: shippingPrice._id,
+      };
     });
 
   // search dropdown
@@ -168,10 +181,16 @@ const AdminCategory = () => {
 
   const columns = [
     {
-      title: "Tên",
-      dataIndex: "name",
-      sorter: (a, b) => a.name - b.name,
-      ...getColumnSearchProps("name"),
+      title: "Mức giá tối đa",
+      dataIndex: "maxOrderAmount",
+      sorter: (a, b) => b.maxOrderAmount - a.maxOrderAmount,
+      ...getColumnSearchProps("maxOrderAmount"),
+    },
+    {
+      title: "Phí giao hàng",
+      dataIndex: "shippingFee",
+      sorter: (a, b) => b.shippingFee - a.shippingFee,
+      ...getColumnSearchProps("shippingFee"),
     },
     {
       title: "Thao tác",
@@ -183,68 +202,79 @@ const AdminCategory = () => {
   // reset state khi bấm nút tạo
   useEffect(() => {
     if (isOpenModalCreate) {
-      setStateCategory({
-        name: "",
+      setStateShippingPrice({
+        maxOrderAmount: "",
+        shippingFee: "",
       });
     }
   }, [isOpenModalCreate]);
 
-  // lấy details category khi bấm nút sửa
+  // lấy details shipping price khi bấm nút sửa
   useEffect(() => {
     if (rowSelected && isOpenModalUpdate) {
       setIsPendingUpdate(true);
-      fetchGetDetailsCategory(rowSelected, user?.access_token);
+      fetchGetDetailsShippingPrice(rowSelected, user?.access_token);
     }
   }, [rowSelected, isOpenModalUpdate]);
 
-  const fetchGetDetailsCategory = async (rowSelected, access_token) => {
-    const res = await CategoryService.getDetailsCategory(rowSelected);
+  const fetchGetDetailsShippingPrice = async (rowSelected, access_token) => {
+    const res = await ShippingPriceService.getDetailsShippingPrice(
+      rowSelected,
+      access_token
+    );
     if (res?.data) {
-      setStateCategory({
-        name: res?.data?.name,
+      setStateShippingPrice({
+        maxOrderAmount: res?.data?.maxOrderAmount,
+        shippingFee: res?.data?.shippingFee,
       });
     }
     setIsPendingUpdate(false);
   };
 
-  // form chi tiết danh mục
+  // form chi tiết phí ship
   const [form] = Form.useForm();
 
   useEffect(() => {
-    form.setFieldsValue(stateCategory);
-  }, [form, stateCategory]);
+    form.setFieldsValue(stateShippingPrice);
+  }, [form, stateShippingPrice]);
 
   const handleOnchangeDetails = (e) => {
-    setStateCategory({
-      ...stateCategory,
+    setStateShippingPrice({
+      ...stateShippingPrice,
       [e.target.name]: e.target.value,
     });
   };
+
 
   // call api thêm sửa, xóa
   const mutationCreate = useMutationHooks((data) => {
     const { token, ...rests } = data;
     // console.log(data);
-    const res = CategoryService.createCategory({ ...rests }, token);
+    const res = ShippingPriceService.createShippingPrice({ ...rests }, token);
+    // console.log(res);
     return res;
   });
 
   const mutationUpdate = useMutationHooks((data) => {
     const { id, token, ...rests } = data;
-    const res = CategoryService.updateCategory(id, { ...rests }, token);
+    const res = ShippingPriceService.updateShippingPrice(
+      id,
+      { ...rests },
+      token
+    );
     return res;
   });
 
   const mutationDeleted = useMutationHooks((data) => {
     const { id, token } = data;
     // console.log(data);
-    const res = CategoryService.deleteCategory(id, token);
+    const res = ShippingPriceService.deleteShippingPrice(id, token);
     return res;
   });
 
   const mutationDeletedMany = useMutationHooks((data) => {
     const { token, ...ids } = data;
-    const res = CategoryService.deleteManyCategories(ids, token);
+    const res = ShippingPriceService.deleteManyShippingPrices(ids, token);
     return res;
   });
 
@@ -316,12 +346,12 @@ const AdminCategory = () => {
     }
   }, [isSuccessDeletedMany]);
 
-  const handleCreateCategory = () => {
+  const handleCreateShippingPrice = () => {
     mutationCreate.mutate(
-      { token: user?.access_token, ...stateCategory },
+      { token: user?.access_token, ...stateShippingPrice },
       {
         onSettled: () => {
-          queryClient.invalidateQueries(["categories"]);
+          queryClient.invalidateQueries(["shipping prices"]);
         },
       }
     );
@@ -329,22 +359,23 @@ const AdminCategory = () => {
 
   const handleCloseModalCreate = () => {
     setIsOpenModalCreate(false);
-    setStateCategory({
-      name: "",
+    setStateShippingPrice({
+      maxOrderAmount: "",
+      shippingFee: "",
     });
     form.resetFields();
   };
 
-  const handleUpdateCategory = () => {
+  const handleUpdateShippingPrice = () => {
     mutationUpdate.mutate(
       {
         id: rowSelected,
         token: user?.access_token,
-        ...stateCategory,
+        ...stateShippingPrice,
       },
       {
         onSettled: () => {
-          queryClient.invalidateQueries(["categories"]);
+          queryClient.invalidateQueries(["shipping prices"]);
         },
       }
     );
@@ -352,8 +383,9 @@ const AdminCategory = () => {
 
   const handleCloseModalUpdate = () => {
     setIsOpenModalUpdate(false);
-    setStateCategory({
-      name: "",
+    setStateShippingPrice({
+      maxOrderAmount: "",
+      shippingFee: "",
     });
     form.resetFields();
   };
@@ -362,12 +394,12 @@ const AdminCategory = () => {
     setIsOpenModalDelete(false);
   };
 
-  const handleDeleteCategory = () => {
+  const handleDeleteShippingPrice = () => {
     mutationDeleted.mutate(
       { id: rowSelected, token: user?.access_token },
       {
         onSettled: () => {
-          queryClient.invalidateQueries(["categories"]);
+          queryClient.invalidateQueries(["shipping prices"]);
         },
       }
     );
@@ -377,12 +409,12 @@ const AdminCategory = () => {
     setIsOpenModalDeleteMany(false);
   };
 
-  const handleDeleteManyCategories = (ids) => {
+  const handleDeleteManyShippingPrices = (ids) => {
     mutationDeletedMany.mutate(
       { ids: ids, token: user?.access_token },
       {
         onSettled: () => {
-          queryClient.invalidateQueries(["categories"]);
+          queryClient.invalidateQueries(["shipping prices"]);
         },
       }
     );
@@ -390,7 +422,7 @@ const AdminCategory = () => {
 
   return (
     <div>
-      <WrapperHeader>Quản lý danh mục</WrapperHeader>
+      <WrapperHeader>Quản lý phí giao hàng</WrapperHeader>
 
       <div style={{ marginTop: "20px" }}>
         <ButtonComponent
@@ -435,7 +467,7 @@ const AdminCategory = () => {
 
         <TableComponent
           columns={columns}
-          isPending={isPendingCategories}
+          isPending={isPendingShippingPrices}
           data={dataTable}
           onRow={(record, rowIndex) => {
             return {
@@ -451,10 +483,36 @@ const AdminCategory = () => {
             },
           }}
         />
+
+        <div>
+          Lưu ý: Phí giao hàng áp dụng cho khoảng từ mức giá nhỏ hơn gần nhất
+          đến mức giá hiện tại.
+          <br />
+          Ví dụ có 3 phí giao hàng:
+          <br />
+          MAX-0đ
+          <br />
+          1.000.000đ-30.000đ
+          <br />
+          500.000đ-20.000đ
+          <br />
+          Nghĩa là:
+          <br />
+          Hóa đơn từ 0--{">"} nhỏ hơn 500.000đ có phí giao hàng là 20.000đ
+          <br />
+          Hóa đơn từ 500.000đ--{">"} nhỏ hơn 1.000.000đ có phí giao hàng là
+          30.000đ
+          <br />
+          Hóa đơn từ 1.000.000đ trở lên có phí giao hàng là 0đ
+          <br />
+          Mức giá tối đa để trống tương đương với MAX
+        </div>
       </div>
 
       <ModalComponent
-        title={isOpenModalCreate ? "Tạo mới danh mục" : "Sửa danh mục"}
+        title={
+          isOpenModalCreate ? "Tạo mới phí giao hàng" : "Sửa phí giao hàng"
+        }
         isOpen={isOpenModalCreate || isOpenModalUpdate}
         onCancel={() => {
           setIsOpenModalUpdate(false);
@@ -467,23 +525,47 @@ const AdminCategory = () => {
         >
           <Form
             name="basic"
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
+            labelCol={{ span: 7 }}
+            wrapperCol={{ span: 19 }}
             autoComplete="on"
             form={form}
             onFinish={
-              isOpenModalCreate ? handleCreateCategory : handleUpdateCategory
+              isOpenModalCreate
+                ? handleCreateShippingPrice
+                : handleUpdateShippingPrice
             }
           >
             <Form.Item
-              label="Tên"
-              name="name"
-              rules={[{ required: true, message: "Mời nhập tên!" }]}
+              label="Mức giá tối đa (đ)"
+              name="maxOrderAmount"
+              rules={[
+                {
+                  validator: validateNumber,
+                  required: true,
+                },
+              ]}
             >
               <InputComponent
-                value={stateCategory.name}
+                value={stateShippingPrice.maxOrderAmount}
                 onChange={handleOnchangeDetails}
-                name="name"
+                name="maxOrderAmount"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Phí giao hàng (đ)"
+              name="shippingFee"
+              rules={[
+                { required: true, message: "Mời nhập phí giao hàng!" },
+                {
+                  validator: validateNumber,
+                },
+              ]}
+            >
+              <InputComponent
+                value={stateShippingPrice.shippingFee}
+                onChange={handleOnchangeDetails}
+                name="shippingFee"
               />
             </Form.Item>
           </Form>
@@ -491,28 +573,28 @@ const AdminCategory = () => {
       </ModalComponent>
 
       <ModalComponent
-        title="Xóa danh mục"
+        title="Xóa phí giao hàng"
         open={isOpenModalDelete}
         onCancel={handleCloseModalDelete}
-        onOk={handleDeleteCategory}
+        onOk={handleDeleteShippingPrice}
       >
         <Loading isPending={isPendingDeleted}>
-          <div>Bạn có chắc muốn xóa danh mục này không?</div>
+          <div>Bạn có chắc muốn xóa phí giao hàng này không?</div>
         </Loading>
       </ModalComponent>
 
       <ModalComponent
-        title="Xóa tất cả danh mục đã chọn"
+        title="Xóa tất cả phí giao hàng đã chọn"
         open={isOpenModalDeleteMany}
         onCancel={handleCloseModalDeleteMany}
-        onOk={handleDeleteManyCategories}
+        onOk={handleDeleteManyShippingPrices}
       >
         <Loading isPending={isPendingDeletedMany}>
-          <div>Bạn có chắc muốn xóa tất cả danh mục đã chọn không?</div>
+          <div>Bạn có chắc muốn xóa tất cả phí giao hàng đã chọn không?</div>
         </Loading>
       </ModalComponent>
     </div>
   );
 };
 
-export default AdminCategory;
+export default AdminShippingPrice;

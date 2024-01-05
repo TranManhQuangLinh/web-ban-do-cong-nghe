@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 
 export const WrapperCategory = styled.div`
     display: flex;

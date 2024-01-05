@@ -1,28 +1,26 @@
+import * as React from "react"
 import { useEffect } from "react";
-import { useDeleteManyUsersMutation } from "../../services/userApi";
-import Loading from "../LoadingComponent/Loading";
-import ModalComponent from "../ModalComponent/ModalComponent";
-import * as message from "../../components/Message/Message";
+import { useDeleteManyUsersMutation } from "../../../services/user";
+import Loading from "../../LoadingComponent";
+import ModalComponent from "../../ModalComponent";
+import * as message from "../../Message/Message";
+import { IParams } from "../types";
 
-const DeleteManyModal = ({
-  rowSelectedKeys,
-  isOpenModalDeleteMany,
-  setIsOpenModalDeleteMany,
-}) => {
+const DeleteManyModal = (props: IParams) => {
   const [deleteManyUsers, result] = useDeleteManyUsersMutation();
 
-  const handleCloseModalDeleteMany = () => {
-    setIsOpenModalDeleteMany(false);
+  const handleCloseModal = () => {
+    props.setState({...props.state, isOpenModalDeleteMany: false})
   };
 
   const handleDeleteManyUsers = () => {
-    deleteManyUsers(rowSelectedKeys);
+    deleteManyUsers({ids: props.state.rowSelectedKeys});
   };
 
   useEffect(() => {
     if (result.isSuccess && result.data?.status === "OK") {
       message.success();
-      handleCloseModalDeleteMany();
+      handleCloseModal();
     } else {
       if (result.data?.message) {
         message.error(result.data?.message);
@@ -33,8 +31,8 @@ const DeleteManyModal = ({
   return (
     <ModalComponent
         title="Xóa tất cả người dùng đã chọn"
-        open={isOpenModalDeleteMany}
-        onCancel={handleCloseModalDeleteMany}
+        open={props.state.isOpenModalDeleteMany}
+        onCancel={handleCloseModal}
         onOk={handleDeleteManyUsers}
       >
         <Loading isPending={result.isLoading}>

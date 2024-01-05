@@ -7,8 +7,8 @@ import { jwtDecode } from "jwt-decode";
 // import { useGetDetailsUserQuery } from "./services/userApi";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "./redux/slices/UserSlice";
-import Loading from "./components/LoadingComponent/Loading";
-import { useGetDetailsUserQuery } from "./services/userApi";
+import Loading from "./components/LoadingComponent";
+import { useGetDetailsUserQuery } from "./services/user";
 
 function App() {
   const dispatch = useDispatch();

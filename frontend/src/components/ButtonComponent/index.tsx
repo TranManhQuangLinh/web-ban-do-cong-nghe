@@ -1,7 +1,13 @@
-import { Button } from "antd";
+import { Button, ButtonProps } from "antd";
 import React from "react";
 
-const ButtonComponent = ({
+interface ButtonComponentProps extends ButtonProps {
+  buttonStyle?: React.CSSProperties;
+  buttonTextStyle?: React.CSSProperties;
+  buttonText: React.ReactNode;
+}
+
+const ButtonComponent: React.FC<ButtonComponentProps> = ({
   buttonStyle,
   buttonTextStyle,
   buttonText,
@@ -10,7 +16,7 @@ const ButtonComponent = ({
   ...rests
 }) => {
   const handleDisableOnclick = () => {};
-  // console.log(disabled);
+
   return (
     <Button
       style={{

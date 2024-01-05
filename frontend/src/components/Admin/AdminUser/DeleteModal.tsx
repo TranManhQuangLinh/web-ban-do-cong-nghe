@@ -1,28 +1,26 @@
+import * as React from "react"
 import { useEffect } from "react";
-import { useDeleteUserMutation } from "../../services/userApi";
-import Loading from "../LoadingComponent/Loading";
-import ModalComponent from "../ModalComponent/ModalComponent";
-import * as message from "../../components/Message/Message";
+import { useDeleteUserMutation } from "../../../services/user";
+import Loading from "../../LoadingComponent";
+import ModalComponent from "../../ModalComponent";
+import * as message from "../../Message/Message";
+import { IParams } from "../types";
 
-const DeleteModal = ({
-  rowSelected,
-  isOpenModalDelete,
-  setIsOpenModalDelete,
-}) => {
+const DeleteModal = (props: IParams) => {
   const [deleteUser, result] = useDeleteUserMutation();
 
-  const handleCloseModalDelete = () => {
-    setIsOpenModalDelete(false);
+  const handleCloseModal = () => {
+    props.setState({...props.state, isOpenModalDelete: false})
   };
 
   const handleDeleteUser = () => {
-    deleteUser(rowSelected);
+    deleteUser({id: props.state.rowSelected});
   };
 
   useEffect(() => {
     if (result.isSuccess && result.data?.status === "OK") {
       message.success();
-      handleCloseModalDelete();
+      handleCloseModal();
     } else {
       if (result.data?.message) {
         message.error(result.data?.message);
@@ -33,8 +31,8 @@ const DeleteModal = ({
   return (
     <ModalComponent
       title="Xóa người dùng"
-      open={isOpenModalDelete}
-      onCancel={handleCloseModalDelete}
+      open={props.state.isOpenModalDelete}
+      onCancel={handleCloseModal}
       onOk={handleDeleteUser}
     >
       <Loading isPending={result.isLoading}>

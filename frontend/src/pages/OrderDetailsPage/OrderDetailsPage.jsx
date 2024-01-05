@@ -21,10 +21,10 @@ import * as OrderService from "../../services/OrderService";
 import * as UserService from "../../services/UserService";
 import { useQuery } from "@tanstack/react-query";
 import { orderConstant } from "../../constant";
-import { convertPrice } from "../../utils";
-import Loading from "../../components/LoadingComponent/Loading";
+import { convertDateToString, convertPrice } from "../../utils";
+import Loading from "../../components/LoadingComponent";
 import { useSelector } from "react-redux";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 import { Select } from "antd";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 
@@ -290,9 +290,7 @@ const OrderDetailsPage = () => {
                                 {item?.updater?.name || item?.updater?.email}
                               </span>
                               <span>
-                                {new Date(item?.updatedAt).toLocaleString(
-                                  "vi-VN"
-                                )}
+                                {convertDateToString(new Date(item?.updatedAt))}
                               </span>
                             </WrapperItemPrice>
                           </WrapperItemOrder>

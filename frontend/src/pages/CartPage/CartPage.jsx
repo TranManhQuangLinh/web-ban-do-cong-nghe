@@ -16,7 +16,7 @@ import {
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { WrapperInputNumber } from "../../components/ProductDetailsComponent/style";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 import { useDispatch, useSelector } from "react-redux";
 import {
   changeAmount,
@@ -30,17 +30,17 @@ import {
 } from "../../redux/slices/OrderSlice";
 import { convertPrice } from "../../utils";
 import { useMemo } from "react";
-import ModalComponent from "../../components/ModalComponent/ModalComponent";
-import InputComponent from "../../components/InputComponent/InputComponent";
+import ModalComponent from "../../components/ModalComponent";
+import InputComponent from "../../components/InputComponent";
 import * as message from "../../components/Message/Message";
 import { useNavigate } from "react-router-dom";
 import * as ShippingPriceService from "../../services/ShippingPriceService";
 import { useQuery } from "@tanstack/react-query";
-import Loading from "../../components/LoadingComponent/Loading";
+import Loading from "../../components/LoadingComponent";
 const CartPage = () => {
   const user = useSelector((state) => state.user);
   const order = useSelector((state) =>
-    state.orders?.find((order) => order.user === user.id)
+    state.orders?.find((order) => order.user === user._id)
   );
   // console.log(order);
 
@@ -77,14 +77,14 @@ const CartPage = () => {
         if (orderItem?.quantity >= orderItem.quantityInStock) {
           message.error(`Chỉ còn ${orderItem.quantityInStock} sản phẩm`);
         } else {
-          dispatch(increaseAmount({ idProduct, userId: user.id }));
+          dispatch(increaseAmount({ idProduct, userId: user._id }));
         }
         break;
       case "decrease":
         if (orderItem?.quantity <= 1) {
           message.error("Số lượng phải lớn hơn 1");
         } else {
-          dispatch(decreaseAmount({ idProduct, userId: user.id }));
+          dispatch(decreaseAmount({ idProduct, userId: user._id }));
         }
         break;
       default:
@@ -95,16 +95,16 @@ const CartPage = () => {
         } else if (value > orderItem.quantityInStock) {
           message.error(`Chỉ còn ${orderItem.quantityInStock} sản phẩm`);
           value = orderItem.quantityInStock;
-          dispatch(changeAmount({ idProduct, value, userId: user.id }));
+          dispatch(changeAmount({ idProduct, value, userId: user._id }));
         } else {
-          dispatch(changeAmount({ idProduct, value, userId: user.id }));
+          dispatch(changeAmount({ idProduct, value, userId: user._id }));
         }
         break;
     }
   };
 
   const handleDeleteOrder = (idProduct) => {
-    dispatch(removeOrderItem({ idProduct, userId: user.id }));
+    dispatch(removeOrderItem({ idProduct, userId: user._id }));
   };
 
   const handleOnchangeCheckAll = (e) => {
@@ -120,7 +120,7 @@ const CartPage = () => {
   };
 
   useEffect(() => {
-    dispatch(selectedOrderItem({ listChecked, userId: user.id }));
+    dispatch(selectedOrderItem({ listChecked, userId: user._id }));
   }, [listChecked]);
 
   useEffect(() => {
@@ -200,7 +200,7 @@ const CartPage = () => {
 
   const handleRemoveAllOrder = () => {
     if (listChecked?.length > 1) {
-      dispatch(removeAllOrderItem({ listChecked, userId: user.id }));
+      dispatch(removeAllOrderItem({ listChecked, userId: user._id }));
     }
   };
 
@@ -252,7 +252,7 @@ const CartPage = () => {
           recipientName,
           address,
           phone,
-          userId: user.id,
+          userId: user._id,
         })
       );
     }

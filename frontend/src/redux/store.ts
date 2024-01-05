@@ -1,8 +1,8 @@
-import { combineReducers, compose, configureStore } from "@reduxjs/toolkit";
+import { combineReducers, compose, configureStore, createSelector } from "@reduxjs/toolkit";
 import productReducer from "./slices/productSlide";
 import userReducer from "./slices/UserSlice";
 import orderReducer from "./slices/OrderSlice";
-import { userApi } from "../services/userApi";
+import { userApi } from "../services/user";
 
 import {
   persistStore,
@@ -29,10 +29,17 @@ const rootReducer = combineReducers({
   orders: orderReducer,
   [userApi.reducerPath]: userApi.reducer,
 });
-
 // const persistedReducer = persistReducer(persistConfig, rootReducer);
-// const composeEnhancers = (process.env.REACT_APP_NODE_ENV !== 'production' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 
+export type RootState = ReturnType<typeof rootReducer>;
+
+// selector
+export const userSelector = createSelector(
+  (state: RootState) => state,
+  (state) => state.user,
+  );
+
+// const composeEnhancers = (process.env.REACT_APP_NODE_ENV !== 'production' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>

@@ -1,20 +1,20 @@
 import { Button, Space } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { WrapperCurrentStatus, WrapperHeader } from "./style";
-import TableComponent from "../TableComponent/TableComponent";
-import InputComponent from "../InputComponent/InputComponent";
-import Loading from "../LoadingComponent/Loading";
-import { convertPrice } from "../../utils";
+import TableComponent from "../../TableComponent";
+import InputComponent from "../../InputComponent";
+import Loading from "../../LoadingComponent";
+import { convertPrice } from "../../../utils";
 
-import * as UserService from "../../services/UserService";
-import * as OrderService from "../../services/OrderService";
+import * as UserService from "../../../services/UserService";
+import * as OrderService from "../../../services/OrderService";
 import { useQuery } from "@tanstack/react-query";
 import { SearchOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { orderConstant } from "../../constant";
-import ButtonComponent from "../ButtonComponent/ButtonComponent";
+import { orderConstant } from "../../../constant";
+import ButtonComponent from "../../ButtonComponent";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useGetDetailsUserQuery } from "../../services/userApi";
+import { useGetDetailsUserQuery } from "../../../services/user";
 
 const AdminOrder = () => {
   const user = useSelector((state) => state?.user);

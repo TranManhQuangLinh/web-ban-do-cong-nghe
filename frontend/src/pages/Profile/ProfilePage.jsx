@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 import InputForm from "../../components/InputForm/InputForm";
 import {
   WrapperContentProfile,
@@ -13,7 +13,7 @@ import {
 } from "./style";
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
-import Loading from "../../components/LoadingComponent/Loading";
+import Loading from "../../components/LoadingComponent";
 import * as message from "../../components/Message/Message";
 import { updateUser } from "../../redux/slices/UserSlice";
 import { Button } from "antd";

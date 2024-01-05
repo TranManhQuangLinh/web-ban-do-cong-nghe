@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Loading from "../../components/LoadingComponent/Loading";
+import Loading from "../../components/LoadingComponent";
 import { useQuery } from "@tanstack/react-query";
 import * as OrderService from "../../services/OrderService";
 import { useSelector } from "react-redux";
@@ -13,7 +13,7 @@ import {
   WrapperStatus,
   WrapperCurrentStatus,
 } from "./style";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 import { useNavigate } from "react-router-dom";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as message from "../../components/Message/Message";
@@ -49,7 +49,7 @@ const MyOrderPage = () => {
         id: order._id,
         token: user?.access_token,
         orderItems: order?.orderItems,
-        userId: user.id,
+        userId: user._id,
       },
       {
         onSuccess: () => {

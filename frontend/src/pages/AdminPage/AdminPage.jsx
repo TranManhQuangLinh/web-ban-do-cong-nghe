@@ -9,11 +9,11 @@ import {
   CarOutlined,
 } from "@ant-design/icons";
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
-import AdminUser from "../../components/AdminUser";
-import AdminCategory from "../../components/AdminCategory/AdminCategory";
-import AdminProduct from "../../components/AdminProduct/AdminProduct";
-import AdminShippingPrice from "../../components/AdminShippingPrice/AdminShippingPrice";
-import AdminOrder from "../../components/AdminOrder/AdminOrder";
+import AdminUser from "../../components/Admin/AdminUser";
+import AdminCategory from "../../components/Admin/AdminCategory";
+import AdminProduct from "../../components/Admin/AdminProduct/AdminProduct";
+import AdminShippingPrice from "../../components/Admin/AdminShippingPrice/AdminShippingPrice";
+import AdminOrder from "../../components/Admin/AdminOrder/AdminOrder";
 
 const AdminPage = () => {
   const items = [

@@ -12,7 +12,7 @@ import { Badge, Col, Popover } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import Loading from "../LoadingComponent/Loading";
+import Loading from "../LoadingComponent";
 import * as UserService from "../../services/UserService";
 import { resetUser } from "../../redux/slices/UserSlice";
 import { searchProduct } from "../../redux/slices/productSlide";
@@ -27,7 +27,7 @@ const HeaderComponent = ({
   const location = useLocation();
   const user = useSelector((state) => state.user);
   const order = useSelector((state) =>
-    state.orders?.find((order) => order.user === user.id)
+    state.orders?.find((order) => order.user === user._id)
   );
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
@@ -35,12 +35,12 @@ const HeaderComponent = ({
   
   useEffect(() => {
     if (!order && !!user) {
-      dispatch(initOrder({ userId: user.id }));
+      dispatch(initOrder({ userId: user._id }));
     }
   }, [])
 
   const content = () => {
-    if (user.id !== "") {
+    if (user._id !== "") {
       return (
         <div>
           <WrapperContentPopup onClick={() => handleClickNavigate("profile")}>
