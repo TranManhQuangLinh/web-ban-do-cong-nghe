@@ -1,6 +1,20 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import * as UserService from "../services/UserService";
 import { resetUser, setIsRefresh, updateUser } from "../redux/slices/UserSlice";
+import axios from "axios";
+
+const refresh_access_token = async (refresh_token) => {
+  // console.log('refresh_token', refresh_token)
+  const res = await axios.post(
+    `${process.env.REACT_APP_API_URL}/user/refresh-token`,
+    {},
+    {
+      headers: {
+        token: `Bearer ${refresh_token}`,
+      },
+    }
+  );
+  return res.data;
+};
 
 export const userBaseQuery = (baseUrl) => {
   const baseQuery = fetchBaseQuery({
@@ -22,48 +36,55 @@ export const userBaseQuery = (baseUrl) => {
   });
 
   return async (args, api, extraOptions) => {
-    let result = await baseQuery(args, api, extraOptions)
+    let result = await baseQuery(args, api, extraOptions);
     // console.log('result', result);
     try {
       if (result.error && result.error.status === 401) {
         const user = api.getState().user;
 
-        if(!user.isRefresh){
-          api.dispatch(setIsRefresh(true))
+        if (!user.isRefresh) {
+          api.dispatch(setIsRefresh(true));
           // return result
         }
 
-        const refresh_token = user?.refresh_token || JSON.parse(localStorage.getItem("refresh_token"));
+        const refresh_token =
+          user?.refresh_token ||
+          JSON.parse(localStorage.getItem("refresh_token"));
         // console.log('user?.refresh_token:', user?.refresh_token);
         // console.log('storage refresh_token:', JSON.parse(localStorage.getItem("refresh_token")));
-        console.log('refresh_token:', refresh_token);
-        console.log('user?.isRefresh:', user?.isRefresh);
+        console.log("refresh_token:", refresh_token);
+        console.log("user?.isRefresh:", user?.isRefresh);
         if (refresh_token && !user?.isRefresh) {
-          console.log('refresh');
-          const data = await UserService.refresh_token(refresh_token);
+          console.log("refresh");
+          const data = await refresh_access_token(refresh_token);
           // console.log('data', data);
-          
+
           if (data?.access_token) {
             // Update access_token in local storage and userSlice
-            console.log('refresh access_token SUCCESS');
-            localStorage.setItem("access_token", JSON.stringify(data.access_token));
-            api.dispatch(updateUser({ ...user, access_token: data.access_token }));
-            result = await baseQuery(args, api, extraOptions)
-            api.dispatch(setIsRefresh(false))
+            console.log("refresh access_token SUCCESS");
+            localStorage.setItem(
+              "access_token",
+              JSON.stringify(data.access_token)
+            );
+            api.dispatch(
+              updateUser({ ...user, access_token: data.access_token })
+            );
+            result = await baseQuery(args, api, extraOptions);
+            api.dispatch(setIsRefresh(false));
           } else {
             // Clear local storage and reset userSlice on refresh_token expiration
             localStorage.removeItem("access_token");
             localStorage.removeItem("refresh_token");
-            console.log('data?.access_token:', data?.access_token);
+            console.log("data?.access_token:", data?.access_token);
             api.dispatch(resetUser());
-            api.dispatch(setIsRefresh(false))
+            api.dispatch(setIsRefresh(false));
           }
-        } else if(!refresh_token) {
+        } else if (!refresh_token) {
           // Clear local storage and reset userSlice if there is no refresh_token
           localStorage.removeItem("access_token");
-          console.log('refresh_token not found');
+          console.log("refresh_token not found");
           api.dispatch(resetUser());
-          api.dispatch(setIsRefresh(false))
+          api.dispatch(setIsRefresh(false));
         }
       }
 

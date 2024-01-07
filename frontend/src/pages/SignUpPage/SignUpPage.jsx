@@ -9,7 +9,7 @@ import {
 import imageLogo from "../../assets/images/logo-login.png";
 import { Image } from "antd";
 import * as UserService from "../../services/UserService";
-import * as message from "../../components/Message/Message";
+import * as message from "../../components/Message";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";

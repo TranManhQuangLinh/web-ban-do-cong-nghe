@@ -6,10 +6,10 @@ import InputComponent from "../../InputComponent";
 import ButtonComponent from "../../ButtonComponent";
 import { useState } from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import { useGetAllUsersQuery } from "../../../services/user";
-import CreateUpdateModal from "./CreateUpdateModal";
-import DeleteModal from "./DeleteModal";
-import DeleteManyModal from "./DeleteManyModal";
+import { useCreateUserMutation, useGetAllUsersQuery, useGetDetailsUserQuery, useUpdateUserMutation } from "../../../services/user";
+import CreateUpdateModal from "../Modals/CreateUpdateModal";
+import DeleteModal from "../Modals/DeleteModal";
+import DeleteManyModal from "../Modals/DeleteManyModal";
 import { GetAllUsersResult } from "../../../services/user/types";
 import { IState } from "../types";
 
@@ -264,11 +264,11 @@ const AdminUser = () => {
         />
       </div>
 
-      <CreateUpdateModal state={state} setState={setState} />
+      <CreateUpdateModal state={state} setState={setState} useGetDetailsQuery={useGetDetailsUserQuery} useCreateMutation={useCreateUserMutation} useUpdateMutation={useUpdateUserMutation} />
 
-      <DeleteModal state={state} setState={setState} />
+      {/* <DeleteModal state={state} setState={setState} />
 
-      <DeleteManyModal state={state} setState={setState} />
+      <DeleteManyModal state={state} setState={setState} /> */}
     </div>
   );
 };

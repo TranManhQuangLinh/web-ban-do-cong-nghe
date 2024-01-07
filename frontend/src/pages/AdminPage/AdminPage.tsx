@@ -1,4 +1,3 @@
-import { Menu } from "antd";
 import React from "react";
 import { Link, Route, Routes } from "react-router-dom";
 import {
@@ -14,14 +13,35 @@ import AdminCategory from "../../components/Admin/AdminCategory";
 import AdminProduct from "../../components/Admin/AdminProduct/AdminProduct";
 import AdminShippingPrice from "../../components/Admin/AdminShippingPrice/AdminShippingPrice";
 import AdminOrder from "../../components/Admin/AdminOrder/AdminOrder";
+import MenuComponent from "../../components/MenuComponent";
 
 const AdminPage = () => {
   const items = [
-    { label: "Người dùng", key: "users", icon: <UserOutlined /> },
-    { label: "Danh mục", key: "categories", icon: <BarsOutlined /> },
-    { label: "Sản phẩm", key: "products", icon: <ShoppingOutlined /> },
-    { label: "Phí giao hàng", key: "shipping-prices", icon: <CarOutlined /> },
-    { label: "Đơn hàng", key: "orders", icon: <ShoppingCartOutlined /> },
+    {
+      label: <Link to={`/admin/users`}>Người dùng</Link>,
+      key: "users",
+      icon: <UserOutlined />,
+    },
+    {
+      label: <Link to={`/admin/categories`}>Danh mục</Link>,
+      key: "categories",
+      icon: <BarsOutlined />,
+    },
+    {
+      label: <Link to={`/admin/products`}>Sản phẩm</Link>,
+      key: "products",
+      icon: <ShoppingOutlined />,
+    },
+    {
+      label: <Link to={`/admin/shipping-prices`}>Phí giao hàng</Link>,
+      key: "shipping-prices",
+      icon: <CarOutlined />,
+    },
+    {
+      label: <Link to={`/admin/orders`}>Đơn hàng</Link>,
+      key: "orders",
+      icon: <ShoppingCartOutlined />,
+    },
   ];
 
   return (
@@ -32,8 +52,8 @@ const AdminPage = () => {
         style={{ position: "fixed", zIndex: 1000 }}
       />
       <div style={{ display: "flex", overflowX: "hidden" }}>
-        <Menu
-          mode="inline"
+        <MenuComponent
+          items={items}
           style={{
             width: 256,
             boxShadow: "1px 1px 2px #ccc",
@@ -41,13 +61,7 @@ const AdminPage = () => {
             position: "fixed",
             marginTop: "52px",
           }}
-        >
-          {items.map((item) => (
-            <Menu.Item key={item.key} icon={item.icon}>
-              <Link to={`/admin/${item.key}`}>{item.label}</Link>
-            </Menu.Item>
-          ))}
-        </Menu>
+        />
         <div
           style={{
             flex: 1,

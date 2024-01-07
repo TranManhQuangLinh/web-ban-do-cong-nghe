@@ -7,7 +7,7 @@ import Loading from "../../LoadingComponent";
 import ButtonComponent from "../../ButtonComponent";
 import ModalComponent from "../../ModalComponent";
 import { useEffect } from "react";
-import * as message from "../../Message/Message";
+import * as message from "../../Message";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useRef } from "react";
@@ -534,6 +534,7 @@ const AdminShippingPrice = () => {
                 ? handleCreateShippingPrice
                 : handleUpdateShippingPrice
             }
+            preserve={false}
           >
             <Form.Item
               label="Mức giá tối đa (đ)"

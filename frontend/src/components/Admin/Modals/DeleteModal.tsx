@@ -3,10 +3,10 @@ import { useEffect } from "react";
 import { useDeleteUserMutation } from "../../../services/user";
 import Loading from "../../LoadingComponent";
 import ModalComponent from "../../ModalComponent";
-import * as message from "../../Message/Message";
-import { IParams } from "../types";
+import * as message from "../../Message";
+import { IModalProps } from "../types";
 
-const DeleteModal = (props: IParams) => {
+const DeleteModal = (props: IModalProps) => {
   const [deleteUser, result] = useDeleteUserMutation();
 
   const handleCloseModal = () => {

@@ -17,7 +17,7 @@ import InputComponent from "../../components/InputComponent";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as OrderService from "../../services/OrderService";
 import Loading from "../../components/LoadingComponent";
-import * as message from "../../components/Message/Message";
+import * as message from "../../components/Message";
 import { useNavigate } from "react-router-dom";
 import {
   removeAllOrderItem,
@@ -309,6 +309,7 @@ const PaymentPage = () => {
             onFinish={handleUpdateShippingAddress}
             autoComplete="on"
             form={form}
+            preserve={false}
           >
             <Form.Item
               label="Tên người nhận"

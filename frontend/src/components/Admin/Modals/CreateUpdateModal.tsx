@@ -1,48 +1,56 @@
 import * as React from "react";
-// Rest of your code
 
-import { useEffect, useState } from "react";
-import {
-  useCreateUserMutation,
-  useGetDetailsUserQuery,
-  useUpdateUserMutation,
-} from "../../../services/user";
-import { convertDateToString, getBase64 } from "../../../utils";
-import * as message from "../../Message/Message";
-import { IParams } from "../types";
+import { useEffect } from "react";
+import * as message from "../../Message";
+import { IModalProps } from "../types";
 import Loading from "../../LoadingComponent";
 import ModalComponent from "../../ModalComponent";
 import InputComponent from "../../InputComponent";
-import { Form, Select, Button } from "antd";
-import { WrapperUploadFile } from "./style";
-import { RcFile, UploadChangeParam, UploadFile, UploadProps } from "antd/es/upload";
+import { Form, Select } from "antd";
+import {
+  RcFile,
+  UploadChangeParam,
+  UploadFile,
+  UploadProps,
+} from "antd/es/upload";
+import UploadComponent, { getBase64 } from "../../UploadComponent";
 
-const CreateUpdateModal = (props: IParams) => {
+const CreateUpdateModal = (props: IModalProps) => {
   const [form] = Form.useForm();
 
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  // console.log("form", form);
   // console.log(props);
   // console.log(!!props.state.rowSelected);
-  console.log('form.getFieldValue("avatar")', form.getFieldValue("avatar"));
 
   const {
-    data: userDetails,
+    data: details,
     isFetching,
-    refetch: refetchGetDetailsUser,
-  } = useGetDetailsUserQuery(props.state.rowSelected, {
+    isLoading,
+    refetch: refetchDetails,
+  } = props.useGetDetailsQuery(props.state.rowSelected, {
     skip: !props.state.rowSelected,
   });
 
-  // console.log('userDetails', userDetails);
-
-  const [createUser, createResult] = useCreateUserMutation();
-  const [updateUser, updateResult] = useUpdateUserMutation();
+  const [create, createResult] = props.useCreateMutation();
+  const [update, updateResult] = props.useUpdateMutation();
 
   // console.log('createResult', createResult);
 
   useEffect(() => {
-    form.setFieldsValue(userDetails?.data);
-  });
+    if (
+      props.state.isOpenModalCreateUpdate &&
+      props.state.rowSelected
+    ) {
+      console.log("refetch");
+      refetchDetails();
+    }
+
+    console.log("props.state.rowSelected:", props.state.rowSelected);
+    console.log("details", details?.data);
+    console.log("form values", form.getFieldsValue());
+
+    form.setFieldsValue(details?.data);
+  }, [props.state.isOpenModalCreateUpdate]);
 
   useEffect(() => {
     if (createResult.isSuccess && createResult.data?.status === "OK") {
@@ -82,13 +90,13 @@ const CreateUpdateModal = (props: IParams) => {
   }, [updateResult]);
 
   const handleFinish = (values: any) => {
-    console.log(values);
+    // console.log(values);
     // return
     if (!props.state.rowSelected) {
-      createUser(values);
+      create(values);
     } else {
       const { email, ...rest } = values;
-      updateUser({ id: props.state.rowSelected, data: rest });
+      update({ id: props.state.rowSelected, data: rest });
     }
   };
 
@@ -100,41 +108,31 @@ const CreateUpdateModal = (props: IParams) => {
     form.setFieldsValue({ [name]: value });
   };
 
-  const handleOnchangeAvatarDetails: UploadProps["onChange"] = async (
+  const handleChangeAvatar: UploadProps["onChange"] = async (
     info: UploadChangeParam<UploadFile>
   ) => {
-    // console.log('info', info);
+    console.log("info", info);
 
     if (info.file.status === "uploading") {
-      // setLoading(true);
-      return;
     }
     if (info.file.status === "done") {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj as RcFile, (url) => {
-        // setLoading(false);
-        form.setFieldsValue({ avatar: info.file.preview });
-      });
     }
+    if (info.file.status === "error") {
+    }
+
+    const preview = await getBase64(info.file.originFileObj as RcFile);
+    form.setFieldValue("avatar", preview);
     // console.log('form.getFieldValue("avatar")', form.getFieldValue("avatar"));
   };
 
-  const beforeUpload = (file: RcFile) => {
-    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-    if (!isJpgOrPng) {
-      message.error("You can only upload JPG/PNG file!");
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-      message.error("Image must smaller than 2MB!");
-    }
-    return isJpgOrPng && isLt2M;
-  };
-
   const handleCloseModal = () => {
-    // console.log("close modal");
+    console.log("close modal");
 
-    props.setState({ ...props.state, isOpenModalCreateUpdate: false });
+    props.setState({
+      ...props.state,
+      isOpenModalCreateUpdate: false,
+      rowSelected: "",
+    });
     form.resetFields();
   };
 
@@ -147,7 +145,7 @@ const CreateUpdateModal = (props: IParams) => {
     >
       <Loading
         isPending={
-          isLoadingDetails ||
+          isLoading ||
           isFetching ||
           createResult?.isLoading ||
           updateResult?.isLoading
@@ -160,6 +158,7 @@ const CreateUpdateModal = (props: IParams) => {
           autoComplete="on"
           form={form}
           onFinish={handleFinish}
+          preserve={false}
         >
           {!props.state.rowSelected ? (
             <Form.Item
@@ -170,7 +169,7 @@ const CreateUpdateModal = (props: IParams) => {
               <InputComponent onChange={(e) => handleValueChange(e, "email")} />
             </Form.Item>
           ) : (
-            <Form.Item label="Email">{userDetails?.data?.email}</Form.Item>
+            <Form.Item label="Email">{details?.data?.email}</Form.Item>
           )}
 
           <Form.Item
@@ -217,27 +216,12 @@ const CreateUpdateModal = (props: IParams) => {
           </Form.Item>
 
           <Form.Item label="Avatar" name="avatar">
-            <WrapperUploadFile
+            <UploadComponent
+              avatar={form.getFieldValue("avatar")}
+              onChange={handleChangeAvatar}
               maxCount={1}
-              onChange={handleOnchangeAvatarDetails}
-              beforeUpload={beforeUpload}
-              showUploadList={false}
-            >
-              {form.getFieldValue("avatar") && (
-                <img
-                  src={form.getFieldValue("avatar")}
-                  style={{
-                    height: "60px",
-                    width: "60px",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    margin: "0 10px",
-                  }}
-                  alt="avatar"
-                />
-              )}
-              <Button>Chọn ảnh</Button>
-            </WrapperUploadFile>
+              listType="picture-circle"
+            />
           </Form.Item>
         </Form>
       </Loading>

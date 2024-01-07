@@ -14,7 +14,7 @@ import {
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../../components/LoadingComponent";
-import * as message from "../../components/Message/Message";
+import * as message from "../../components/Message";
 import { updateUser } from "../../redux/slices/UserSlice";
 import { Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";

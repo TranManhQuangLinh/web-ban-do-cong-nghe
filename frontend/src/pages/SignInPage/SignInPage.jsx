@@ -10,7 +10,7 @@ import imageLogo from "../../assets/images/logo-login.png";
 import { Image } from "antd";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import * as UserService from "../../services/UserService";
-import * as message from "../../components/Message/Message";
+import * as message from "../../components/Message";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";

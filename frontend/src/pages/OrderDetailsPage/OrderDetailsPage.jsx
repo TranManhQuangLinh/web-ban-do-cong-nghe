@@ -16,7 +16,7 @@ import {
   WrapperUpdateHistory,
 } from "./style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import * as message from "../../components/Message/Message";
+import * as message from "../../components/Message";
 import * as OrderService from "../../services/OrderService";
 import * as UserService from "../../services/UserService";
 import { useQuery } from "@tanstack/react-query";

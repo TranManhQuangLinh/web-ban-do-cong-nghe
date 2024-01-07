@@ -16,7 +16,7 @@ import {
 import ButtonComponent from "../../components/ButtonComponent";
 import { useNavigate } from "react-router-dom";
 import { useMutationHooks } from "../../hooks/useMutationHook";
-import * as message from "../../components/Message/Message";
+import * as message from "../../components/Message";
 
 const MyOrderPage = () => {
   const navigate = useNavigate();

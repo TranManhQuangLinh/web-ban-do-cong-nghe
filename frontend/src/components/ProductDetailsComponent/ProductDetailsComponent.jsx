@@ -17,7 +17,7 @@ import { convertPrice } from "../../utils";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import * as ProductService from "../../services/ProductService";
-import * as message from "../Message/Message";
+import * as message from "../Message";
 import { useQuery } from "@tanstack/react-query";
 import {
   addOrderItem,

@@ -6,7 +6,10 @@ export interface IState {
   isOpenModalDeleteMany: boolean;
 }
 
-export interface IParams {
+export interface IModalProps {
   state: IState;
   setState: React.Dispatch<React.SetStateAction<IState>>;
+  useGetDetailsQuery: any;
+  useCreateMutation: any;
+  useUpdateMutation: any;
 }

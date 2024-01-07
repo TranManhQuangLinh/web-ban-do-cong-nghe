@@ -32,7 +32,7 @@ import { convertPrice } from "../../utils";
 import { useMemo } from "react";
 import ModalComponent from "../../components/ModalComponent";
 import InputComponent from "../../components/InputComponent";
-import * as message from "../../components/Message/Message";
+import * as message from "../../components/Message";
 import { useNavigate } from "react-router-dom";
 import * as ShippingPriceService from "../../services/ShippingPriceService";
 import { useQuery } from "@tanstack/react-query";
@@ -531,6 +531,7 @@ const CartPage = () => {
           onFinish={handleUpdateShippingAddress}
           autoComplete="on"
           form={form}
+          preserve={false}
         >
           <Form.Item
             label="Tên người nhận"
