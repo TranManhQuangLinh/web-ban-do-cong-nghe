@@ -16,7 +16,7 @@ const refresh_access_token = async (refresh_token) => {
   return res.data;
 };
 
-export const userBaseQuery = (baseUrl) => {
+export const authenticatedQuery = (baseUrl) => {
   const baseQuery = fetchBaseQuery({
     baseUrl,
     prepareHeaders: async (headers, { getState, dispatch }) => {
@@ -90,7 +90,7 @@ export const userBaseQuery = (baseUrl) => {
 
       return result;
     } catch (error) {
-      console.error("Error in userBaseQuery:", error);
+      console.error("Error in authenticatedQuery:", error);
       // Handle other errors as needed
       return { error };
     }

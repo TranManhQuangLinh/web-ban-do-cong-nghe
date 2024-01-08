@@ -2,7 +2,7 @@ import { Input, InputProps } from 'antd';
 import React, { forwardRef } from 'react';
 
 interface InputComponentProps extends InputProps {
-  value?: string | number | readonly string[];
+  // value?: string | number | readonly string[];
 }
 
 const InputComponent: React.ForwardRefRenderFunction<any, InputComponentProps> = ({ size, placeholder, bordered, style, value, ...rests }, ref) => {

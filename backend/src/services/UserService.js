@@ -139,7 +139,7 @@ const deleteUser = (id) => {
 const deleteManyUsers = (ids) => {
   return new Promise(async (resolve, reject) => {
     try {
-      await User.deleteMany({ _id: ids });
+      await User.deleteMany({ _id: { $in: ids } });
       resolve({
         status: "OK",
         message: "delete users success",

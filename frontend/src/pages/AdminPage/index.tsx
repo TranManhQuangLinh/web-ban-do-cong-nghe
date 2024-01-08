@@ -10,7 +10,7 @@ import {
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
 import AdminUser from "../../components/Admin/AdminUser";
 import AdminCategory from "../../components/Admin/AdminCategory";
-import AdminProduct from "../../components/Admin/AdminProduct/AdminProduct";
+import AdminProduct from "../../components/Admin/AdminProduct";
 import AdminShippingPrice from "../../components/Admin/AdminShippingPrice/AdminShippingPrice";
 import AdminOrder from "../../components/Admin/AdminOrder/AdminOrder";
 import MenuComponent from "../../components/MenuComponent";

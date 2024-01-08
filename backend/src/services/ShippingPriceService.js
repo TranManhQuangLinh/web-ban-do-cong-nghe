@@ -94,7 +94,7 @@ const deleteShippingPrice = (id) => {
 const deleteManyShippingPrice = (ids) => {
   return new Promise(async (resolve, reject) => {
     try {
-      await ShippingPrice.deleteMany(ids);
+      await ShippingPrice.deleteMany({ _id: { $in: ids } });
       resolve({
         status: "OK",
         message: "delete categories success",

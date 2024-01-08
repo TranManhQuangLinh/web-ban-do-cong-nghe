@@ -1,11 +1,11 @@
 import * as React from "react";
 
 import { useEffect } from "react";
-import * as message from "../../Message";
-import { IModalProps } from "../types";
-import Loading from "../../LoadingComponent";
-import ModalComponent from "../../ModalComponent";
-import InputComponent from "../../InputComponent";
+import * as message from "../../../Message";
+import { IModalProps } from "../../types";
+import Loading from "../../../LoadingComponent";
+import ModalComponent from "../../../ModalComponent";
+import InputComponent from "../../../InputComponent";
 import { Form, Select } from "antd";
 import {
   RcFile,
@@ -13,7 +13,12 @@ import {
   UploadFile,
   UploadProps,
 } from "antd/es/upload";
-import UploadComponent, { getBase64 } from "../../UploadComponent";
+import UploadComponent, { getBase64 } from "../../../UploadComponent";
+import {
+  useCreateUserMutation,
+  useGetDetailsUserQuery,
+  useUpdateUserMutation,
+} from "../../../../services/user";
 
 const CreateUpdateModal = (props: IModalProps) => {
   const [form] = Form.useForm();
@@ -26,31 +31,20 @@ const CreateUpdateModal = (props: IModalProps) => {
     data: details,
     isFetching,
     isLoading,
-    refetch: refetchDetails,
-  } = props.useGetDetailsQuery(props.state.rowSelected, {
+  } = useGetDetailsUserQuery(props.state.rowSelected, {
     skip: !props.state.rowSelected,
   });
 
-  const [create, createResult] = props.useCreateMutation();
-  const [update, updateResult] = props.useUpdateMutation();
+  const [create, createResult] = useCreateUserMutation();
+  const [update, updateResult] = useUpdateUserMutation();
 
   // console.log('createResult', createResult);
 
   useEffect(() => {
-    if (
-      props.state.isOpenModalCreateUpdate &&
-      props.state.rowSelected
-    ) {
-      console.log("refetch");
-      refetchDetails();
+    if (props.state.isOpenModalCreateUpdate && props.state.rowSelected) {
+      form.setFieldsValue(details?.data);
     }
-
-    console.log("props.state.rowSelected:", props.state.rowSelected);
-    console.log("details", details?.data);
-    console.log("form values", form.getFieldsValue());
-
-    form.setFieldsValue(details?.data);
-  }, [props.state.isOpenModalCreateUpdate]);
+  }, [props.state.isOpenModalCreateUpdate, details]);
 
   useEffect(() => {
     if (createResult.isSuccess && createResult.data?.status === "OK") {
@@ -104,8 +98,14 @@ const CreateUpdateModal = (props: IModalProps) => {
     e: React.ChangeEvent<HTMLInputElement>,
     name: string
   ) => {
-    const value = e.target.value;
+    // console.log("e.target", e.target);
+    const value = e.target?.value;
+
     form.setFieldsValue({ [name]: value });
+  };
+
+  const handleRoleChange = (value: string) => {
+    form.setFieldsValue({ role: value });
   };
 
   const handleChangeAvatar: UploadProps["onChange"] = async (
@@ -189,12 +189,13 @@ const CreateUpdateModal = (props: IModalProps) => {
           >
             <Select
               placeholder="Chọn vai trò"
-              onChange={(e) => handleValueChange(e, "role")}
-            >
-              <Select.Option value="Khách hàng">Khách hàng</Select.Option>
-              <Select.Option value="Admin">Admin</Select.Option>
-              <Select.Option value="Nhân viên">Nhân viên</Select.Option>
-            </Select>
+              onChange={handleRoleChange}
+              options={[
+                { value: "Khách hàng", label: "Khách hàng" },
+                { value: "Admin", label: "Admin" },
+                { value: "Nhân viên", label: "Nhân viên" },
+              ]}
+            />
           </Form.Item>
 
           <Form.Item label="Tên" name="name">
@@ -217,10 +218,11 @@ const CreateUpdateModal = (props: IModalProps) => {
 
           <Form.Item label="Avatar" name="avatar">
             <UploadComponent
-              avatar={form.getFieldValue("avatar")}
+              image={form.getFieldValue("avatar")}
               onChange={handleChangeAvatar}
               maxCount={1}
               listType="picture-circle"
+              hasControlInside={true}
             />
           </Form.Item>
         </Form>

@@ -2,8 +2,6 @@ import { combineReducers, compose, configureStore, createSelector } from "@redux
 import productReducer from "./slices/productSlide";
 import userReducer from "./slices/UserSlice";
 import orderReducer from "./slices/OrderSlice";
-import { userApi } from "../services/user";
-
 import {
   persistStore,
   persistReducer,
@@ -15,12 +13,14 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import { userApi } from "../services/user";
+import { categoryApi } from "../services/category";
 
 const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  blacklist: ['user']
+  // blacklist: ['user']
 };
 
 const rootReducer = combineReducers({
@@ -28,6 +28,7 @@ const rootReducer = combineReducers({
   user: persistReducer(persistConfig,userReducer) ,
   orders: orderReducer,
   [userApi.reducerPath]: userApi.reducer,
+  [categoryApi.reducerPath]: categoryApi.reducer,
 });
 // const persistedReducer = persistReducer(persistConfig, rootReducer);
 
@@ -45,7 +46,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }).concat(userApi.middleware),
+    }).concat(userApi.middleware, categoryApi.middleware),
     // composeEnhancers,
 });
 

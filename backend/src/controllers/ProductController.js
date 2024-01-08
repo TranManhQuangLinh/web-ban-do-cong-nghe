@@ -57,7 +57,7 @@ const deleteProduct = async (req, res) => {
 
 const deleteManyProducts = async (req, res) => {
   try {
-    const ids = req.body.ids;
+    const ids = req.body;
     if (!ids) {
       return res.status(200).json({
         status: "ERR",

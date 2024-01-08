@@ -1,19 +1,16 @@
-import React, { useMemo} from "react";
-import { WrapperHeader } from "./style";
-import TableComponent from "../../TableComponent";
+import React, { useMemo, useState } from "react";
+import { useGetAllCategoriesQuery } from "../../../services/category";
+import { useGetAllProductsQuery } from "../../../services/product";
+import { IGetAllProductsResult } from "../../../services/product/types";
 import ButtonComponent from "../../ButtonComponent";
-import { useState } from "react";
-import {
-  useGetAllUsersQuery,
-} from "../../../services/user";
-import CreateUpdateModal from "./Modals/CreateUpdateModal";
-import { IGetAllUsersResult } from "../../../services/user/types";
+import TableComponent from "../../TableComponent";
 import { IState } from "../types";
-import { ColumnsType } from "antd/es/table/interface";
-import DeleteModal from "./Modals/DeleteModal";
+import CreateUpdateModal from "./Modals/CreateUpdateModal";
 import DeleteManyModal from "./Modals/DeleteManyModal";
+import DeleteModal from "./Modals/DeleteModal";
+import { WrapperHeader } from "./style";
 
-const AdminUser = () => {
+const AdminProduct = () => {
   const [state, setState] = useState<IState>({
     rowSelected: "",
     rowSelectedKeys: [],
@@ -21,53 +18,60 @@ const AdminUser = () => {
     isOpenModalDelete: false,
     isOpenModalDeleteMany: false,
   });
+  // console.log(stateProduct.category);
 
-  // console.log("rowSelected:", rowSelected);
-  // console.log("userDetails:", userDetails);
-  // console.log("stateUser:", stateUser);
+  // lấy tất cả product từ db
+  const { data: products, isLoading: isPending } = useGetAllProductsQuery({});
+  // console.log("products:", products);
 
-  // lấy tất cả user từ db
-  const {
-    data: users,
-    isLoading: isPending,
-    isFetching,
-  } = useGetAllUsersQuery();
-  // console.log('users', users);
+  // lấy tất cả category từ db
+  const { data: categories, isLoading: isPendingCategories } =
+    useGetAllCategoriesQuery();
+
+  // console.log(categories);
 
   // table
   const dataTable = useMemo(() => {
-    let result: IGetAllUsersResult["data"] = [];
-    if (users && users?.data?.length > 0) {
-      result = users.data.map((user) => ({ ...user, key: user._id }));
+    let result: IGetAllProductsResult["data"] = [];
+    if (products && products?.data?.length > 0) {
+      result = products.data.map((product) => ({
+        ...product,
+        key: product._id,
+      }));
     }
     return result;
-  }, [users]);
+  }, [products]);
 
-  const columns: ColumnsType = [
-    {
-      title: "Email",
-      dataIndex: "email",
-      sorter: (a: any, b: any) => a.email.length - b.email.length,
-    },
+  const columns = [
     {
       title: "Tên",
       dataIndex: "name",
-      sorter: (a: any, b: any) => a.name.length - b.name.length,
+      sorter: (a: any, b: any) => a.name - b.name,
     },
     {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      sorter: (a: any, b: any) => a.address.length - b.address.length,
+      title: "Giá",
+      dataIndex: "price",
+      sorter: (a: any, b: any) => a.price - b.price,
     },
     {
-      title: "Vai trò",
-      dataIndex: "role",
-      sorter: (a: any, b: any) => a.role.length - b.role.length,
+      title: "Danh mục",
+      dataIndex: "category",
+      sorter: (a: any, b: any) => a.category - b.category,
     },
     {
-      title: "Điện thoại",
-      dataIndex: "phone",
-      sorter: (a: any, b: any) => a.phone - b.phone,
+      title: "Giảm giá (%)",
+      dataIndex: "discount",
+      sorter: (a: any, b: any) => a.discount - b.discount,
+    },
+    {
+      title: "Số lượng trong kho",
+      dataIndex: "quantityInStock",
+      sorter: (a: any, b: any) => a.quantityInStock - b.quantityInStock,
+    },
+    {
+      title: "Đã bán",
+      dataIndex: "sold",
+      sorter: (a: any, b: any) => a.sold - b.sold,
     },
     {
       title: "Thao tác",
@@ -124,7 +128,7 @@ const AdminUser = () => {
 
   return (
     <div>
-      <WrapperHeader>Quản lý người dùng</WrapperHeader>
+      <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
 
       <div style={{ marginTop: "20px" }}>
         <ButtonComponent
@@ -166,9 +170,10 @@ const AdminUser = () => {
             buttonText="Xóa tất cả"
           />
         )}
+
         <TableComponent
           columns={columns}
-          isPending={isPending || isFetching}
+          isPending={isPending}
           dataSource={dataTable}
           rowSelection={{
             type: "checkbox",
@@ -179,10 +184,7 @@ const AdminUser = () => {
         />
       </div>
 
-      <CreateUpdateModal
-        state={state}
-        setState={setState}
-      />
+      <CreateUpdateModal state={state} setState={setState} />
 
       <DeleteModal state={state} setState={setState} />
 
@@ -191,4 +193,4 @@ const AdminUser = () => {
   );
 };
 
-export default AdminUser;
+export default AdminProduct;

@@ -14,11 +14,11 @@ export const getBase64 = (file: RcFile): Promise<string> =>
   });
 
 interface UploadComponentProps extends UploadProps {
-  avatar?: string; // Children prop as base64
+  image?: string
 }
 
 const UploadComponent: React.FC<UploadComponentProps> = ({
-  avatar,
+  image,
   ...props
 }) => {
   //   console.log(props);
@@ -29,11 +29,12 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   useEffect(() => {
-    if (avatar) {
-      // If avatar prop is provided, add it to fileList
-      setFileList([{ name: "avatar", uid: "-1", status: "done", url: avatar }]);
+    if (image) {
+      // If image prop is provided, add it to fileList
+      setFileList([{ name: "image", uid: "-1", status: "done", url: image }]);
     }
-  }, [avatar]);
+  }, [image]);
+
   const handleCancel = () => setPreviewOpen(false);
 
   const handlePreview = async (file: UploadFile) => {

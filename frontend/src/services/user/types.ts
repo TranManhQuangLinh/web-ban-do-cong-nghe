@@ -1,72 +1,43 @@
-import { FormStateUser } from "../../types";
+import { IFormStateUser, IUser } from "../../types";
 
-export interface User {
-  _id: string;
-  email: string;
-  password: string;
-  role: string;
-  name: string;
-  dateOfBirth: Date;
-  phone: number;
-  address: string;
-  avatar: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-export interface CreateUpdateUserResult {
+export interface ICreateUpdateUserResult {
   status: string;
   message: string;
-  data: User;
+  data: IUser;
 }
 
-export interface UpdateUserParams {
+export interface IUpdateUserParams {
   id: string;
-  data: FormStateUser;
+  data: IFormStateUser;
 }
 
-export interface CreateUserParams extends FormStateUser {}
+export interface ICreateUserParams extends IFormStateUser {}
 
-export interface SignUpParams {
+export interface ISignUpParams {
   email: string;
   password: string;
   confirmPassword: string;
 }
 
-export interface LoginResult {
+export interface ILoginResult {
   status: string;
   message: string;
   access_token?: string;
   refresh_token?: string;
 }
 
-export interface LoginParams {
+export interface ILoginParams {
   email: string;
   password: string;
 }
-
-export interface DefaultResult {
+export interface IGetAllUsersResult {
   status: string;
   message: string;
+  data: IUser[];
 }
 
-export interface DeleteUserParams {
-  id: string;
-}
-
-export interface DeleteManyUsersParams {
-  ids: string[];
-}
-
-export interface GetAllUsersResult {
+export interface IGetDetailsUserResult {
   status: string;
   message: string;
-  data: User[];
-}
-
-export interface GetDetailsUsersResult {
-  status: string;
-  message: string;
-  data: User;
+  data: IUser;
 }

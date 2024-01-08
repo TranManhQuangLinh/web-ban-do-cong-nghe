@@ -57,7 +57,8 @@ const deleteCategory = async (req, res) => {
 
 const deleteManyCategories = async (req, res) => {
   try {
-    const ids = req.body.ids;
+    const ids = req.body;
+    // console.log('ids', ids);
     if (!ids) {
       return res.status(200).json({
         status: "ERR",

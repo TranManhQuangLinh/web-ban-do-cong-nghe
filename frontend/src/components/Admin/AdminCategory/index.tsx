@@ -1,19 +1,15 @@
-import React, { useMemo} from "react";
-import { WrapperHeader } from "./style";
-import TableComponent from "../../TableComponent";
+import React, { useMemo, useState } from "react";
+import { useGetAllCategoriesQuery } from "../../../services/category";
+import { IGetAllCategoriesResult } from "../../../services/category/types";
 import ButtonComponent from "../../ButtonComponent";
-import { useState } from "react";
-import {
-  useGetAllUsersQuery,
-} from "../../../services/user";
-import CreateUpdateModal from "./Modals/CreateUpdateModal";
-import { IGetAllUsersResult } from "../../../services/user/types";
+import TableComponent from "../../TableComponent";
 import { IState } from "../types";
-import { ColumnsType } from "antd/es/table/interface";
+import { WrapperHeader } from "./style";
+import CreateUpdateModal from "./Modals/CreateUpdateModal";
 import DeleteModal from "./Modals/DeleteModal";
 import DeleteManyModal from "./Modals/DeleteManyModal";
 
-const AdminUser = () => {
+const AdminCategory = () => {
   const [state, setState] = useState<IState>({
     rowSelected: "",
     rowSelectedKeys: [],
@@ -22,52 +18,25 @@ const AdminUser = () => {
     isOpenModalDeleteMany: false,
   });
 
-  // console.log("rowSelected:", rowSelected);
-  // console.log("userDetails:", userDetails);
-  // console.log("stateUser:", stateUser);
+  // lấy tất cả category từ db
+  const { data: categories, isLoading: isPending } = useGetAllCategoriesQuery();
 
-  // lấy tất cả user từ db
-  const {
-    data: users,
-    isLoading: isPending,
-    isFetching,
-  } = useGetAllUsersQuery();
-  // console.log('users', users);
-
-  // table
   const dataTable = useMemo(() => {
-    let result: IGetAllUsersResult["data"] = [];
-    if (users && users?.data?.length > 0) {
-      result = users.data.map((user) => ({ ...user, key: user._id }));
+    let result: IGetAllCategoriesResult["data"] = [];
+    if (categories && categories?.data?.length > 0) {
+      result = categories.data.map((category) => ({
+        ...category,
+        key: category._id,
+      }));
     }
     return result;
-  }, [users]);
+  }, [categories]);
 
-  const columns: ColumnsType = [
-    {
-      title: "Email",
-      dataIndex: "email",
-      sorter: (a: any, b: any) => a.email.length - b.email.length,
-    },
+  const columns = [
     {
       title: "Tên",
       dataIndex: "name",
-      sorter: (a: any, b: any) => a.name.length - b.name.length,
-    },
-    {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      sorter: (a: any, b: any) => a.address.length - b.address.length,
-    },
-    {
-      title: "Vai trò",
-      dataIndex: "role",
-      sorter: (a: any, b: any) => a.role.length - b.role.length,
-    },
-    {
-      title: "Điện thoại",
-      dataIndex: "phone",
-      sorter: (a: any, b: any) => a.phone - b.phone,
+      sorter: (a: any, b: any) => a.name - b.name,
     },
     {
       title: "Thao tác",
@@ -124,7 +93,7 @@ const AdminUser = () => {
 
   return (
     <div>
-      <WrapperHeader>Quản lý người dùng</WrapperHeader>
+      <WrapperHeader>Quản lý danh mục</WrapperHeader>
 
       <div style={{ marginTop: "20px" }}>
         <ButtonComponent
@@ -166,9 +135,10 @@ const AdminUser = () => {
             buttonText="Xóa tất cả"
           />
         )}
+
         <TableComponent
           columns={columns}
-          isPending={isPending || isFetching}
+          isPending={isPending}
           dataSource={dataTable}
           rowSelection={{
             type: "checkbox",
@@ -179,10 +149,7 @@ const AdminUser = () => {
         />
       </div>
 
-      <CreateUpdateModal
-        state={state}
-        setState={setState}
-      />
+      <CreateUpdateModal state={state} setState={setState} />
 
       <DeleteModal state={state} setState={setState} />
 
@@ -191,4 +158,4 @@ const AdminUser = () => {
   );
 };
 
-export default AdminUser;
+export default AdminCategory;

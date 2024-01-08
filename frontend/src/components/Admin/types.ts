@@ -1,3 +1,5 @@
+import { ICategory } from "../../types";
+
 export interface IState {
   rowSelected: string;
   rowSelectedKeys: Array<string>;
@@ -9,7 +11,5 @@ export interface IState {
 export interface IModalProps {
   state: IState;
   setState: React.Dispatch<React.SetStateAction<IState>>;
-  useGetDetailsQuery: any;
-  useCreateMutation: any;
-  useUpdateMutation: any;
+  categories?: ICategory[],
 }

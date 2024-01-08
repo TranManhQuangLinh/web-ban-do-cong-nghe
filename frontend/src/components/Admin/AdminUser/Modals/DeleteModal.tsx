@@ -1,20 +1,24 @@
-import * as React from "react"
+import * as React from "react";
 import { useEffect } from "react";
-import { useDeleteUserMutation } from "../../../services/user";
-import Loading from "../../LoadingComponent";
-import ModalComponent from "../../ModalComponent";
-import * as message from "../../Message";
-import { IModalProps } from "../types";
+import { useDeleteUserMutation } from "../../../../services/user";
+import Loading from "../../../LoadingComponent";
+import ModalComponent from "../../../ModalComponent";
+import * as message from "../../../Message";
+import { IModalProps } from "../../types";
 
 const DeleteModal = (props: IModalProps) => {
   const [deleteUser, result] = useDeleteUserMutation();
 
   const handleCloseModal = () => {
-    props.setState({...props.state, isOpenModalDelete: false})
+    props.setState({
+      ...props.state,
+      isOpenModalDelete: false,
+      rowSelected: "",
+    });
   };
 
   const handleDeleteUser = () => {
-    deleteUser({id: props.state.rowSelected});
+    deleteUser(props.state.rowSelected);
   };
 
   useEffect(() => {

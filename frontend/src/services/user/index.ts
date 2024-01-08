@@ -1,43 +1,41 @@
 // api.js
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { userBaseQuery } from "../apiUtils";
+import { authenticatedQuery } from "../apiUtils";
 import {
-  CreateUpdateUserResult,
-  CreateUserParams,
-  DefaultResult,
-  DeleteManyUsersParams,
-  DeleteUserParams,
-  GetAllUsersResult,
-  GetDetailsUsersResult,
-  LoginParams,
-  LoginResult,
-  SignUpParams,
-  UpdateUserParams,
+  ICreateUpdateUserResult,
+  ICreateUserParams,
+  IGetAllUsersResult,
+  IGetDetailsUserResult,
+  ILoginParams,
+  ILoginResult,
+  ISignUpParams,
+  IUpdateUserParams,
 } from "./types";
+import { IDefaultResult } from "../types";
 
 export const userApi = createApi({
   reducerPath: "userApi",
-  baseQuery: userBaseQuery(`${process.env.REACT_APP_API_URL}/user`),
+  baseQuery: authenticatedQuery(`${process.env.REACT_APP_API_URL}/user`),
   tagTypes: ["User"],
   endpoints: (builder) => ({
-    login: builder.mutation<LoginResult, LoginParams>({
+    login: builder.mutation<ILoginResult, ILoginParams>({
       query: (data) => ({
         url: "/sign-in",
         method: "POST",
         body: data,
       }),
     }),
-    signUp: builder.mutation<CreateUpdateUserResult, SignUpParams>({
+    signUp: builder.mutation<ICreateUpdateUserResult, ISignUpParams>({
       query: (data) => ({
         url: "/sign-up",
         method: "POST",
         body: data,
       }),
     }),
-    logout: builder.mutation<DefaultResult, void>({
+    logout: builder.mutation<IDefaultResult, void>({
       query: () => ({ url: "/log-out", method: "POST" }),
     }),
-    createUser: builder.mutation<CreateUpdateUserResult, CreateUserParams>({
+    createUser: builder.mutation<ICreateUpdateUserResult, ICreateUserParams>({
       query: (data) => ({
         url: "/create-user",
         method: "POST",
@@ -45,13 +43,8 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
-    getDetailsUser: builder.query<GetDetailsUsersResult, string>({
-      query: (id) => ({
-        url: `/get-details-user/${id}`,
-        method: "GET",
-      }),
-    }),
-    updateUser: builder.mutation<CreateUpdateUserResult, UpdateUserParams>({
+
+    updateUser: builder.mutation<ICreateUpdateUserResult, IUpdateUserParams>({
       query: (input) => {
         // console.log('data', input.data);
         return {
@@ -62,25 +55,31 @@ export const userApi = createApi({
       },
       invalidatesTags: ["User"],
     }),
-    deleteUser: builder.mutation<DefaultResult, DeleteUserParams>({
+    deleteUser: builder.mutation<IDefaultResult, string>({
       query: (id) => ({
         url: `/delete-user/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["User"],
     }),
-    deleteManyUsers: builder.mutation<DefaultResult, DeleteManyUsersParams>({
-      query: (data) => {
-        // console.log(data);
+    deleteManyUsers: builder.mutation<IDefaultResult, string[]>({
+      query: (ids) => {
+        // console.log(input);
         return {
           url: "/delete-many-users",
           method: "POST",
-          body: data,
+          body: ids,
         };
       },
       invalidatesTags: ["User"],
     }),
-    getAllUsers: builder.query<GetAllUsersResult, void>({
+    getDetailsUser: builder.query<IGetDetailsUserResult, string>({
+      query: (id) => ({
+        url: `/get-details-user/${id}`,
+        method: "GET",
+      }),
+    }),
+    getAllUsers: builder.query<IGetAllUsersResult, void>({
       query: () => ({
         url: "/get-all-users",
         method: "GET",
@@ -98,9 +97,9 @@ export const {
   useSignUpMutation,
   useLogoutMutation,
   useCreateUserMutation,
-  useGetDetailsUserQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,
   useDeleteManyUsersMutation,
+  useGetDetailsUserQuery,
   useGetAllUsersQuery,
 } = userApi;

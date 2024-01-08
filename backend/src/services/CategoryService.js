@@ -69,7 +69,7 @@ const deleteCategory = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkCategory = await Category.findById(id);
-      console.log("checkCategory", checkCategory);
+      // console.log("checkCategory", checkCategory);
       if (checkCategory === null) {
         resolve({
           status: "ERR",
@@ -92,12 +92,13 @@ const deleteCategory = (id) => {
 const deleteManyCategory = (ids) => {
   return new Promise(async (resolve, reject) => {
     try {
-      await Category.deleteMany(ids);
+      await Category.deleteMany({ _id: { $in: ids } });
       resolve({
         status: "OK",
         message: "delete categories success",
       });
     } catch (e) {
+      console.log('error in category service:', e);
       reject(e);
     }
   });

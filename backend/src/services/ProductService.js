@@ -141,7 +141,7 @@ const getAllProducts = (limit, page, sort, filter) => {
       let allProduct = [];
       if (filter) {
         const allObjectFilter = await Product.find({
-          [filter[0]]: { $regex: filter[1] },
+          name: { $regex: filter },
         })
           .limit(limit)
           .skip(page * limit)
