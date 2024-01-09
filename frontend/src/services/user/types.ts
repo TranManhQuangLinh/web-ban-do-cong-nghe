@@ -1,14 +1,14 @@
 import { IFormStateUser, IUser } from "../../types";
 
-export interface ICreateUpdateUserResult {
+export interface IUserDataResult {
   status: string;
   message: string;
-  data: IUser;
+  data?: IUser;
 }
 
 export interface IUpdateUserParams {
   id: string;
-  data: IFormStateUser;
+  data?: IFormStateUser;
 }
 
 export interface ICreateUserParams extends IFormStateUser {}
@@ -30,14 +30,8 @@ export interface ILoginParams {
   email: string;
   password: string;
 }
-export interface IGetAllUsersResult {
+export interface IUserDataListResult {
   status: string;
   message: string;
-  data: IUser[];
-}
-
-export interface IGetDetailsUserResult {
-  status: string;
-  message: string;
-  data: IUser;
+  data?: IUser[];
 }

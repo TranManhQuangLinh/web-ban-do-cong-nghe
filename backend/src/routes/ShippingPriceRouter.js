@@ -3,8 +3,8 @@ const router = express.Router();
 const ShippingPriceController = require("../controllers/ShippingPriceController");
 const { authAdminMiddleWare } = require("../middleware/authMiddleware");
 
-router.post(
-  "/get-shipping-price",
+router.get(
+  "/get-shipping-price/:price",
   ShippingPriceController.getShippingPrice
 );
 router.post(

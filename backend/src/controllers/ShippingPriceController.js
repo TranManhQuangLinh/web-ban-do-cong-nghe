@@ -91,7 +91,7 @@ const getAllShippingPrices = async (req, res) => {
 
 const getShippingPrice = async (req, res) => {
   try {
-    const { price } = req.body;
+    const { price } = req.params.price;
     // console.log('req.body:', req.body);
     // console.log('price:', price);
     if(!price){

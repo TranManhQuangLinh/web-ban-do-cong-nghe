@@ -9,6 +9,7 @@ import CreateUpdateModal from "./Modals/CreateUpdateModal";
 import DeleteManyModal from "./Modals/DeleteManyModal";
 import DeleteModal from "./Modals/DeleteModal";
 import { WrapperHeader } from "./style";
+import { IProduct } from "../../../types";
 
 const AdminProduct = () => {
   const [state, setState] = useState<IState>({
@@ -20,24 +21,29 @@ const AdminProduct = () => {
   });
   // console.log(stateProduct.category);
 
-  // lấy tất cả product từ db
-  const { data: products, isLoading: isPending } = useGetAllProductsQuery({});
-  // console.log("products:", products);
-
   // lấy tất cả category từ db
   const { data: categories, isLoading: isPendingCategories } =
     useGetAllCategoriesQuery();
+
+  // lấy tất cả product từ db
+  const { data: products, isLoading: isPending } = useGetAllProductsQuery({});
+  // console.log("products:", products);
 
   // console.log(categories);
 
   // table
   const dataTable = useMemo(() => {
     let result: IGetAllProductsResult["data"] = [];
-    if (products && products?.data?.length > 0) {
-      result = products.data.map((product) => ({
-        ...product,
-        key: product._id,
-      }));
+    if (products?.data && products?.data?.length > 0) {
+      result = products?.data.map((product) => {
+        
+        return {
+          ...product,
+          key: product._id,
+          category: categories?.data?.filter(category => category._id === product.category)[0].name ?? "Danh mục không tồn tại"
+        };
+      });
+      // console.log("result", result);
     }
     return result;
   }, [products]);
@@ -46,37 +52,36 @@ const AdminProduct = () => {
     {
       title: "Tên",
       dataIndex: "name",
-      sorter: (a: any, b: any) => a.name - b.name,
+      sorter: (a: IProduct, b: IProduct) => a.name.localeCompare(b.name),
     },
     {
       title: "Giá",
       dataIndex: "price",
-      sorter: (a: any, b: any) => a.price - b.price,
+      sorter: (a: IProduct, b: IProduct) => a.price - b.price,
     },
     {
       title: "Danh mục",
       dataIndex: "category",
-      sorter: (a: any, b: any) => a.category - b.category,
     },
     {
       title: "Giảm giá (%)",
       dataIndex: "discount",
-      sorter: (a: any, b: any) => a.discount - b.discount,
+      sorter: (a: IProduct, b: IProduct) => b.discount - a.discount,
     },
     {
       title: "Số lượng trong kho",
       dataIndex: "quantityInStock",
-      sorter: (a: any, b: any) => a.quantityInStock - b.quantityInStock,
+      sorter: (a: IProduct, b: IProduct) => b.quantityInStock - a.quantityInStock,
     },
     {
       title: "Đã bán",
       dataIndex: "sold",
-      sorter: (a: any, b: any) => a.sold - b.sold,
+      sorter: (a: IProduct, b: IProduct) => b.sold - a.sold,
     },
     {
       title: "Thao tác",
       dataIndex: "action",
-      render: (_: any, record: any) => {
+      render: (_: string, record: IProduct) => {
         return (
           <div>
             <ButtonComponent
@@ -149,7 +154,7 @@ const AdminProduct = () => {
           buttonText="Tạo"
         />
 
-        {!!state.rowSelectedKeys.length && (
+        {state.rowSelectedKeys && !!state.rowSelectedKeys.length && (
           <ButtonComponent
             type="primary"
             buttonStyle={{
@@ -173,18 +178,22 @@ const AdminProduct = () => {
 
         <TableComponent
           columns={columns}
-          isPending={isPending}
+          isPending={isPending || isPendingCategories}
           dataSource={dataTable}
           rowSelection={{
             type: "checkbox",
-            onChange: (record: any) => {
+            onChange: (record: Array<string>) => {
               setState({ ...state, rowSelectedKeys: record });
             },
           }}
         />
       </div>
 
-      <CreateUpdateModal state={state} setState={setState} />
+      <CreateUpdateModal
+        state={state}
+        setState={setState}
+        categories={categories}
+      />
 
       <DeleteModal state={state} setState={setState} />
 

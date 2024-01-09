@@ -1,13 +1,13 @@
 import * as React from "react";
 import { useEffect } from "react";
-import { useDeleteCategoryMutation } from "../../../../services/category";
+import { useDeleteProductMutation } from "../../../../services/product";
 import Loading from "../../../LoadingComponent";
 import ModalComponent from "../../../ModalComponent";
 import * as message from "../../../Message";
 import { IModalProps } from "../../types";
 
 const DeleteModal = (props: IModalProps) => {
-  const [deleteCategory, result] = useDeleteCategoryMutation();
+  const [deleteProduct, result] = useDeleteProductMutation();
 
   const handleCloseModal = () => {
     props.setState({
@@ -17,8 +17,8 @@ const DeleteModal = (props: IModalProps) => {
     });
   };
 
-  const handleDeleteCategory = () => {
-    deleteCategory(props.state.rowSelected);
+  const handleDeleteProduct = () => {
+    deleteProduct(props.state.rowSelected);
   };
 
   useEffect(() => {
@@ -34,13 +34,13 @@ const DeleteModal = (props: IModalProps) => {
 
   return (
     <ModalComponent
-      title="Xóa danh mục"
+      title="Xóa sản phẩm"
       open={props.state.isOpenModalDelete}
       onCancel={handleCloseModal}
-      onOk={handleDeleteCategory}
+      onOk={handleDeleteProduct}
     >
       <Loading isPending={result.isLoading}>
-        <div>Bạn có chắc muốn xóa danh mục này không?</div>
+        <div>Bạn có chắc muốn xóa sản phẩm này không?</div>
       </Loading>
     </ModalComponent>
   );

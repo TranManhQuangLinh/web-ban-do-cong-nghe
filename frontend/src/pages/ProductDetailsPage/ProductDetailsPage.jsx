@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ProductDetailsComponent from "../../components/ProductDetailsComponent/ProductDetailsComponent";
+import ProductDetailsComponent from "../../components/ProductDetailsComponent";
 import { Breadcrumb } from "antd";
 import { WrapperBreadcrumbLink } from "./style";
 

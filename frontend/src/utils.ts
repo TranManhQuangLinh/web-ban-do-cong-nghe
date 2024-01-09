@@ -7,7 +7,7 @@ export const convertPrice = (price: number) => {
     // console.log(price, formattedPrice);
     return `${formattedPrice}đ`;
   } catch (error) {
-    return null;
+    return price.toString();
   }
 };
 
@@ -36,4 +36,5 @@ export const validateNumber = (rule: any, value: any): Promise<void> => {
   });
 };
 
+// convertDateToString(new Date(item?.updatedAt))
 export const convertDateToString = (date: Date) => date ? date.toLocaleString("vi-VN") : '';

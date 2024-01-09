@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface UserState {
+interface IUserState {
   _id: string;
   name: string;
   email: string;
@@ -13,7 +13,7 @@ interface UserState {
   isRefresh: boolean;
 }
 
-const initialState: UserState = {
+const initialState: IUserState = {
   _id: "",
   name: "",
   email: "",
@@ -30,7 +30,7 @@ export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    updateUser: (state, action: PayloadAction<UserState>) => {
+    updateUser: (state, action: PayloadAction<IUserState>) => {
       const {
         name = "",
         email = "",

@@ -1,3 +1,4 @@
+import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { Form } from "antd";
 import React, { useEffect, useState } from "react";
 import {
@@ -13,33 +14,34 @@ import {
   WrapperStyleHeader,
   WrapperTotal,
 } from "./style";
-import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 
-import { WrapperInputNumber } from "../../components/ProductDetailsComponent/style";
-import ButtonComponent from "../../components/ButtonComponent";
+import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import ButtonComponent from "../../components/ButtonComponent";
+import InputComponent from "../../components/InputComponent";
+import Loading from "../../components/LoadingComponent";
+import * as message from "../../components/Message";
+import ModalComponent from "../../components/ModalComponent";
+import { WrapperInputNumber } from "../../components/ProductDetailsComponent/style";
 import {
   changeAmount,
-  increaseAmount,
   decreaseAmount,
+  increaseAmount,
   removeAllOrderItem,
   removeOrderItem,
   selectedOrderItem,
-  updateShippingAddress,
   updateOrder,
+  updateShippingAddress,
 } from "../../redux/slices/OrderSlice";
+import { useGetShippingPriceQuery } from "../../services/shippingPrice";
 import { convertPrice } from "../../utils";
-import { useMemo } from "react";
-import ModalComponent from "../../components/ModalComponent";
-import InputComponent from "../../components/InputComponent";
-import * as message from "../../components/Message";
-import { useNavigate } from "react-router-dom";
-import * as ShippingPriceService from "../../services/ShippingPriceService";
-import { useQuery } from "@tanstack/react-query";
-import Loading from "../../components/LoadingComponent";
+import { RootState } from "../../redux/store";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
+import { IOrderItem } from "../../types";
 const CartPage = () => {
-  const user = useSelector((state) => state.user);
-  const order = useSelector((state) =>
+  const user = useSelector((state: RootState) => state.user);
+  const order = useSelector((state: RootState) =>
     state.orders?.find((order) => order.user === user._id)
   );
   // console.log(order);
@@ -59,18 +61,18 @@ const CartPage = () => {
   const [form] = Form.useForm();
 
   const dispatch = useDispatch();
-  const onChange = (e) => {
-    if (listChecked.includes(e.target.value)) {
+  const onChange = (e: CheckboxChangeEvent) => {
+    if (listChecked && e.target && listChecked.includes(e.target.value)) {
       const newListChecked = listChecked.filter(
         (item) => item !== e.target.value
       );
       setListChecked(newListChecked);
-    } else {
+    } else if(listChecked) {
       setListChecked([...listChecked, e.target.value]);
     }
   };
 
-  const handleChangeCount = (type, orderItem, value) => {
+  const handleChangeCount = (type: string, orderItem: IOrderItem, value: number) => {
     const idProduct = orderItem.product;
     switch (type) {
       case "increase":
@@ -103,13 +105,13 @@ const CartPage = () => {
     }
   };
 
-  const handleDeleteOrder = (idProduct) => {
+  const handleDeleteOrder = (idProduct: string) => {
     dispatch(removeOrderItem({ idProduct, userId: user._id }));
   };
 
-  const handleOnchangeCheckAll = (e) => {
+  const handleOnchangeCheckAll = (e: CheckboxChangeEvent) => {
     if (e.target.checked) {
-      const newListChecked = [];
+      const newListChecked: Array<string> = [];
       order?.orderItems?.forEach((item) => {
         newListChecked.push(item?.product);
       });
@@ -152,43 +154,33 @@ const CartPage = () => {
   // console.log("priceMemo:", priceMemo);
 
   // lấy shipping price từ db
-  const getShippingPrice = async () => {
-    // console.log("priceMemo in function:", priceMemo);
-    if (priceMemo > 0) {
-      const res = await ShippingPriceService.getShippingPrice({
-        price: priceMemo,
-      });
-      // console.log("res:", res);
-      if (res?.status === "OK") return res?.data;
-      else {
-        message.error(res.message);
-        console.error(res.message);
-        return {
-          shippingFee: 0,
-        };
-      }
-    } else {
-      return {
-        shippingFee: 0,
-      };
-    }
-  };
+  const { data: shippingPrice, isLoading: isPendingShippingPrice } = useGetShippingPriceQuery(priceMemo ?? 0)
 
-  const {
-    data: shippingPrice,
-    isPending: isPendingShippingPrice,
-    refetch: refetchShippingPrice,
-  } = useQuery({
-    queryKey: ["shipping price"],
-    queryFn: getShippingPrice,
-  });
-  // console.log("shippingPrice:", shippingPrice);
-  // console.log("isPendingShippingPrice:", isPendingShippingPrice);
+  // const getShippingPrice = async () => {
+  //   // console.log("priceMemo in function:", priceMemo);
+  //   if (priceMemo > 0) {
+  //     const res = await ShippingPriceService.getShippingPrice({
+  //       price: priceMemo,
+  //     });
+  //     // console.log("res:", res);
+  //     if (res?.status === "OK") return res?.data;
+  //     else {
+  //       message.error(res.message);
+  //       console.error(res.message);
+  //       return {
+  //         shippingFee: 0,
+  //       };
+  //     }
+  //   } else {
+  //     return {
+  //       shippingFee: 0,
+  //     };
+  //   }
+  // };
 
   useEffect(() => {
     if (priceMemo) {
       // Khi priceMemo thay đổi, gọi query để lấy shipping price
-      refetchShippingPrice();
     }
   }, [priceMemo]);
 

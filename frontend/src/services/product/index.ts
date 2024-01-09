@@ -4,9 +4,8 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { authenticatedQuery } from "../apiUtils";
 import {
   ICreateProductParams,
-  ICreateUpdateProductResult,
+  IProductDataResult,
   IGetAllProductsResult,
-  IGetDetailsProductResult,
   IUpdateProductParams,
 } from "./types";
 import { IDefaultResult } from "../types";
@@ -17,7 +16,7 @@ export const productApi = createApi({
   tagTypes: ["Product"],
   endpoints: (builder) => ({
     createProduct: builder.mutation<
-      ICreateUpdateProductResult,
+      IProductDataResult,
       ICreateProductParams
     >({
       query: (data) => ({
@@ -28,7 +27,7 @@ export const productApi = createApi({
       invalidatesTags: ["Product"],
     }),
     updateProduct: builder.mutation<
-      ICreateUpdateProductResult,
+      IProductDataResult,
       IUpdateProductParams
     >({
       query: (input) => {
@@ -59,7 +58,7 @@ export const productApi = createApi({
       },
       invalidatesTags: ["Product"],
     }),
-    getDetailsProduct: builder.query<IGetDetailsProductResult, string>({
+    getDetailsProduct: builder.query<IProductDataResult, string>({
       query: (id) => ({
         url: `/get-details-product/${id}`,
         method: "GET",

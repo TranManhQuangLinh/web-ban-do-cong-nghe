@@ -2,10 +2,9 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { authenticatedQuery } from "../apiUtils";
 import {
-  ICreateUpdateUserResult,
   ICreateUserParams,
-  IGetAllUsersResult,
-  IGetDetailsUserResult,
+  IUserDataListResult,
+  IUserDataResult,
   ILoginParams,
   ILoginResult,
   ISignUpParams,
@@ -25,7 +24,7 @@ export const userApi = createApi({
         body: data,
       }),
     }),
-    signUp: builder.mutation<ICreateUpdateUserResult, ISignUpParams>({
+    signUp: builder.mutation<IUserDataResult, ISignUpParams>({
       query: (data) => ({
         url: "/sign-up",
         method: "POST",
@@ -35,7 +34,7 @@ export const userApi = createApi({
     logout: builder.mutation<IDefaultResult, void>({
       query: () => ({ url: "/log-out", method: "POST" }),
     }),
-    createUser: builder.mutation<ICreateUpdateUserResult, ICreateUserParams>({
+    createUser: builder.mutation<IUserDataResult, ICreateUserParams>({
       query: (data) => ({
         url: "/create-user",
         method: "POST",
@@ -44,7 +43,7 @@ export const userApi = createApi({
       invalidatesTags: ["User"],
     }),
 
-    updateUser: builder.mutation<ICreateUpdateUserResult, IUpdateUserParams>({
+    updateUser: builder.mutation<IUserDataResult, IUpdateUserParams>({
       query: (input) => {
         // console.log('data', input.data);
         return {
@@ -73,13 +72,13 @@ export const userApi = createApi({
       },
       invalidatesTags: ["User"],
     }),
-    getDetailsUser: builder.query<IGetDetailsUserResult, string>({
+    getDetailsUser: builder.query<IUserDataResult, string>({
       query: (id) => ({
         url: `/get-details-user/${id}`,
         method: "GET",
       }),
     }),
-    getAllUsers: builder.query<IGetAllUsersResult, void>({
+    getAllUsers: builder.query<IUserDataListResult, void>({
       query: () => ({
         url: "/get-all-users",
         method: "GET",

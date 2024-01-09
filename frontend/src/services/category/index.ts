@@ -3,9 +3,8 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { authenticatedQuery } from "../apiUtils";
 import {
   ICreateCategoryParams,
-  ICreateUpdateCategoryResult,
-  IGetAllCategoriesResult,
-  IGetDetailsCategoryResult,
+  ICategoryDataResult,
+  ICategoryDataListResult,
   IUpdateCategoryParams,
 } from "./types";
 import { IDefaultResult } from "../types";
@@ -16,7 +15,7 @@ export const categoryApi = createApi({
   tagTypes: ["Category"],
   endpoints: (builder) => ({
     createCategory: builder.mutation<
-      ICreateUpdateCategoryResult,
+      ICategoryDataResult,
       ICreateCategoryParams
     >({
       query: (data) => ({
@@ -27,7 +26,7 @@ export const categoryApi = createApi({
       invalidatesTags: ["Category"],
     }),
     updateCategory: builder.mutation<
-      ICreateUpdateCategoryResult,
+      ICategoryDataResult,
       IUpdateCategoryParams
     >({
       query: (input) => {
@@ -58,13 +57,13 @@ export const categoryApi = createApi({
       },
       invalidatesTags: ["Category"],
     }),
-    getDetailsCategory: builder.query<IGetDetailsCategoryResult, string>({
+    getDetailsCategory: builder.query<ICategoryDataResult, string>({
       query: (id) => ({
         url: `/get-details-category/${id}`,
         method: "GET",
       }),
     }),
-    getAllCategories: builder.query<IGetAllCategoriesResult, void>({
+    getAllCategories: builder.query<ICategoryDataListResult, void>({
       query: () => ({
         url: "/get-all-categories",
         method: "GET",

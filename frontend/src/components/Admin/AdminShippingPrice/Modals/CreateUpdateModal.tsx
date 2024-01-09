@@ -1,25 +1,19 @@
 import * as React from "react";
 
-import { Form, Select } from "antd";
-import {
-  RcFile,
-  UploadChangeParam,
-  UploadFile,
-  UploadProps,
-} from "antd/es/upload";
+import { Form } from "antd";
 import { useEffect } from "react";
 import {
-  useCreateUserMutation,
-  useGetDetailsUserQuery,
-  useUpdateUserMutation,
-} from "../../../../services/user";
+  useCreateShippingPriceMutation,
+  useGetDetailsShippingPriceQuery,
+  useUpdateShippingPriceMutation,
+} from "../../../../services/shippingPrice";
 import InputComponent from "../../../InputComponent";
 import Loading from "../../../LoadingComponent";
 import * as message from "../../../Message";
 import ModalComponent from "../../../ModalComponent";
-import UploadComponent, { getBase64 } from "../../../UploadComponent";
 import { IModalProps } from "../../types";
-import { IFormStateUser } from "../../../../types";
+import { validateNumber } from "../../../../utils";
+import { IFormStateShippingPrice } from "../../../../types";
 
 const CreateUpdateModal = (props: IModalProps) => {
   const [form] = Form.useForm();
@@ -28,18 +22,21 @@ const CreateUpdateModal = (props: IModalProps) => {
   // console.log(props);
   // console.log(!!props.state.rowSelected);
 
+  // khi gọi useGetDetailsShippingPriceQuery thì rtk query lưu kết quả vào state.
+  // Khi gọi lại api mà vẫn còn trong redux thì không gọi lại mà trả về luôn data lưu trong redux
+  // mỗi khi param truyền vào thay đổi thì useGetDetailsShippingPriceQuery sẽ được gọi lại
   const {
     data: details,
     isFetching,
     isLoading,
-  } = useGetDetailsUserQuery(props.state.rowSelected, {
+  } = useGetDetailsShippingPriceQuery(props.state.rowSelected, {
     skip: !props.state.rowSelected,
   });
 
-  const [create, createResult] = useCreateUserMutation();
-  const [update, updateResult] = useUpdateUserMutation();
+  const [create, createResult] = useCreateShippingPriceMutation();
+  const [update, updateResult] = useUpdateShippingPriceMutation();
 
-  // console.log('createResult', createResult);
+  // console.log("props.state", props.state);
 
   useEffect(() => {
     if (
@@ -93,36 +90,18 @@ const CreateUpdateModal = (props: IModalProps) => {
     }
   }, [updateResult]);
 
-  const handleFinish = (values: IFormStateUser) => {
+  const handleFinish = (values: IFormStateShippingPrice) => {
     // console.log(values);
     // return
     if (!props.state.rowSelected) {
       create(values);
     } else {
-      const { email, ...rest } = values;
-      update({ id: props.state.rowSelected, data: rest });
+      update({ id: props.state.rowSelected, data: values });
     }
-  };
-
-  const handleChangeAvatar: UploadProps["onChange"] = async (
-    info: UploadChangeParam<UploadFile>
-  ) => {
-    console.log("info", info);
-
-    if (info.file.status === "uploading") {
-    }
-    if (info.file.status === "done") {
-    }
-    if (info.file.status === "error") {
-    }
-
-    const preview = await getBase64(info.file.originFileObj as RcFile);
-    form.setFieldValue("avatar", preview);
-    // console.log('form.getFieldValue("avatar")', form.getFieldValue("avatar"));
   };
 
   const handleCloseModal = () => {
-    console.log("close modal");
+    // console.log("close create update modal");
 
     props.setState({
       ...props.state,
@@ -134,7 +113,9 @@ const CreateUpdateModal = (props: IModalProps) => {
 
   return (
     <ModalComponent
-      title={!props.state.rowSelected ? "Tạo mới người dùng" : "Sửa người dùng"}
+      title={
+        !props.state.rowSelected ? "Tạo mới phí giao hàng" : "Sửa phí giao hàng"
+      }
       isOpen={props.state.isOpenModalCreateUpdate}
       onCancel={handleCloseModal}
       onOk={() => form.submit()}
@@ -157,60 +138,29 @@ const CreateUpdateModal = (props: IModalProps) => {
           preserve={false}
         >
           <Form.Item
-            label="Email"
-            name="email"
-            rules={[{ required: true, message: "Mời nhập email!" }]}
-          >
-            <InputComponent disabled={!!props.state.rowSelected} />
-          </Form.Item>
-
-          <Form.Item
-            label="Mật khẩu"
-            name="password"
-            rules={[{ required: true, message: "Mời nhập mật khẩu!" }]}
+            label="Mức giá tối đa (đ)"
+            name="maxOrderAmount"
+            rules={[
+              {
+                validator: validateNumber,
+                required: true,
+              },
+            ]}
           >
             <InputComponent />
           </Form.Item>
 
           <Form.Item
-            label="Vai trò"
-            name="role"
-            rules={[{ required: true, message: "Mời chọn vai trò!" }]}
+            label="Phí giao hàng (đ)"
+            name="shippingFee"
+            rules={[
+              { required: true, message: "Mời nhập phí giao hàng!" },
+              {
+                validator: validateNumber,
+              },
+            ]}
           >
-            <Select
-              placeholder="Chọn vai trò"
-              options={[
-                { value: "Khách hàng", label: "Khách hàng" },
-                { value: "Admin", label: "Admin" },
-                { value: "Nhân viên", label: "Nhân viên" },
-              ]}
-            />
-          </Form.Item>
-
-          <Form.Item label="Tên" name="name">
             <InputComponent />
-          </Form.Item>
-
-          <Form.Item label="Ngày sinh" name="dateOfBirth">
-            <InputComponent />
-          </Form.Item>
-
-          <Form.Item label="Số điện thoại" name="phone">
-            <InputComponent />
-          </Form.Item>
-
-          <Form.Item label="Địa chỉ" name="address">
-            <InputComponent />
-          </Form.Item>
-
-          <Form.Item label="Avatar" name="avatar">
-            <UploadComponent
-              image={form.getFieldValue("avatar")}
-              onChange={handleChangeAvatar}
-              maxCount={1}
-              listType="picture-circle"
-              hasControlInside={true}
-            />
           </Form.Item>
         </Form>
       </Loading>

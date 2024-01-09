@@ -18,7 +18,8 @@ const DeleteManyModal = (props: IModalProps) => {
   };
 
   const handleDeleteManyCategories = () => {
-    deleteManyCategories(props.state.rowSelectedKeys);
+    if (props.state.rowSelectedKeys)
+      deleteManyCategories(props.state.rowSelectedKeys);
   };
 
   useEffect(() => {

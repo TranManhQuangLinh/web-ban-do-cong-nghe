@@ -12,6 +12,7 @@ import Loading from "../../../LoadingComponent";
 import * as message from "../../../Message";
 import ModalComponent from "../../../ModalComponent";
 import { IModalProps } from "../../types";
+import { IFormStateCategory } from "../../../../types";
 
 const CreateUpdateModal = (props: IModalProps) => {
   const [form] = Form.useForm();
@@ -37,10 +38,10 @@ const CreateUpdateModal = (props: IModalProps) => {
   // console.log("props.state", props.state);
 
   useEffect(() => {
-    if (props.state.isOpenModalCreateUpdate && props.state.rowSelected) {
+    if (props.state.isOpenModalCreateUpdate && props.state.rowSelected && details?.data) {
       form.setFieldsValue(details?.data);
     }
-  }, [props.state.isOpenModalCreateUpdate, details]);
+  }, [props.state.isOpenModalCreateUpdate, details, props.state.rowSelected, form]);
 
   useEffect(() => {
     if (createResult.isSuccess && createResult.data?.status === "OK") {
@@ -79,25 +80,14 @@ const CreateUpdateModal = (props: IModalProps) => {
     }
   }, [updateResult]);
 
-  const handleFinish = (values: any) => {
-    // console.log(values);
+  const handleFinish = (values: IFormStateCategory) => {
+    console.log(values);
     // return
     if (!props.state.rowSelected) {
       create(values);
     } else {
-      const { email, ...rest } = values;
-      update({ id: props.state.rowSelected, data: rest });
+      update({ id: props.state.rowSelected, data: values });
     }
-  };
-
-  const handleValueChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    name: string
-  ) => {
-    console.log("e.target", e.target);
-    const value = e.target?.value;
-
-    form.setFieldsValue({ [name]: value });
   };
 
   const handleCloseModal = () => {
@@ -136,7 +126,7 @@ const CreateUpdateModal = (props: IModalProps) => {
           preserve={false}
         >
           <Form.Item label="Tên" name="name">
-            <InputComponent onChange={(e) => handleValueChange(e, "name")} />
+            <InputComponent />
           </Form.Item>
         </Form>
       </Loading>

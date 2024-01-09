@@ -1,31 +1,34 @@
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { Col, Image, Row } from "antd";
-import React from "react";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { addOrderItem } from "../../redux/slices/OrderSlice";
+import { useGetDetailsProductQuery } from "../../services/product";
+import { convertPrice } from "../../utils";
+import ButtonComponent from "../ButtonComponent";
+import Loading from "../LoadingComponent";
+import * as message from "../Message";
 import {
-  WrapperStyleNameProduct,
-  WrapperStyleTextSell,
+  WrapperDiscountText,
+  WrapperInputNumber,
   WrapperPriceProduct,
   WrapperPriceTextProduct,
   WrapperQualityProduct,
-  WrapperInputNumber,
-  WrapperDiscountText,
+  WrapperStyleNameProduct,
+  WrapperStyleTextSell,
 } from "./style";
-import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
-import ButtonComponent from "../ButtonComponent";
-import Loading from "../LoadingComponent";
-import { useState } from "react";
-import { convertPrice } from "../../utils";
-import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
-import * as ProductService from "../../services/ProductService";
-import * as message from "../Message";
-import { useQuery } from "@tanstack/react-query";
-import {
-  addOrderItem,
-} from "../../redux/slices/OrderSlice";
+import { RootState } from "../../redux/store";
 
-const ProductDetailsComponent = ({ idProduct }) => {
-  const user = useSelector((state) => state.user);
-  const order = useSelector((state) =>
+interface IProps {
+  idProduct: string;
+}
+
+const ProductDetailsComponent: React.FC<IProps> = ({ idProduct }) => {
+  const user = useSelector((state: RootState) => state.user);
+  // console.log(user);
+  
+  const order = useSelector((state: RootState) =>
     state.orders?.find((order) => order.user === user._id)
   );
   const navigate = useNavigate();
@@ -34,11 +37,11 @@ const ProductDetailsComponent = ({ idProduct }) => {
 
   const [numProduct, setNumProduct] = useState(1);
 
-  const onChange = (value) => {
+  const onChange = (value: string) => {
     setNumProduct(Number(value));
   };
 
-  const handleChangeCount = (type, limited) => {
+  const handleChangeCount = (type: string, limited: boolean) => {
     if (type === "increase") {
       if (!limited) {
         setNumProduct(numProduct + 1);
@@ -50,43 +53,37 @@ const ProductDetailsComponent = ({ idProduct }) => {
     }
   };
 
-  const fetchDetailsProduct = async (context) => {
-    const id = context?.queryKey && context?.queryKey[1];
-    if (id) {
-      const res = await ProductService.getDetailsProduct(id);
-      return res.data;
-    }
-  };
-
-  const { isPending, data: productDetails } = useQuery({
-    queryKey: ["product-details", idProduct],
-    queryFn: fetchDetailsProduct,
-    enabled: !!idProduct,
+  const {
+    data: details,
+    isFetching,
+    isLoading,
+  } = useGetDetailsProductQuery(idProduct, {
+    skip: !idProduct,
   });
 
-  // console.log(productDetails);
+  // console.log(details);
 
   const handleAddToCart = () => {
-    if (!user?.id) {
+    if (!user?._id) {
       navigate("/sign-in", { state: location?.pathname });
-    } else {
+    } else if(details?.data) {
       const orderItem = order?.orderItems?.find(
-        (item) => item.product === productDetails?._id
+        (item) => item.product === details?.data?._id
       );
       if (
-        orderItem?.quantity + numProduct <= orderItem?.quantityInStock ||
-        (!orderItem && productDetails?.quantityInStock > 0)
+        orderItem && orderItem?.quantity + numProduct <= orderItem?.quantityInStock ||
+        (!orderItem && details?.data.quantityInStock > 0)
       ) {
         dispatch(
           addOrderItem({
             orderItem: {
-              name: productDetails?.name,
+              name: details?.data.name,
               quantity: numProduct,
-              image: productDetails?.image,
-              price: productDetails?.price,
-              discount: productDetails?.discount,
-              product: productDetails?._id,
-              quantityInStock: productDetails?.quantityInStock,
+              image: details?.data.image,
+              price: details?.data.price,
+              discount: details?.data.discount,
+              product: details?.data._id,
+              quantityInStock: details?.data.quantityInStock,
             },
             userId: user._id,
           })
@@ -94,14 +91,14 @@ const ProductDetailsComponent = ({ idProduct }) => {
         message.success("Đã thêm vào giỏ hàng");
       } else {
         message.error(
-          `Số lượng hàng trong kho không đủ. Còn ${productDetails?.quantityInStock} sản phẩm`
+          `Số lượng hàng trong kho không đủ. Còn ${details?.data.quantityInStock} sản phẩm`
         );
       }
     }
   };
 
   return (
-    <Loading isPending={isPending}>
+    <Loading isPending={isLoading}>
       <Row
         style={{
           padding: "16px",
@@ -119,30 +116,18 @@ const ProductDetailsComponent = ({ idProduct }) => {
             justifyContent: "center",
           }}
         >
-          <Image
-            src={productDetails?.image}
-            alt="image product"
-            preview={true}
-          />
+          <Image src={details?.data?.image ?? ""} alt="image product" preview={true} />
         </Col>
         <Col span={14} style={{ paddingLeft: "10px" }}>
-          <WrapperStyleNameProduct>
-            {productDetails?.name}
-          </WrapperStyleNameProduct>
+          <WrapperStyleNameProduct>{details?.data?.name ?? ""}</WrapperStyleNameProduct>
           <div>
-            <WrapperStyleTextSell>
-              Đã bán: {productDetails?.sold}
-            </WrapperStyleTextSell>
+            <WrapperStyleTextSell>Đã bán: {details?.data?.sold ?? ""}</WrapperStyleTextSell>
           </div>
           <WrapperPriceProduct>
             <WrapperPriceTextProduct>
-              {convertPrice(productDetails?.price)}
+              {convertPrice(details?.data?.price ?? 0)}
               <WrapperDiscountText>
-                {productDetails?.discount ? (
-                  `-${productDetails?.discount}%`
-                ) : (
-                  <></>
-                )}
+                {details?.data?.discount ? `-${details?.data?.discount}%` : <></>}
               </WrapperDiscountText>
             </WrapperPriceTextProduct>
           </WrapperPriceProduct>
@@ -169,7 +154,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
               <WrapperInputNumber
                 onChange={onChange}
                 defaultValue={1}
-                max={productDetails?.quantityInStock}
+                max={details?.data?.quantityInStock ?? 0}
                 min={1}
                 value={numProduct}
                 size="small"
@@ -183,7 +168,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
                 onClick={() =>
                   handleChangeCount(
                     "increase",
-                    numProduct === productDetails?.quantityInStock
+                    numProduct === details?.data?.quantityInStock
                   )
                 }
               >
@@ -194,7 +179,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div>
               <ButtonComponent
-                size={40}
+                // size={40}
                 disabled={user?.role === "Admin" || user?.role === "Nhân viên"}
                 buttonStyle={{
                   background: "rgb(255, 57, 69)",

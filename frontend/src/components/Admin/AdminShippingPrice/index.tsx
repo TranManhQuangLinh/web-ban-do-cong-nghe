@@ -1,20 +1,16 @@
-import React, { useMemo} from "react";
-import { WrapperHeader } from "./style";
-import TableComponent from "../../TableComponent";
+import React, { useMemo, useState } from "react";
+import { useGetAllShippingPricesQuery } from "../../../services/shippingPrice";
+import { IShippingPriceDataTable } from "../../../types";
+import { convertPrice } from "../../../utils";
 import ButtonComponent from "../../ButtonComponent";
-import { useState } from "react";
-import {
-  useGetAllUsersQuery,
-} from "../../../services/user";
-import CreateUpdateModal from "./Modals/CreateUpdateModal";
-import { IUserDataListResult } from "../../../services/user/types";
+import TableComponent from "../../TableComponent";
 import { IState } from "../types";
-import { ColumnsType } from "antd/es/table/interface";
-import DeleteModal from "./Modals/DeleteModal";
+import CreateUpdateModal from "./Modals/CreateUpdateModal";
 import DeleteManyModal from "./Modals/DeleteManyModal";
-import { IUser } from "../../../types";
+import DeleteModal from "./Modals/DeleteModal";
+import { WrapperHeader } from "./style";
 
-const AdminUser = () => {
+const AdminShippingPrice = () => {
   const [state, setState] = useState<IState>({
     rowSelected: "",
     rowSelectedKeys: [],
@@ -23,57 +19,63 @@ const AdminUser = () => {
     isOpenModalDeleteMany: false,
   });
 
-  // console.log("rowSelected:", rowSelected);
-  // console.log("userDetails:", userDetails);
-  // console.log("stateUser:", stateUser);
-
-  // lấy tất cả user từ db
-  const {
-    data: users,
-    isLoading: isPending,
-    isFetching,
-  } = useGetAllUsersQuery();
-  // console.log('users', users);
+  // lấy tất cả shipping price từ db
+  const { data: shippingPrices, isLoading: isPending } =
+    useGetAllShippingPricesQuery();
 
   // table
+  // const dataTable =
+  //   shippingPrices?.length > 0 &&
+  //   shippingPrices?.map((shippingPrice) => {
+  //     return {
+  //       ...shippingPrice,
+  //       maxOrderAmount: shippingPrice.maxOrderAmount
+  //         ? convertPrice(shippingPrice.maxOrderAmount)
+  //         : "MAX",
+  //       shippingFee: convertPrice(shippingPrice.shippingFee),
+  //       key: shippingPrice._id,
+  //     };
+  //   });
   const dataTable = useMemo(() => {
-    let result: IUserDataListResult["data"] = [];
-    if (users?.data && users?.data?.length > 0) {
-      result = users?.data.map((user) => ({ ...user, key: user._id }));
+    let result: Array<IShippingPriceDataTable> = [];
+    if (shippingPrices?.data && shippingPrices?.data?.length > 0) {
+      result = shippingPrices.data.map((shippingPrice) => ({
+        ...shippingPrice,
+        maxOrderAmount: shippingPrice.maxOrderAmount
+          ? convertPrice(shippingPrice.maxOrderAmount)
+          : "MAX",
+        shippingFee: convertPrice(shippingPrice.shippingFee),
+        key: shippingPrice._id,
+      })) as IShippingPriceDataTable[];
     }
     return result;
-  }, [users]);
+  }, [shippingPrices]);
 
-  const columns: ColumnsType = [
+  const columns = [
     {
-      title: "Email",
-      dataIndex: "email",
-      sorter: (a: IUser, b: IUser) => a.email.localeCompare(b.email),
+      title: "Mức giá tối đa",
+      dataIndex: "maxOrderAmount",
+      sorter: (a: IShippingPriceDataTable, b: IShippingPriceDataTable) => {
+        if (a.maxOrderAmount && b.maxOrderAmount) {
+          return (
+            Number.parseInt(b.maxOrderAmount.slice(0, -1)) -
+            Number.parseInt(a.maxOrderAmount.slice(0, -1))
+          );
+        }
+        return 1;
+      },
     },
     {
-      title: "Tên",
-      dataIndex: "name",
-      sorter: (a: IUser, b: IUser) => a.name.localeCompare(b.name),
-    },
-    {
-      title: "Địa chỉ",
-      dataIndex: "address",
-    },
-    {
-      title: "Vai trò",
-      dataIndex: "role",
-    },
-    {
-      title: "Điện thoại",
-      dataIndex: "phone",
-      sorter: (a: IUser, b: IUser) => a.phone - b.phone,
+      title: "Phí giao hàng",
+      dataIndex: "shippingFee",
+      sorter: (a: IShippingPriceDataTable, b: IShippingPriceDataTable) =>
+        Number.parseInt(b.shippingFee.slice(0, -1)) -
+        Number.parseInt(a.shippingFee.slice(0, -1)),
     },
     {
       title: "Thao tác",
       dataIndex: "action",
-      render: (_: string, record: IUser) => {
-        // console.log('record', record);
-        
+      render: (_: string, record: IShippingPriceDataTable) => {
         return (
           <div>
             <ButtonComponent
@@ -125,7 +127,7 @@ const AdminUser = () => {
 
   return (
     <div>
-      <WrapperHeader>Quản lý người dùng</WrapperHeader>
+      <WrapperHeader>Quản lý phí giao hàng</WrapperHeader>
 
       <div style={{ marginTop: "20px" }}>
         <ButtonComponent
@@ -167,9 +169,10 @@ const AdminUser = () => {
             buttonText="Xóa tất cả"
           />
         )}
+
         <TableComponent
           columns={columns}
-          isPending={isPending || isFetching}
+          isPending={isPending}
           dataSource={dataTable}
           rowSelection={{
             type: "checkbox",
@@ -178,12 +181,33 @@ const AdminUser = () => {
             },
           }}
         />
+
+        <div>
+          Lưu ý: Phí giao hàng áp dụng cho khoảng từ mức giá nhỏ hơn gần nhất
+          đến mức giá hiện tại.
+          <br />
+          Ví dụ có 3 phí giao hàng:
+          <br />
+          MAX-0đ
+          <br />
+          1.000.000đ-30.000đ
+          <br />
+          500.000đ-20.000đ
+          <br />
+          Nghĩa là:
+          <br />
+          Hóa đơn từ 0--{">"} nhỏ hơn 500.000đ có phí giao hàng là 20.000đ
+          <br />
+          Hóa đơn từ 500.000đ--{">"} nhỏ hơn 1.000.000đ có phí giao hàng là
+          30.000đ
+          <br />
+          Hóa đơn từ 1.000.000đ trở lên có phí giao hàng là 0đ
+          <br />
+          Mức giá tối đa để trống tương đương với MAX
+        </div>
       </div>
 
-      <CreateUpdateModal
-        state={state}
-        setState={setState}
-      />
+      <CreateUpdateModal state={state} setState={setState} />
 
       <DeleteModal state={state} setState={setState} />
 
@@ -192,4 +216,4 @@ const AdminUser = () => {
   );
 };
 
-export default AdminUser;
+export default AdminShippingPrice;

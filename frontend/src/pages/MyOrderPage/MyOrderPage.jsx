@@ -32,6 +32,7 @@ const MyOrderPage = () => {
     enabled: !!(user?.id && user?.access_token),
   });
   const { isPending, data } = queryOrder;
+  console.log('data', data);
 
   const handleDetailsOrder = (id) => {
     navigate(`/order-details/${id}`);

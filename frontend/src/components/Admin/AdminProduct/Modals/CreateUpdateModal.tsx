@@ -15,11 +15,12 @@ import { IModalProps } from "../../types";
 import { validateNumber } from "../../../../utils";
 import { RcFile, UploadChangeParam } from "antd/es/upload";
 import UploadComponent, { getBase64 } from "../../../UploadComponent";
+import { IFormStateProduct } from "../../../../types";
 
 const CreateUpdateModal = (props: IModalProps) => {
   const [form] = Form.useForm();
 
-  // console.log("form", form);
+  // console.log("form.getFieldsValue(", form.getFieldsValue());
   // console.log(props);
   // console.log(!!props.state.rowSelected);
 
@@ -33,6 +34,8 @@ const CreateUpdateModal = (props: IModalProps) => {
   } = useGetDetailsProductQuery(props.state.rowSelected, {
     skip: !props.state.rowSelected,
   });
+  // console.log('details', details?.data);
+  
 
   const [create, createResult] = useCreateProductMutation();
   const [update, updateResult] = useUpdateProductMutation();
@@ -40,10 +43,12 @@ const CreateUpdateModal = (props: IModalProps) => {
   // console.log("props.state", props.state);
 
   useEffect(() => {
-    if (props.state.isOpenModalCreateUpdate && props.state.rowSelected) {
+    if (props.state.rowSelected && props.state.isOpenModalCreateUpdate && details?.data) {
       form.setFieldsValue(details?.data);
+  // console.log("form.getFieldsValue(", form.getFieldsValue());
+
     }
-  }, [props.state.isOpenModalCreateUpdate, details]);
+  }, [details, form, props.state.isOpenModalCreateUpdate, props.state.rowSelected]);
 
   useEffect(() => {
     if (createResult.isSuccess && createResult.data?.status === "OK") {
@@ -82,29 +87,14 @@ const CreateUpdateModal = (props: IModalProps) => {
     }
   }, [updateResult]);
 
-  const handleFinish = (values: any) => {
-    // console.log(values);
+  const handleFinish = (values: IFormStateProduct) => {
+    console.log('values', values);
     // return
     if (!props.state.rowSelected) {
       create(values);
     } else {
-      const { email, ...rest } = values;
-      update({ id: props.state.rowSelected, data: rest });
+      update({ id: props.state.rowSelected, data: values });
     }
-  };
-
-  const handleValueChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    name: string
-  ) => {
-    // console.log("e.target", e.target);
-    const value = e.target?.value;
-
-    form.setFieldsValue({ [name]: value });
-  };
-
-  const handleRoleChange = (value: string) => {
-    form.setFieldsValue({ role: value });
   };
 
   const handleChangeAvatar: UploadProps["onChange"] = async (
@@ -120,8 +110,8 @@ const CreateUpdateModal = (props: IModalProps) => {
     }
 
     const preview = await getBase64(info.file.originFileObj as RcFile);
-    form.setFieldValue("avatar", preview);
-    // console.log('form.getFieldValue("avatar")', form.getFieldValue("avatar"));
+    form.setFieldValue("image", preview);
+    console.log('form.getFieldValue("image")', form.getFieldValue("image"));
   };
 
   const handleCloseModal = () => {
@@ -137,7 +127,7 @@ const CreateUpdateModal = (props: IModalProps) => {
 
   return (
     <ModalComponent
-      title={!props.state.rowSelected ? "Tạo mới danh mục" : "Sửa danh mục"}
+      title={!props.state.rowSelected ? "Tạo mới sản phẩm" : "Sửa sản phẩm"}
       isOpen={props.state.isOpenModalCreateUpdate}
       onCancel={handleCloseModal}
       onOk={() => form.submit()}
@@ -159,19 +149,20 @@ const CreateUpdateModal = (props: IModalProps) => {
           onFinish={handleFinish}
           preserve={false}
         >
-          {!props.state.rowSelected || details?.data?.sold! <= 0 ? (
-            <Form.Item
-              label="Tên"
-              name="name"
-              rules={[{ required: true, message: "Mời nhập tên!" }]}
-            >
-              <InputComponent onChange={(e) => handleValueChange(e, "name")} />
-            </Form.Item>
-          ) : (
-            <Form.Item label="Tên">{details?.data.name}</Form.Item>
-          )}
+          <Form.Item
+            label="Tên"
+            name="name"
+            rules={[{ required: true, message: "Mời nhập tên!" }]}
+          >
+            <InputComponent
+              disabled={
+                props.state.rowSelected && details?.data
+                  ? details?.data?.sold > 0
+                  : false
+              }
+            />
+          </Form.Item>
 
-          {/* {details?.data?.sold! <= 0 ? ( */}
           <Form.Item
             label="Giá (đ)"
             name="price"
@@ -182,11 +173,10 @@ const CreateUpdateModal = (props: IModalProps) => {
               },
             ]}
           >
-            <InputComponent onChange={(e) => handleValueChange(e, "price")} />
+            <InputComponent
+              disabled={props.state.rowSelected && details?.data ? details?.data?.sold > 0 : false}
+            />
           </Form.Item>
-          {/* ) : (
-              <Form.Item label="Giá">{details?.data?.price}</Form.Item>
-            )} */}
 
           <Form.Item
             label="Danh mục"
@@ -194,36 +184,30 @@ const CreateUpdateModal = (props: IModalProps) => {
             rules={[{ required: true, message: "Mời chọn danh mục!" }]}
           >
             <Select
-              defaultValue={details?.data?.category}
-              onChange={handleRoleChange}
               placeholder="Chọn danh mục"
-              options={props?.categories!.map((category) => ({
-                value: category._id,
-                label: category.name,
-              }))}
+              options={
+                props?.categories?.data?.map((category) => ({
+                  value: category._id,
+                  label: category.name,
+                })) ?? []
+              }
             />
           </Form.Item>
 
-          {details?.data?.sold! <= 0 ? (
-            <Form.Item
-              label="Số lượng trong kho"
-              name="quantityInStock"
-              rules={[
-                { required: true, message: "Mời nhập số lượng trong kho!" },
-                {
-                  validator: validateNumber,
-                },
-              ]}
-            >
-              <InputComponent
-                onChange={(e) => handleValueChange(e, "quantityInStock")}
-              />
-            </Form.Item>
-          ) : (
-            <Form.Item label="Số lượng trong kho">
-              {details?.data.quantityInStock}
-            </Form.Item>
-          )}
+          <Form.Item
+            label="Số lượng trong kho"
+            name="quantityInStock"
+            rules={[
+              { required: true, message: "Mời nhập số lượng trong kho!" },
+              {
+                validator: validateNumber,
+              },
+            ]}
+          >
+            <InputComponent
+              disabled={props.state.rowSelected && details?.data ? details?.data?.sold > 0 : false}
+            />
+          </Form.Item>
 
           <Form.Item
             label="Giảm giá (%)"
@@ -235,45 +219,26 @@ const CreateUpdateModal = (props: IModalProps) => {
               },
             ]}
           >
-            <InputComponent
-              onChange={(e) => handleValueChange(e, "discount")}
-            />
+            <InputComponent />
           </Form.Item>
 
           <Form.Item label="Mô tả" name="description">
-            <InputComponent
-              onChange={(e) => handleValueChange(e, "description")}
-            />
+            <InputComponent />
           </Form.Item>
 
-          {details?.data.sold! <= 0 ? (
-            <Form.Item
-              label="Ảnh"
-              name="image"
-              rules={[{ required: true, message: "Mời chọn ảnh!" }]}
-            >
-              <UploadComponent
+          <Form.Item
+            label="Ảnh"
+            name="image"
+            rules={[{ required: true, message: "Mời chọn ảnh!" }]}
+          >
+            <UploadComponent
               image={form.getFieldValue("avatar")}
               onChange={handleChangeAvatar}
               maxCount={1}
               listType="picture-circle"
               hasControlInside={true}
             />
-            </Form.Item>
-          ) : (
-            <Form.Item label="Ảnh">
-              <img
-                src={details?.data.image}
-                style={{
-                  height: "60px",
-                  width: "60px",
-                  objectFit: "cover",
-                  marginLeft: "10px",
-                }}
-                alt="ảnh"
-              />
-            </Form.Item>
-          )}
+          </Form.Item>
         </Form>
       </Loading>
     </ModalComponent>

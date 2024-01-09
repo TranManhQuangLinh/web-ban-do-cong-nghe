@@ -1,5 +1,5 @@
 import AdminPage from "../pages/AdminPage";
-import HomePage from "../pages/HomePage/HomePage";
+import HomePage from "../pages/HomePage";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import CartPage from "../pages/CartPage/CartPage";
 import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";

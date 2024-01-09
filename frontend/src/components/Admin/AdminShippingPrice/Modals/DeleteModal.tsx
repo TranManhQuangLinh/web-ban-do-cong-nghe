@@ -1,25 +1,24 @@
 import * as React from "react";
 import { useEffect } from "react";
-import { useDeleteManyUsersMutation } from "../../../../services/user";
+import { useDeleteShippingPriceMutation } from "../../../../services/shippingPrice";
 import Loading from "../../../LoadingComponent";
 import ModalComponent from "../../../ModalComponent";
 import * as message from "../../../Message";
 import { IModalProps } from "../../types";
 
-const DeleteManyModal = (props: IModalProps) => {
-  const [deleteManyUsers, result] = useDeleteManyUsersMutation();
+const DeleteModal = (props: IModalProps) => {
+  const [deleteShippingPrice, result] = useDeleteShippingPriceMutation();
 
   const handleCloseModal = () => {
     props.setState({
       ...props.state,
-      isOpenModalDeleteMany: false,
-      rowSelectedKeys: [],
+      isOpenModalDelete: false,
+      rowSelected: "",
     });
   };
 
-  const handleDeleteManyUsers = () => {
-    if (props.state.rowSelectedKeys)
-      deleteManyUsers(props.state.rowSelectedKeys);
+  const handleDeleteShippingPrice = () => {
+    deleteShippingPrice(props.state.rowSelected);
   };
 
   useEffect(() => {
@@ -35,16 +34,16 @@ const DeleteManyModal = (props: IModalProps) => {
 
   return (
     <ModalComponent
-      title="Xóa tất cả người dùng đã chọn"
-      open={props.state.isOpenModalDeleteMany}
+      title="Xóa phí giao hàng"
+      open={props.state.isOpenModalDelete}
       onCancel={handleCloseModal}
-      onOk={handleDeleteManyUsers}
+      onOk={handleDeleteShippingPrice}
     >
       <Loading isPending={result.isLoading}>
-        <div>Bạn có chắc muốn xóa tất cả người dùng đã chọn không?</div>
+        <div>Bạn có chắc muốn xóa phí giao hàng này không?</div>
       </Loading>
     </ModalComponent>
   );
 };
 
-export default DeleteManyModal;
+export default DeleteModal;

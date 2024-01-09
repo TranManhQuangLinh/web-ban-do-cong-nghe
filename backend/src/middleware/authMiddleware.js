@@ -37,6 +37,8 @@ const authUserMiddleWare = (req, res, next) => {
         status: "ERROR",
       });
     }
+    // console.log(user);
+    // console.log(userId);
     // console.log(user.id === userId);
     if (user?.id === userId) {
       req.loggedInUserRole = user.role;

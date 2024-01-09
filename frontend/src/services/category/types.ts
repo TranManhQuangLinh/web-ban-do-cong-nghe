@@ -1,14 +1,14 @@
 import { IFormStateCategory, ICategory } from "../../types";
 
-export interface ICreateUpdateCategoryResult {
+export interface ICategoryDataResult {
   status: string;
   message: string;
-  data: ICategory;
+  data?: ICategory;
 }
 
 export interface IUpdateCategoryParams {
   id: string;
-  data: IFormStateCategory;
+  data?: IFormStateCategory;
 }
 
 export interface ICreateCategoryParams extends IFormStateCategory {}
@@ -21,14 +21,8 @@ export interface IDeleteManyCategoriesParams {
   ids: string[];
 }
 
-export interface IGetAllCategoriesResult {
+export interface ICategoryDataListResult {
   status: string;
   message: string;
-  data: ICategory[];
-}
-
-export interface IGetDetailsCategoryResult {
-  status: string;
-  message: string;
-  data: ICategory;
+  data?: ICategory[];
 }

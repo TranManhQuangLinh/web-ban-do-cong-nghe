@@ -1,59 +1,25 @@
-import React from "react";
-import Category from "../../components/Category/Category";
-import { WrapperButtonMore, WrapperCategory, WrapperProducts } from "./style";
-import CardComponent from "../../components/CardComponent/CardComponent";
-import * as ProductService from "../../services/ProductService";
-import * as CategoryService from "../../services/CategoryService";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { useDebounce } from "../../hooks/useDebounce";
+import CardComponent from "../../components/CardComponent/CardComponent";
+import Category from "../../components/Category/Category";
 import Loading from "../../components/LoadingComponent";
+import { useDebounce } from "../../hooks/useDebounce";
+import { useGetAllCategoriesQuery } from "../../services/category";
+import { useGetAllProductsQuery } from "../../services/product";
+import { WrapperButtonMore, WrapperCategory, WrapperProducts } from "./style";
+import { RootState } from "../../redux/store";
 
 const HomePage = () => {
-  const searchProduct = useSelector((state) => state?.product?.search);
+  const searchProduct = useSelector((state: RootState) => state?.product?.search);
   const searchDebounce = useDebounce(searchProduct, 500);
   // console.log('searchDebounce:', searchDebounce);
   const [limit, setLimit] = useState(6);
 
-  const fetchAllProducts = async (context) => {
-    const limit = context?.queryKey && context?.queryKey[1];
-    const search = context?.queryKey && context?.queryKey[2];
-    const res = await ProductService.getAllProducts(search, limit);
-    // console.log(res);
-    return res;
-  };
+  const { data: products, isLoading: isPendingProducts } =
+    useGetAllProductsQuery({ search: searchDebounce, limit });
 
-  const fetchAllCategories = async () => {
-    const res = await CategoryService.getAllCategories();
-    // console.log(res);
-    return res;
-  };
-
-  const {
-    isPending: isPendingProducts,
-    data: products,
-    isPreviousData: isPreviousDataProducts,
-  } = useQuery({
-    queryKey: ["products", limit, searchDebounce],
-    queryFn: fetchAllProducts,
-    retry: 3,
-    retryDelay: 1000,
-    keepPreviousData: true,
-  });
-
-  const {
-    isPending: isPendingCategories,
-    data: categories,
-    error: categoryError,
-  } = useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchAllCategories,
-  });
-  if (categoryError) console.log(categoryError);
-  // console.log(categories);
-
-  // console.log(isPendingProducts, isPendingCategories);
+  const { data: categories, isLoading: isPendingCategories } =
+    useGetAllCategoriesQuery();
 
   return (
     <>
@@ -104,8 +70,9 @@ const HomePage = () => {
             }}
           >
             <WrapperButtonMore
-              buttonText={isPreviousDataProducts ? "Load more" : "Xem thêm"}
-              type="outline"
+              // isPreviousDataProducts
+              buttonText={"Xem thêm"}
+              type="text"
               buttonStyle={{
                 border: `1px solid ${
                   products?.total === products?.data?.length
@@ -127,7 +94,7 @@ const HomePage = () => {
               }
               buttonTextStyle={{
                 fontWeight: 500,
-                color: products?.total === products?.data?.length && "#fff",
+                color: products?.total === products?.data?.length ? "#fff" : "",
               }}
               onClick={() => setLimit((prev) => prev + 6)}
             />

@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   search: '',
@@ -8,7 +8,7 @@ export const productSlide = createSlice({
   name: 'product',
   initialState,
   reducers: {
-    searchProduct: (state, action) => {
+    searchProduct: (state, action: PayloadAction<string>) => {
       state.search = action.payload
     },
   },

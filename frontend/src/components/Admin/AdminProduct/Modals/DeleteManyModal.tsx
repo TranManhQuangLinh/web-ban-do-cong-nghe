@@ -1,13 +1,13 @@
 import * as React from "react";
 import { useEffect } from "react";
-import { useDeleteManyCategoriesMutation } from "../../../../services/category";
+import { useDeleteManyProductsMutation } from "../../../../services/product";
 import Loading from "../../../LoadingComponent";
 import ModalComponent from "../../../ModalComponent";
 import * as message from "../../../Message";
 import { IModalProps } from "../../types";
 
 const DeleteManyModal = (props: IModalProps) => {
-  const [deleteManyCategories, result] = useDeleteManyCategoriesMutation();
+  const [deleteManyProducts, result] = useDeleteManyProductsMutation();
 
   const handleCloseModal = () => {
     props.setState({
@@ -17,8 +17,9 @@ const DeleteManyModal = (props: IModalProps) => {
     });
   };
 
-  const handleDeleteManyCategories = () => {
-    deleteManyCategories(props.state.rowSelectedKeys);
+  const handleDeleteManyProducts = () => {
+    if (props.state.rowSelectedKeys)
+      deleteManyProducts(props.state.rowSelectedKeys);
   };
 
   useEffect(() => {
@@ -34,13 +35,13 @@ const DeleteManyModal = (props: IModalProps) => {
 
   return (
     <ModalComponent
-      title="Xóa tất cả danh mục đã chọn"
+      title="Xóa tất cả sản phẩm đã chọn"
       open={props.state.isOpenModalDeleteMany}
       onCancel={handleCloseModal}
-      onOk={handleDeleteManyCategories}
+      onOk={handleDeleteManyProducts}
     >
       <Loading isPending={result.isLoading}>
-        <div>Bạn có chắc muốn xóa tất cả danh mục đã chọn không?</div>
+        <div>Bạn có chắc muốn xóa tất cả sản phẩm đã chọn không?</div>
       </Loading>
     </ModalComponent>
   );

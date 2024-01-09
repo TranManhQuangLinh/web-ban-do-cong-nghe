@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useGetAllCategoriesQuery } from "../../../services/category";
-import { IGetAllCategoriesResult } from "../../../services/category/types";
+import { ICategoryDataListResult } from "../../../services/category/types";
 import ButtonComponent from "../../ButtonComponent";
 import TableComponent from "../../TableComponent";
 import { IState } from "../types";
@@ -8,6 +8,7 @@ import { WrapperHeader } from "./style";
 import CreateUpdateModal from "./Modals/CreateUpdateModal";
 import DeleteModal from "./Modals/DeleteModal";
 import DeleteManyModal from "./Modals/DeleteManyModal";
+import { ICategory } from "../../../types";
 
 const AdminCategory = () => {
   const [state, setState] = useState<IState>({
@@ -22,8 +23,8 @@ const AdminCategory = () => {
   const { data: categories, isLoading: isPending } = useGetAllCategoriesQuery();
 
   const dataTable = useMemo(() => {
-    let result: IGetAllCategoriesResult["data"] = [];
-    if (categories && categories?.data?.length > 0) {
+    let result: ICategoryDataListResult["data"] = [];
+    if (categories?.data && categories?.data?.length > 0) {
       result = categories.data.map((category) => ({
         ...category,
         key: category._id,
@@ -36,12 +37,14 @@ const AdminCategory = () => {
     {
       title: "Tên",
       dataIndex: "name",
-      sorter: (a: any, b: any) => a.name - b.name,
+      sorter: (a: ICategory, b: ICategory) => {
+        return a.name.localeCompare(b.name);
+      },
     },
     {
       title: "Thao tác",
       dataIndex: "action",
-      render: (_: any, record: any) => {
+      render: (_: string, record: ICategory) => {
         return (
           <div>
             <ButtonComponent
@@ -114,7 +117,7 @@ const AdminCategory = () => {
           buttonText="Tạo"
         />
 
-        {!!state.rowSelectedKeys.length && (
+        {state.rowSelectedKeys && !!state.rowSelectedKeys.length && (
           <ButtonComponent
             type="primary"
             buttonStyle={{
@@ -142,7 +145,9 @@ const AdminCategory = () => {
           dataSource={dataTable}
           rowSelection={{
             type: "checkbox",
-            onChange: (record: any) => {
+            onChange: (record: Array<string>) => {
+              // console.log('record', record);
+
               setState({ ...state, rowSelectedKeys: record });
             },
           }}

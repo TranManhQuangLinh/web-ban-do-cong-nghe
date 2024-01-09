@@ -1,14 +1,14 @@
 import { IFormStateProduct, IProduct } from "../../types";
 
-export interface ICreateUpdateProductResult {
+export interface IProductDataResult {
   status: string;
   message: string;
-  data: IProduct;
+  data?: IProduct;
 }
 
 export interface IUpdateProductParams {
   id: string;
-  data: IFormStateProduct;
+  data?: IFormStateProduct;
 }
 
 export interface ICreateProductParams extends IFormStateProduct {}
@@ -24,7 +24,7 @@ export interface IDeleteManyProductsParams {
 export interface IGetAllProductsResult {
   status: string;
   message: string;
-  data: IProduct[];
+  data?: IProduct[];
   total: number;
   currentPage: number;
   totalPage: number;
@@ -32,11 +32,5 @@ export interface IGetAllProductsResult {
 
 export interface IGetAllProductsParams {
   search?: string;
-  limit?: string;
-}
-
-export interface IGetDetailsProductResult {
-  status: string;
-  message: string;
-  data: IProduct;
+  limit?: number;
 }

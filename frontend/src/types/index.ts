@@ -1,3 +1,4 @@
+// User
 export interface IUser {
   _id: string;
   email: string;
@@ -24,6 +25,7 @@ export interface IFormStateUser {
   avatar: string;
 }
 
+// Category
 export interface ICategory {
   _id: string;
   name: string;
@@ -36,6 +38,7 @@ export interface IFormStateCategory {
   name: string;
 }
 
+// Product
 export interface IProduct {
   _id: string;
   name: string;
@@ -60,4 +63,94 @@ export interface IFormStateProduct {
   discount: number;
   description: string;
   sold: number;
+}
+
+// Order
+export interface IOrderItem {
+    discount: number;
+    image: string;
+    name: string;
+    price: number;
+    product: string;
+    quantity: number;
+    quantityInStock: number;
+    _id?: string;
+}
+
+export interface IShippingAddress { recipientName: string; address: string; phone?: string }
+export interface IUpdateHistory {
+  status: string;
+  updatedAt: string;
+  updater: string;
+  _id: string;
+}
+
+export interface IOrder {
+  currentStatus: string;
+  itemsPrice: number;
+  orderItems: Array<IOrderItem>;
+  paymentMethod: string;
+  shippingAddress: IShippingAddress;
+  shippingFee: number;
+  shippingPrice: string;
+  totalPrice: number;
+  updateHistory: Array<IUpdateHistory>;
+  user: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  _id: string;
+}
+
+export interface IOrderDataTable {
+  currentStatus: React.JSX.Element;
+  itemsPrice: number;
+  orderItems: Array<IOrderItem>;
+  paymentMethod: string;
+  shippingAddress: IShippingAddress;
+  shippingFee: number;
+  shippingPrice: string;
+  totalPrice: string;
+  updateHistory: Array<IUpdateHistory>;
+  user: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  _id: string;
+}
+export interface IFormStateOrder {
+  currentStatus: string;
+  itemsPrice: number;
+  orderItems: Array<IOrderItem>;
+  paymentMethod: string;
+  shippingAddress: IShippingAddress;
+  shippingFee: number;
+  shippingPrice: string;
+  totalPrice: number;
+  updateHistory: Array<IUpdateHistory>;
+  user: string;
+}
+
+// ShippingPrice
+export interface IShippingPrice {
+  maxOrderAmount?: number;
+  shippingFee: number;
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface IShippingPriceDataTable {
+  maxOrderAmount?: string;
+  shippingFee: string;
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface IFormStateShippingPrice {
+  maxOrderAmount?: number;
+  shippingFee: number;
 }
