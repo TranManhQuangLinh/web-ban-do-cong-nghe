@@ -4,9 +4,7 @@ const createOrder = async (req, res) => {
   try {
     const {
       orderItems,
-      recipientName,
-      address,
-      phone,
+      shippingAddress,
       paymentMethod,
       itemsPrice,
       shippingFee,
@@ -16,9 +14,9 @@ const createOrder = async (req, res) => {
     } = req.body;
     if (
       !orderItems ||
-      !recipientName ||
-      !address ||
-      !phone ||
+      !shippingAddress.recipientName ||
+      !shippingAddress.address ||
+      !shippingAddress.phone ||
       !paymentMethod ||
       !itemsPrice ||
       !shippingFee ||

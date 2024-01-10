@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   WrapperContentPopup,
   WrapperHeader,
@@ -16,28 +16,43 @@ import Loading from "../LoadingComponent";
 import * as UserService from "../../services/UserService";
 import { resetUser } from "../../redux/slices/UserSlice";
 import { searchProduct } from "../../redux/slices/productSlide";
-import { initOrder } from "../../redux/slices/OrderSlice";
+import { initOrder,ordersSelector } from "../../redux/slices/OrderSlice";
+import { RootState } from "../../redux/store";
 
 const HeaderComponent = ({
   isHiddenSearch = false,
   isHiddenCart = false,
-  style,
+  style = {},
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = useSelector((state) => state.user);
-  const order = useSelector((state) =>
-    state.orders?.find((order) => order.user === user._id)
-  );
+  const user = useSelector((state  : RootState) => state.user);
+  const orders = useSelector(ordersSelector);
+  
+  const order = useMemo(() => {
+    return orders.find((item) => item.user === user._id)
+  },[orders, user._id])
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [isOpenPopover, setIsOpenPopover] = useState(false);
   
   useEffect(() => {
     if (!order && !!user) {
-      dispatch(initOrder({ userId: user._id }));
+      dispatch(initOrder(  {
+        orderItems: [],
+        orderItemsSelected: [],
+        shippingAddress: { recipientName: "", address: "", phone: undefined },
+        user: user._id,
+        paymentMethod: "",
+        itemsPrice: 0,
+        shippingFee: 0,
+        shippingPrice: "",
+        totalPrice: 0,
+        currentStatus: "",
+        updateHistory: [],
+      },));
     }
-  }, [])
+  }, [dispatch, order, user])
 
   const content = () => {
     if (user._id !== "") {
@@ -58,7 +73,7 @@ const HeaderComponent = ({
               Đơn hàng của tôi
             </WrapperContentPopup>
           )}
-          <WrapperContentPopup onClick={() => handleClickNavigate()}>
+          <WrapperContentPopup onClick={() => handleClickNavigate("")}>
             Đăng xuất
           </WrapperContentPopup>
         </div>
@@ -71,7 +86,7 @@ const HeaderComponent = ({
     );
   };
 
-  const handleClickNavigate = (type) => {
+  const handleClickNavigate = (type : string) => {
     switch (type) {
       case "profile":
         navigate("/profile", { state: location?.pathname });
@@ -107,11 +122,11 @@ const HeaderComponent = ({
     navigate("/sign-up");
   };
   const handleCartClick = () => {
-    if (user?.id !== "") navigate("/cart");
+    if (user?._id !== "") navigate("/cart");
     else handleSignInClick();
   };
 
-  const handleSearch = (value) => {
+  const handleSearch = (value : string) => {
     dispatch(searchProduct(value));
     if (location.pathname !== "/") navigate("/");
   };

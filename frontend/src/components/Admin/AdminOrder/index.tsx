@@ -136,6 +136,14 @@ const AdminOrder = () => {
           columns={columns}
           isPending={isPendingUsers || isPendingOrders}
           dataSource={dataTable}
+          onRow={(record: IOrder) => {
+            console.log(record);
+            return {
+              onClick: () => {
+                setRowSelected(record._id);
+              },
+            };
+          }}
         />
       </div>
     </div>

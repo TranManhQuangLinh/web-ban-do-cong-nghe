@@ -57,12 +57,6 @@ export const shippingPriceApi = createApi({
       },
       invalidatesTags: ["ShippingPrice"],
     }),
-    getShippingPrice: builder.query<IShippingPriceDataResult, number>({
-        query: (price) => ({
-            url: `/get-shipping-price/${price}`,
-            method: "GET",
-        })
-    }),
     getDetailsShippingPrice: builder.query<IShippingPriceDataResult, string>({
       query: (id) => ({
         url: `/get-details-shipping-price/${id}`,

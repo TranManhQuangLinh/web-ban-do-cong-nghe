@@ -12,18 +12,18 @@ import {
 export const orderApi = createApi({
   reducerPath: "orderApi",
   baseQuery: authenticatedQuery(`${process.env.REACT_APP_API_URL}/order`),
-  tagTypes: ["Order"],
+  tagTypes: ["OrderDetails", "UserOrders"],
   endpoints: (builder) => ({
     createOrder: builder.mutation<
       IOrderDataResult,
       ICreateOrderParams
     >({
       query: (data) => ({
-        url: "/create-order",
+        url: `/create-order/${data.user}`,
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Order"],
+      // invalidatesTags: ["Order"],
     }),
     updateStatus: builder.mutation<
       IOrderDataResult,
@@ -32,20 +32,20 @@ export const orderApi = createApi({
       query: (input) => {
         // console.log('data', input.data);
         return {
-          url: `/update-order/${input.id}`,
+          url: `/update-status/${input.id}`,
           method: "PUT",
           body: input.data,
         };
       },
-      invalidatesTags: ["Order"],
+      invalidatesTags: ["OrderDetails"],
     }),
     cancelOrder: builder.mutation<IOrderDataResult, ICancelOrderParams>({
       query: (input) => ({
-        url: `/delete-order/${input.userId}`,
+        url: `/cancel-order/${input.userId}`,
         method: "PUT",
         body: input.data
       }),
-      invalidatesTags: ["Order"],
+      invalidatesTags: ["UserOrders"],
     }),
     
     getDetailsOrder: builder.query<IOrderDataResult, string>({
@@ -53,15 +53,19 @@ export const orderApi = createApi({
         url: `/get-details-order/${id}`,
         method: "GET",
       }),
+      providesTags: (result, error, arg) => {
+        // console.log(result);
+        return ["OrderDetails"];
+      },
     }),
     getAllUserOrders: builder.query<IOrderDataListResult, string>({
         query: (userId) => ({
-          url: `/get-al-user-orders/${userId}`,
+          url: `/get-all-user-orders/${userId}`,
           method: "GET",
         }),
         providesTags: (result, error, arg) => {
           // console.log(result);
-          return ["Order"];
+          return ["UserOrders"];
         },
       }),
     getAllOrders: builder.query<IOrderDataListResult, void>({
@@ -69,10 +73,10 @@ export const orderApi = createApi({
         url: "/get-all-orders",
         method: "GET",
       }),
-      providesTags: (result, error, arg) => {
-        // console.log(result);
-        return ["Order"];
-      },
+      // providesTags: (result, error, arg) => {
+      //   // console.log(result);
+      //   return ["Order"];
+      // },
     }),
   }),
 });
@@ -80,6 +84,8 @@ export const orderApi = createApi({
 export const {
   useCreateOrderMutation,
   useUpdateStatusMutation,
+  useCancelOrderMutation,
   useGetDetailsOrderQuery,
+  useGetAllUserOrdersQuery,
   useGetAllOrdersQuery,
 } = orderApi;

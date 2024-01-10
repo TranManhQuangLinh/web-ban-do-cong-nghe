@@ -1,13 +1,13 @@
 import AdminPage from "../pages/AdminPage";
 import HomePage from "../pages/HomePage";
-import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
-import CartPage from "../pages/CartPage/CartPage";
+import NotFoundPage from "../pages/NotFoundPage";
+import CartPage from "../pages/CartPage";
 import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
 import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
-import PaymentPage from "../pages/PaymentPage/PaymentPage";
-import OrderDetailsPage from "../pages/OrderDetailsPage/OrderDetailsPage";
-import MyOrderPage from "../pages/MyOrderPage/MyOrderPage";
+import PaymentPage from "../pages/PaymentPage";
+import OrderDetailsPage from "../pages/OrderDetailsPage";
+import MyOrderPage from "../pages/MyOrderPage";
 import ProfilePage from "../pages/Profile/ProfilePage";
 
 export const routes = [

@@ -21,7 +21,7 @@ router.delete(
   authAdminMiddleWare,
   UserController.deleteUser
 );
-router.get("/get-all-users", authAdminMiddleWare, UserController.getAllUsers);
+router.get("/get-all-users", UserController.getAllUsers);
 router.get(
   "/get-details-user/:id",
   authAdminStaffUserMiddleWare,

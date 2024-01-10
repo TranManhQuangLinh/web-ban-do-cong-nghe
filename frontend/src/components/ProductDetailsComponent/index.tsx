@@ -3,7 +3,7 @@ import { Col, Image, Row } from "antd";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { addOrderItem } from "../../redux/slices/OrderSlice";
+import { addOrderItem, ordersSelector } from "../../redux/slices/OrderSlice";
 import { useGetDetailsProductQuery } from "../../services/product";
 import { convertPrice } from "../../utils";
 import ButtonComponent from "../ButtonComponent";
@@ -26,11 +26,9 @@ interface IProps {
 
 const ProductDetailsComponent: React.FC<IProps> = ({ idProduct }) => {
   const user = useSelector((state: RootState) => state.user);
-  // console.log(user);
-  
-  const order = useSelector((state: RootState) =>
-    state.orders?.find((order) => order.user === user._id)
-  );
+  const orders = useSelector(ordersSelector);
+  const order = orders.find((item) => item.user === user._id)
+
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -71,7 +69,8 @@ const ProductDetailsComponent: React.FC<IProps> = ({ idProduct }) => {
         (item) => item.product === details?.data?._id
       );
       if (
-        orderItem && orderItem?.quantity + numProduct <= orderItem?.quantityInStock ||
+        (orderItem &&
+          orderItem?.quantity + numProduct <= orderItem?.quantityInStock) ||
         (!orderItem && details?.data.quantityInStock > 0)
       ) {
         dispatch(
@@ -116,18 +115,30 @@ const ProductDetailsComponent: React.FC<IProps> = ({ idProduct }) => {
             justifyContent: "center",
           }}
         >
-          <Image src={details?.data?.image ?? ""} alt="image product" preview={true} />
+          <Image
+            src={details?.data?.image ?? ""}
+            alt="image product"
+            preview={true}
+          />
         </Col>
         <Col span={14} style={{ paddingLeft: "10px" }}>
-          <WrapperStyleNameProduct>{details?.data?.name ?? ""}</WrapperStyleNameProduct>
+          <WrapperStyleNameProduct>
+            {details?.data?.name ?? ""}
+          </WrapperStyleNameProduct>
           <div>
-            <WrapperStyleTextSell>Đã bán: {details?.data?.sold ?? ""}</WrapperStyleTextSell>
+            <WrapperStyleTextSell>
+              Đã bán: {details?.data?.sold ?? ""}
+            </WrapperStyleTextSell>
           </div>
           <WrapperPriceProduct>
             <WrapperPriceTextProduct>
               {convertPrice(details?.data?.price ?? 0)}
               <WrapperDiscountText>
-                {details?.data?.discount ? `-${details?.data?.discount}%` : <></>}
+                {details?.data?.discount ? (
+                  `-${details?.data?.discount}%`
+                ) : (
+                  <></>
+                )}
               </WrapperDiscountText>
             </WrapperPriceTextProduct>
           </WrapperPriceProduct>

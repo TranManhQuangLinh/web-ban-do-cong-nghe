@@ -1,31 +1,30 @@
 import {
   combineReducers,
-  compose,
   configureStore,
-  createSelector,
+  createSelector
 } from "@reduxjs/toolkit";
-import productReducer from "./slices/productSlide";
-import userReducer from "./slices/UserSlice";
-import orderReducer from "./slices/OrderSlice";
 import {
-  persistStore,
   persistReducer,
-  FLUSH,
-  REHYDRATE,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REGISTER,
+  persistStore
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import { userApi } from "../services/user";
 import { categoryApi } from "../services/category";
-import { productApi } from "../services/product";
 import { orderApi } from "../services/order";
+import { productApi } from "../services/product";
 import { shippingPriceApi } from "../services/shippingPrice";
+import { userApi } from "../services/user";
+import orderReducer from "./slices/OrderSlice";
+import userReducer from "./slices/UserSlice";
+import productReducer from "./slices/productSlide";
 
-const persistConfig = {
-  key: "root",
+const orderPersistConfig = {
+  key: "order",
+  version: 1,
+  storage,
+  // blacklist: ['user']
+};
+const userPersistConfig = {
+  key: "user",
   version: 1,
   storage,
   // blacklist: ['user']
@@ -33,15 +32,16 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   product: productReducer,
-  user: persistReducer(persistConfig, userReducer),
-  orders: orderReducer,
+  // user: userReducer,
+  // orders: orderReducer,
+  user: persistReducer(userPersistConfig, userReducer),
+  orders: persistReducer(orderPersistConfig, orderReducer),
   [userApi.reducerPath]: userApi.reducer,
   [categoryApi.reducerPath]: categoryApi.reducer,
   [productApi.reducerPath]: productApi.reducer,
   [shippingPriceApi.reducerPath]: shippingPriceApi.reducer,
   [orderApi.reducerPath]: orderApi.reducer,
 });
-// const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export type RootState = ReturnType<typeof rootReducer>;
 
@@ -54,6 +54,7 @@ export const userSelector = createSelector(
 // const composeEnhancers = (process.env.REACT_APP_NODE_ENV !== 'production' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 export const store = configureStore({
   reducer: rootReducer,
+  // reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
@@ -67,4 +68,4 @@ export const store = configureStore({
   // composeEnhancers,
 });
 
-export let persistor = persistStore(store);
+export const persistor = persistStore(store);

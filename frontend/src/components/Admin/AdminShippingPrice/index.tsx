@@ -24,18 +24,6 @@ const AdminShippingPrice = () => {
     useGetAllShippingPricesQuery();
 
   // table
-  // const dataTable =
-  //   shippingPrices?.length > 0 &&
-  //   shippingPrices?.map((shippingPrice) => {
-  //     return {
-  //       ...shippingPrice,
-  //       maxOrderAmount: shippingPrice.maxOrderAmount
-  //         ? convertPrice(shippingPrice.maxOrderAmount)
-  //         : "MAX",
-  //       shippingFee: convertPrice(shippingPrice.shippingFee),
-  //       key: shippingPrice._id,
-  //     };
-  //   });
   const dataTable = useMemo(() => {
     let result: Array<IShippingPriceDataTable> = [];
     if (shippingPrices?.data && shippingPrices?.data?.length > 0) {

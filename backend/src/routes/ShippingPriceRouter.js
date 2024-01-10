@@ -3,10 +3,6 @@ const router = express.Router();
 const ShippingPriceController = require("../controllers/ShippingPriceController");
 const { authAdminMiddleWare } = require("../middleware/authMiddleware");
 
-router.get(
-  "/get-shipping-price/:price",
-  ShippingPriceController.getShippingPrice
-);
 router.post(
   "/create-shipping-price",
   authAdminMiddleWare,
@@ -24,7 +20,6 @@ router.delete(
 );
 router.get(
   "/get-all-shipping-prices",
-  authAdminMiddleWare,
   ShippingPriceController.getAllShippingPrices
 );
 router.post(

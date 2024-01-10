@@ -55,7 +55,7 @@ export const authenticatedQuery = (baseUrl) => {
         console.log("refresh_token:", refresh_token);
         console.log("user?.isRefresh:", user?.isRefresh);
         if (refresh_token && !user?.isRefresh) {
-          console.log("refresh");
+          // console.log("refresh");
           const data = await refresh_access_token(refresh_token);
           // console.log('data', data);
 

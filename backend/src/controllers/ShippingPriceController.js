@@ -89,26 +89,6 @@ const getAllShippingPrices = async (req, res) => {
   }
 };
 
-const getShippingPrice = async (req, res) => {
-  try {
-    const { price } = req.params.price;
-    // console.log('req.body:', req.body);
-    // console.log('price:', price);
-    if(!price){
-      return res.status(200).json({
-        status: "ERR",
-        message: "price is required",
-      });
-    }
-    const response = await ShippingPriceService.getShippingPrice(price);
-    return res.status(200).json(response);
-  } catch (e) {
-    return res.status(404).json({
-      message: e,
-    });
-  }
-};
-
 const getDetailsShippingPrice = async (req, res) => {
   try {
     const shippingPriceId = req.params.id;
@@ -135,6 +115,5 @@ module.exports = {
   deleteShippingPrice,
   deleteManyShippingPrices,
   getAllShippingPrices,
-  getShippingPrice,
   getDetailsShippingPrice,
 };

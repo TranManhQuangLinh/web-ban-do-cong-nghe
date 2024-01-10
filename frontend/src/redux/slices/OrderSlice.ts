@@ -1,5 +1,6 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { IOrderItem, IShippingAddress, IUpdateHistory } from "../../types";
+import { RootState } from "../store";
 
 interface IOrderState {
   orderItems: Array<IOrderItem>;
@@ -27,36 +28,33 @@ interface IAddOrderItemPayload {
   };
   userId: string;
 }
-const initialState: Array<IOrderState> = [
-  {
-    orderItems: [],
-    orderItemsSelected: [],
-    shippingAddress: { recipientName: "", address: "", phone: undefined },
-    user: "",
-    paymentMethod: "",
-    itemsPrice: 0,
-    shippingFee: 0,
-    shippingPrice: "",
-    totalPrice: 0,
-    currentStatus: "",
-    updateHistory: [],
-  },
-];
-
+const initialState: { orders: Array<IOrderState> } = {
+  orders: [
+    {
+      orderItems: [],
+      orderItemsSelected: [],
+      shippingAddress: { recipientName: "", address: "", phone: undefined },
+      user: "",
+      paymentMethod: "",
+      itemsPrice: 0,
+      shippingFee: 0,
+      shippingPrice: "",
+      totalPrice: 0,
+      currentStatus: "",
+      updateHistory: [],
+    },
+  ],
+};
 export const orderSlice = createSlice({
   name: "orders",
   initialState,
   reducers: {
-    initOrder: (state, action) => {
-      const { userId } = action.payload;
-
-      const order = state.find((order) => order.user === "");
-      if (order) order.user = userId;
-      else state.push(initialState[0]);
+    initOrder: (state, action: PayloadAction<IOrderState>) => {
+      state.orders.push(action.payload);
     },
     addOrderItem: (state, action: PayloadAction<IAddOrderItemPayload>) => {
       const { orderItem, userId } = action.payload;
-      const userOrder = state.find((order) => order.user === userId);
+      const userOrder = state.orders.find((order) => order.user === userId);
       if (userOrder) {
         const itemOrder = userOrder.orderItems.find(
           (item) => item.product === orderItem.product
@@ -70,9 +68,16 @@ export const orderSlice = createSlice({
         }
       }
     },
-    changeAmount: (state, action) => {
+    changeAmount: (
+      state,
+      action: PayloadAction<{
+        idProduct: string;
+        value: number;
+        userId: string;
+      }>
+    ) => {
       const { idProduct, value, userId } = action.payload;
-      const userOrder = state.find((order) => order.user === userId);
+      const userOrder = state.orders.find((order) => order.user === userId);
       if (userOrder) {
         const itemOrder = userOrder.orderItems?.find(
           (item) => item?.product === idProduct
@@ -80,41 +85,41 @@ export const orderSlice = createSlice({
         const itemOrderSelected = userOrder.orderItemsSelected?.find(
           (item) => item?.product === idProduct
         );
-
         if (itemOrder) {
           itemOrder.quantity = value;
         }
-
         if (itemOrderSelected) {
           itemOrderSelected.quantity = value;
         }
       }
     },
-    increaseAmount: (state, action) => {
+    increaseAmount: (
+      state,
+      action: PayloadAction<{ idProduct: string; userId: string }>
+    ) => {
       const { idProduct, userId } = action.payload;
-      const userOrder = state.find((order) => order.user === userId);
+      const userOrder = state.orders.find((order) => order.user === userId);
       if (userOrder) {
         const itemOrder = userOrder.orderItems?.find(
           (item) => item?.product === idProduct
         );
-
         const itemOrderSelected = userOrder.orderItemsSelected?.find(
           (item) => item?.product === idProduct
         );
-
         if (itemOrder) {
           itemOrder.quantity++;
         }
-
         if (itemOrderSelected) {
           itemOrderSelected.quantity++;
         }
       }
     },
-    decreaseAmount: (state, action) => {
+    decreaseAmount: (
+      state,
+      action: PayloadAction<{ idProduct: string; userId: string }>
+    ) => {
       const { idProduct, userId } = action.payload;
-      const userOrder = state.find((order) => order.user === userId);
-
+      const userOrder = state.orders.find((order) => order.user === userId);
       if (userOrder) {
         const itemOrder = userOrder.orderItems?.find(
           (item) => item?.product === idProduct
@@ -122,20 +127,20 @@ export const orderSlice = createSlice({
         const itemOrderSelected = userOrder.orderItemsSelected?.find(
           (item) => item?.product === idProduct
         );
-
         if (itemOrder) {
           itemOrder.quantity--;
         }
-
         if (itemOrderSelected) {
           itemOrderSelected.quantity--;
         }
       }
     },
-    removeOrderItem: (state, action) => {
+    removeOrderItem: (
+      state,
+      action: PayloadAction<{ idProduct: string; userId: string }>
+    ) => {
       const { idProduct, userId } = action.payload;
-      const userOrder = state.find((order) => order.user === userId);
-
+      const userOrder = state.orders.find((order) => order.user === userId);
       if (userOrder) {
         const itemOrder = userOrder.orderItems?.filter(
           (item) => item?.product !== idProduct
@@ -143,15 +148,16 @@ export const orderSlice = createSlice({
         const itemOrderSelected = userOrder.orderItemsSelected?.filter(
           (item) => item?.product !== idProduct
         );
-
         userOrder.orderItems = itemOrder;
         userOrder.orderItemsSelected = itemOrderSelected;
       }
     },
-    removeAllOrderItem: (state, action) => {
+    removeAllOrderItem: (
+      state,
+      action: PayloadAction<{ listChecked: Array<string>; userId: string }>
+    ) => {
       const { listChecked, userId } = action.payload;
-      const userOrder = state.find((order) => order.user === userId);
-
+      const userOrder = state.orders.find((order) => order.user === userId);
       if (userOrder) {
         const itemOrders = userOrder.orderItems?.filter(
           (item) => !listChecked.includes(item.product)
@@ -163,10 +169,12 @@ export const orderSlice = createSlice({
         userOrder.orderItemsSelected = itemOrdersSelected;
       }
     },
-    selectedOrderItem: (state, action) => {
+    selectedOrderItem: (
+      state,
+      action: PayloadAction<{ listChecked: Array<string>; userId: string }>
+    ) => {
       const { listChecked, userId } = action.payload;
-      const userOrder = state.find((order) => order.user === userId);
-
+      const userOrder = state.orders.find((order) => order.user === userId);
       if (userOrder) {
         const orderItemsSelected: Array<IOrderItem> = [];
         userOrder.orderItems.forEach((order) => {
@@ -177,10 +185,17 @@ export const orderSlice = createSlice({
         userOrder.orderItemsSelected = orderItemsSelected;
       }
     },
-    updateShippingAddress: (state, action) => {
+    updateShippingAddress: (
+      state,
+      action: PayloadAction<{
+        recipientName: string;
+        address: string;
+        phone: string;
+        userId: string;
+      }>
+    ) => {
       const { recipientName, address, phone, userId } = action.payload;
-      const userOrder = state.find((order) => order.user === userId);
-
+      const userOrder = state.orders.find((order) => order.user === userId);
       if (userOrder) {
         userOrder.shippingAddress = {
           recipientName: recipientName,
@@ -189,17 +204,16 @@ export const orderSlice = createSlice({
         };
       }
     },
-    updateOrder: (state, action) => {
+    updateOrder: (state, action: PayloadAction<IOrderState>) => {
       const {
-        userId,
+        user,
         itemsPrice,
         shippingFee,
         shippingPrice,
         totalPrice,
         paymentMethod,
       } = action.payload;
-      const userOrder = state.find((order) => order.user === userId);
-
+      const userOrder = state.orders.find((order) => order.user === user);
       if (userOrder) {
         userOrder.itemsPrice = itemsPrice;
         userOrder.shippingFee = shippingFee;
@@ -224,5 +238,10 @@ export const {
   updateShippingAddress,
   updateOrder,
 } = orderSlice.actions;
+
+export const ordersSelector = createSelector(
+  [(state: RootState) => state.orders],
+  (orders) => orders.orders
+);
 
 export default orderSlice.reducer;

@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { RootState } from "../../redux/store";
 
 const NotFoundPage = () => {
-  const user = useSelector((state) => state?.user);
+  const user = useSelector((state: RootState) => state?.user);
   const navigate = useNavigate();
   useEffect(() => {
-    const storageRefreshToken = JSON.parse(localStorage.getItem("refresh_token"))
-    if (!user?.refresh_token && !storageRefreshToken) {
+    if (!user?.refresh_token && !localStorage.getItem("refresh_token")) {
       console.log("navigate home");
       navigate("/sign-in");
     }

@@ -5,9 +5,7 @@ const createOrder = (newOrder) => {
   return new Promise(async (resolve, reject) => {
     const {
       orderItems,
-      recipientName,
-      address,
-      phone,
+      shippingAddress: { recipientName, address, phone },
       paymentMethod,
       itemsPrice,
       shippingFee,
@@ -57,20 +55,7 @@ const createOrder = (newOrder) => {
           message: `Sản phẩm: ${arr.join(",")} không đủ hàng`,
         });
       } else {
-        const createdOrder = await Order.create({
-          orderItems,
-          shippingAddress: {
-            recipientName,
-            address,
-            phone,
-          },
-          paymentMethod,
-          itemsPrice,
-          shippingFee,
-          shippingPrice,
-          totalPrice,
-          user,
-        });
+        const createdOrder = await Order.create(newOrder);
         if (createdOrder) {
           resolve({
             status: "OK",

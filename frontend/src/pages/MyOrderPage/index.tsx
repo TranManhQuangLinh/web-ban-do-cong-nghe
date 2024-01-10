@@ -1,70 +1,64 @@
-import React, { useEffect, useState } from "react";
-import Loading from "../../components/LoadingComponent";
-import { useQuery } from "@tanstack/react-query";
-import * as OrderService from "../../services/OrderService";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import ButtonComponent from "../../components/ButtonComponent";
+import Loading from "../../components/LoadingComponent";
+import * as message from "../../components/Message";
+import { RootState } from "../../redux/store";
+import {
+  useCancelOrderMutation,
+  useGetAllUserOrdersQuery,
+} from "../../services/order";
+import { IOrder, IOrderItem } from "../../types";
 import { convertPrice } from "../../utils";
 import {
+  WrapperContainer,
+  WrapperCurrentStatus,
+  WrapperFooterItem,
+  WrapperHeaderItem,
   WrapperItemOrder,
   WrapperListOrder,
-  WrapperHeaderItem,
-  WrapperFooterItem,
-  WrapperContainer,
   WrapperStatus,
-  WrapperCurrentStatus,
 } from "./style";
-import ButtonComponent from "../../components/ButtonComponent";
-import { useNavigate } from "react-router-dom";
-import { useMutationHooks } from "../../hooks/useMutationHook";
-import * as message from "../../components/Message";
 
 const MyOrderPage = () => {
   const navigate = useNavigate();
-  const user = useSelector((state) => state.user);
-  const fetchMyOrder = async () => {
-    const res = await OrderService.getAllUserOrders(user?.id, user?.access_token);
-    return res.data;
-  };
+  const user = useSelector((state: RootState) => state.user);
 
-  const queryOrder = useQuery({
-    queryKey: ["orders"],
-    queryFn: fetchMyOrder,
-    enabled: !!(user?.id && user?.access_token),
-  });
-  const { isPending, data } = queryOrder;
-  console.log('data', data);
+  // lấy tất cả order của user
 
-  const handleDetailsOrder = (id) => {
+  const { data: userOrders, isLoading: isPending } = useGetAllUserOrdersQuery(
+    user._id,
+    {
+      skip: !(user?._id && user?.access_token),
+    }
+  );
+
+  const handleDetailsOrder = (id: string) => {
     navigate(`/order-details/${id}`);
   };
 
-  const mutation = useMutationHooks((data) => {
-    const { id, token, orderItems, userId } = data;
-    const res = OrderService.cancelOrder(id, token, orderItems, userId);
-    return res;
-  });
+  const [
+    cancelOrder,
+    {
+      data: dataCancel,
+      isLoading: isPendingCancel,
+      isSuccess: isSuccessCancel,
+      isError: isErrorCancel,
+    },
+  ] = useCancelOrderMutation();
 
-  const handleCancelOrder = (order) => {
-    mutation.mutate(
-      {
-        id: order._id,
-        token: user?.access_token,
+  const handleCancelOrder = (order: IOrder) => {
+    cancelOrder({
+      // id: order._id,
+      // orderItems: order?.orderItems,
+      userId: user._id,
+      data: {
         orderItems: order?.orderItems,
-        userId: user._id,
+        orderId: order?._id,
       },
-      {
-        onSuccess: () => {
-          queryOrder.refetch();
-        },
-      }
-    );
+    });
   };
-  const {
-    isPending: isPendingCancel,
-    isSuccess: isSuccessCancel,
-    isError: isErrorCancel,
-    data: dataCancel,
-  } = mutation;
 
   useEffect(() => {
     if (isSuccessCancel && dataCancel?.status === "OK") {
@@ -74,9 +68,9 @@ const MyOrderPage = () => {
     } else if (isErrorCancel) {
       message.error();
     }
-  }, [isErrorCancel, isSuccessCancel]);
+  }, [dataCancel?.message, dataCancel?.status, isErrorCancel, isSuccessCancel]);
 
-  const renderProduct = (data) => {
+  const renderProduct = (data: Array<IOrderItem>) => {
     return data?.map((item) => {
       return (
         <WrapperHeaderItem key={item?._id}>
@@ -125,7 +119,7 @@ const MyOrderPage = () => {
         >
           <h2 style={{ padding: "10px 0" }}>Đơn hàng của tôi</h2>
           <WrapperListOrder>
-            {data?.map((order) => {
+            {userOrders?.data?.map((order) => {
               return (
                 <WrapperItemOrder key={order?._id}>
                   <WrapperStatus>
@@ -161,7 +155,10 @@ const MyOrderPage = () => {
                           borderRadius: "4px",
                         }}
                         buttonText={"Hủy đặt hàng"}
-                        buttonTextStyle={{ color: "var(--primary-color)", fontSize: "14px" }}
+                        buttonTextStyle={{
+                          color: "var(--primary-color)",
+                          fontSize: "14px",
+                        }}
                         disabled={order?.currentStatus !== "Chờ xử lý"}
                       />
                       <ButtonComponent
@@ -172,7 +169,10 @@ const MyOrderPage = () => {
                           borderRadius: "4px",
                         }}
                         buttonText={"Xem chi tiết"}
-                        buttonTextStyle={{ color: "var(--primary-color)", fontSize: "14px" }}
+                        buttonTextStyle={{
+                          color: "var(--primary-color)",
+                          fontSize: "14px",
+                        }}
                       />
                     </div>
                   </WrapperFooterItem>

@@ -27,102 +27,76 @@ import { useSelector } from "react-redux";
 import ButtonComponent from "../../components/ButtonComponent";
 import { Select } from "antd";
 import { useMutationHooks } from "../../hooks/useMutationHook";
+import { RootState } from "../../redux/store";
+import { useGetAllUsersQuery } from "../../services/user";
+import {
+  useGetDetailsOrderQuery,
+  useUpdateStatusMutation,
+} from "../../services/order";
 
 const OrderDetailsPage = () => {
-  const params = useParams();
-  const id = params.id;
+  const { id } = useParams();
+
   const location = useLocation();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state: RootState) => state.user);
   // console.log(user);
 
-  const getDetailsUser = async (id, token) => {
-    const res = await UserService.getDetailsUser(
-      id,
-      token || user?.access_token
-    );
-    return res.data;
-  };
+  const { data: users, isLoading } = useGetAllUsersQuery();
 
-  const fetchDetailsOrder = async () => {
-    const res = await OrderService.getDetailsOrder(id, user?.access_token);
-    if (user?.role === "Admin" || user?.role === "Nhân viên") {
-      // Use Promise.all to asynchronously fetch details for each user
-      const updateHistoryWithUserDetails = await Promise.all(
-        res.data.updateHistory?.map(async (item) => {
-          if (user && user.access_token) {
-            item.updater = await getDetailsUser(
-              item.updater,
-              user.access_token
-            );
-          }
-          return item;
-        })
-      );
+  const {
+    data: order,
+    isLoading: isLoadingOrder,
+    isFetching,
+  } = useGetDetailsOrderQuery(id || "", { skip: !id });
 
-      res.data.updateHistory = updateHistoryWithUserDetails;
-    }
-    return res.data;
-  };
+  console.log("order", order);
 
-  const queryOrder = useQuery({
-    queryKey: ["order-details"],
-    queryFn: fetchDetailsOrder,
-  });
-  const { isPending, data: order, refetch: refetchOrder } = queryOrder;
-  // console.log("order:", order);
-
-  const [orderStatus, setOrderStatus] = useState(order?.currentStatus);
+  const [orderStatus, setOrderStatus] = useState(order?.data?.currentStatus);
   // console.log("orderStatus:", orderStatus);
 
   useEffect(() => {
-    setOrderStatus(order?.currentStatus);
-  }, [order?.currentStatus]);
+    setOrderStatus(order?.data?.currentStatus);
+  }, [order?.data?.currentStatus]);
 
-  const handleChangeStatus = (value) => setOrderStatus(value);
+  const handleChangeStatus = (value: string) => setOrderStatus(value);
 
-  const mutationUpdate = useMutationHooks((data) => {
-    const { id, token, ...rests } = data;
-    const res = OrderService.updateStatus(id, { ...rests }, token);
-    return res;
-  });
-
-  const {
-    data: dataUpdated,
-    isPending: isPendingUpdated,
-    isSuccess: isSuccessUpdated,
-  } = mutationUpdate;
+  const [
+    updateStatus,
+    { data: dataUpdated, isLoading: isPendingUpdated, isSuccess },
+  ] = useUpdateStatusMutation();
 
   useEffect(() => {
-    if (isSuccessUpdated && dataUpdated?.status === "OK") {
+    if (isSuccess && dataUpdated?.status === "OK") {
       message.success("Cập nhật trạng thái thành công");
-      refetchOrder();
     } else {
       if (dataUpdated?.message) {
         message.error(dataUpdated?.message);
       }
     }
-  }, [isSuccessUpdated]);
+  }, [isSuccess]);
 
   const handleUpdateStatus = () => {
-    const data = {
-      status: orderStatus,
-      updater: user?.id,
-      updatedAt: new Date(),
-    };
-    if (order?.currentStatus !== orderStatus)
-      mutationUpdate.mutate({ id: id, token: user?.access_token, ...data });
-    else message.warning("Mời chọn trạng thái mới");
+    if (id && orderStatus) {
+      const data = {
+        status: orderStatus,
+        updater: user?._id,
+        updatedAt: new Date(),
+      };
+      if (order?.data?.currentStatus !== orderStatus)
+        updateStatus({ id: id, data: data });
+      else message.warning("Mời chọn trạng thái mới");
+    }
   };
 
   const handleCancel = () => {
     if (location?.state) {
       navigate(location?.state);
     }
-  }
+  };
 
   return (
-    <Loading isPending={isPending || isPendingUpdated}>
+    <Loading isPending={isLoading || isLoadingOrder || isPendingUpdated}>
       <div style={{ width: "100%", background: "#f5f5fa" }}>
         <div
           style={{ width: "1270px", margin: "0 auto", paddingBottom: "50px" }}
@@ -134,13 +108,14 @@ const OrderDetailsPage = () => {
               <WrapperContentInfo>
                 <div className="name-info">
                   <span>Tên người nhận: </span>{" "}
-                  {order?.shippingAddress?.recipientName}
+                  {order?.data?.shippingAddress?.recipientName}
                 </div>
                 <div className="address-info">
-                  <span>Địa chỉ: </span> {order?.shippingAddress?.address}
+                  <span>Địa chỉ: </span> {order?.data?.shippingAddress?.address}
                 </div>
                 <div className="phone-info">
-                  <span>Điện thoại: </span> {order?.shippingAddress?.phone}
+                  <span>Điện thoại: </span>{" "}
+                  {order?.data?.shippingAddress?.phone}
                 </div>
               </WrapperContentInfo>
             </WrapperInfo>
@@ -149,7 +124,7 @@ const OrderDetailsPage = () => {
               <WrapperContentInfo>
                 <div className="status-info">
                   <WrapperCurrentStatus>
-                    {order?.currentStatus}
+                    {order?.data?.currentStatus}
                   </WrapperCurrentStatus>
                 </div>
               </WrapperContentInfo>
@@ -158,7 +133,9 @@ const OrderDetailsPage = () => {
               <WrapperLabel>Phương thức thanh toán</WrapperLabel>
               <WrapperContentInfo>
                 <div className="payment-info">
-                  {orderConstant.payment[order?.paymentMethod]}
+                  {order?.data?.paymentMethod
+                    ? (orderConstant.payment as any)[order.data.paymentMethod]
+                    : "orderConstant.payment[order.data.paymentMethod] không tồn tại"}
                 </div>
               </WrapperContentInfo>
             </WrapperInfo>
@@ -183,7 +160,7 @@ const OrderDetailsPage = () => {
               </WrapperItemPrice>
             </WrapperStyleHeader>
             <div>
-              {order?.orderItems?.map((orderItem) => {
+              {order?.data?.orderItems?.map((orderItem) => {
                 return (
                   <WrapperItemOrder key={orderItem?.product}>
                     <div
@@ -250,16 +227,28 @@ const OrderDetailsPage = () => {
             </div>
             <WrapperAllPrice>
               <WrapperItemLabel>Tạm tính</WrapperItemLabel>
-              <WrapperItem>{convertPrice(order?.itemsPrice)}</WrapperItem>
+              <WrapperItem>
+                {order?.data?.itemsPrice
+                  ? convertPrice(order?.data?.itemsPrice)
+                  : 0}
+              </WrapperItem>
             </WrapperAllPrice>
             <WrapperAllPrice>
               <WrapperItemLabel>Phí giao hàng</WrapperItemLabel>
-              <WrapperItem>{convertPrice(order?.shippingFee)}</WrapperItem>
+              <WrapperItem>
+                {order?.data?.shippingFee
+                  ? convertPrice(order?.data?.shippingFee)
+                  : 0}
+              </WrapperItem>
             </WrapperAllPrice>
             <WrapperAllPrice>
               <WrapperItemLabel>Tổng cộng</WrapperItemLabel>
               <WrapperItem>
-                <WrapperItem>{convertPrice(order?.totalPrice)}</WrapperItem>
+                <WrapperItem>
+                  {order?.data?.totalPrice
+                    ? convertPrice(order?.data?.totalPrice)
+                    : 0}
+                </WrapperItem>
               </WrapperItem>
             </WrapperAllPrice>
           </WrapperStyleContent>
@@ -277,7 +266,10 @@ const OrderDetailsPage = () => {
                       </WrapperItemPrice>
                     </WrapperStyleHeader>
                     <WrapperUpdateHistory>
-                      {order?.updateHistory?.map((item) => {
+                      {order?.data?.updateHistory?.map((item) => {
+                        const updater = users?.data?.find(
+                          (user) => user._id === item.updater
+                        );
                         return (
                           <WrapperItemOrder key={item?.updatedAt}>
                             <WrapperItemPrice>
@@ -287,7 +279,7 @@ const OrderDetailsPage = () => {
                               <span
                                 style={{ fontSize: "13px", color: "#242424" }}
                               >
-                                {item?.updater?.name || item?.updater?.email}
+                                {updater ? updater.name ?? updater.email : ""}
                               </span>
                               <span>
                                 {convertDateToString(new Date(item?.updatedAt))}

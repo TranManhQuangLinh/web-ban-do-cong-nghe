@@ -11,7 +11,7 @@ export interface IUpdateOrderParams {
   data?: {
     status: string;
     updater: string;
-    updatedAt: string;
+    updatedAt: Date;
   };
 }
 

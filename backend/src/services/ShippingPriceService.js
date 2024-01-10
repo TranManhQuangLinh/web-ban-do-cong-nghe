@@ -123,35 +123,6 @@ const getAllShippingPrices = () => {
   });
 };
 
-const getShippingPrice = (price) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // const shippingPrice = await ShippingPrice.find({
-      //   maxOrderAmount: { $gt: price }, // maxOrderAmount > price
-      // })
-      //   .sort({ maxOrderAmount: 1 }) // Sắp xếp theo thứ tự tăng dần của maxOrderAmount
-      //   .limit(1); // Giới hạn chỉ lấy 1 kết quả
-      let shippingPrice = await ShippingPrice.findOne({
-        maxOrderAmount: { $gt: price }, // maxOrderAmount > price
-      }).sort({ maxOrderAmount: 1 }); // Sắp xếp theo thứ tự tăng dần của maxOrderAmount
-      if(!shippingPrice)
-      {
-        shippingPrice = await ShippingPrice.findOne({
-          maxOrderAmount: null,
-        })
-      }
-      // console.log('shippingPrice:', shippingPrice);
-      resolve({
-        status: "OK",
-        message: "SUCCESS",
-        data: shippingPrice,
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
-
 const getDetailsShippingPrice = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -179,6 +150,5 @@ module.exports = {
   deleteShippingPrice,
   deleteManyShippingPrice,
   getAllShippingPrices,
-  getShippingPrice,
   getDetailsShippingPrice,
 };
