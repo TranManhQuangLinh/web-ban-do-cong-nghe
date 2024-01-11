@@ -1,4 +1,16 @@
-import React, { useEffect, useMemo } from "react";
+import { SearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import { Badge, Col, Popover } from "antd";
+import ButtonComponent from "components/ButtonComponent";
+import InputComponent from "components/InputComponent";
+import React, { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useLogoutMutation } from "services/user";
+import { initOrder, ordersSelector } from "../../redux/slices/OrderSlice";
+import { resetUser } from "../../redux/slices/UserSlice";
+import { searchProduct } from "../../redux/slices/productSlide";
+import { RootState } from "../../redux/store";
+import Loading from "../LoadingComponent";
 import {
   WrapperContentPopup,
   WrapperHeader,
@@ -6,18 +18,6 @@ import {
   WrapperTextHeader,
   WrapperTextHeaderSmall,
 } from "./style";
-import { ShoppingCartOutlined } from "@ant-design/icons";
-import ButtonInputSearch from "../ButtonInputSearch/ButtonInputSearch";
-import { Badge, Col, Popover } from "antd";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
-import Loading from "../LoadingComponent";
-import * as UserService from "../../services/UserService";
-import { resetUser } from "../../redux/slices/UserSlice";
-import { searchProduct } from "../../redux/slices/productSlide";
-import { initOrder,ordersSelector } from "../../redux/slices/OrderSlice";
-import { RootState } from "../../redux/store";
 
 const HeaderComponent = ({
   isHiddenSearch = false,
@@ -26,33 +26,38 @@ const HeaderComponent = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = useSelector((state  : RootState) => state.user);
+  const user = useSelector((state: RootState) => state.user);
   const orders = useSelector(ordersSelector);
-  
+
   const order = useMemo(() => {
-    return orders.find((item) => item.user === user._id)
-  },[orders, user._id])
+    return orders.find((item) => item.user === user._id);
+  }, [orders, user._id]);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [isOpenPopover, setIsOpenPopover] = useState(false);
-  
+  const [searchValue, setSearchValue] = useState("");
+
+  const [logout] = useLogoutMutation()
+
   useEffect(() => {
     if (!order && !!user) {
-      dispatch(initOrder(  {
-        orderItems: [],
-        orderItemsSelected: [],
-        shippingAddress: { recipientName: "", address: "", phone: undefined },
-        user: user._id,
-        paymentMethod: "",
-        itemsPrice: 0,
-        shippingFee: 0,
-        shippingPrice: "",
-        totalPrice: 0,
-        currentStatus: "",
-        updateHistory: [],
-      },));
+      dispatch(
+        initOrder({
+          orderItems: [],
+          orderItemsSelected: [],
+          shippingAddress: { recipientName: "", address: "", phone: undefined },
+          user: user._id,
+          paymentMethod: "",
+          itemsPrice: 0,
+          shippingFee: 0,
+          shippingPrice: "",
+          totalPrice: 0,
+          currentStatus: "",
+          updateHistory: [],
+        })
+      );
     }
-  }, [dispatch, order, user])
+  }, [dispatch, order, user]);
 
   const content = () => {
     if (user._id !== "") {
@@ -86,7 +91,7 @@ const HeaderComponent = ({
     );
   };
 
-  const handleClickNavigate = (type : string) => {
+  const handleClickNavigate = (type: string) => {
     switch (type) {
       case "profile":
         navigate("/profile", { state: location?.pathname });
@@ -110,7 +115,9 @@ const HeaderComponent = ({
 
   const handleLogout = async () => {
     setLoading(true);
-    await UserService.logout();
+    logout()
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     dispatch(resetUser());
     setLoading(false);
   };
@@ -126,7 +133,7 @@ const HeaderComponent = ({
     else handleSignInClick();
   };
 
-  const handleSearch = (value : string) => {
+  const handleSearch = (value: string) => {
     dispatch(searchProduct(value));
     if (location.pathname !== "/") navigate("/");
   };
@@ -153,14 +160,32 @@ const HeaderComponent = ({
         </Col>
         {!isHiddenSearch && (
           <Col span={13}>
-            <ButtonInputSearch
-              size="large"
-              bordered={false}
-              buttonText="Tìm kiếm"
-              placeholder="Tìm kiếm sản phẩm"
-              backgroundColorButton="var(--button-color)"
-              handleSearch={handleSearch}
-            />
+            <div style={{ display: "flex" }}>
+              <InputComponent
+                size='large'
+                placeholder="Tìm kiếm sản phẩm"
+                bordered={false}
+                style={{ backgroundColor: "#fff" }}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onPressEnter={() => handleSearch(searchValue)}
+              />
+              <ButtonComponent
+                size='large'
+                buttonStyle={{
+                  background: "rgb(13, 92, 182)",
+                  border: "none",
+                }}
+                icon={
+                  <SearchOutlined
+                    color="#fff"
+                    style={{ color: "#fff" }}
+                  />
+                }
+                buttonText="Tìm kiếm"
+                buttonTextStyle={{ color: "#fff" }}
+                onClick={() => handleSearch(searchValue)}
+              />
+            </div>
           </Col>
         )}
         <Col
@@ -208,7 +233,7 @@ const HeaderComponent = ({
                     {user?.name?.length ? user?.name : user?.email}
                   </div>
                 ) : (
-                  <div style={{display: 'flex'}}>
+                  <div style={{ display: "flex" }}>
                     <WrapperTextHeaderSmall onClick={handleSignInClick}>
                       Đăng nhập/
                     </WrapperTextHeaderSmall>

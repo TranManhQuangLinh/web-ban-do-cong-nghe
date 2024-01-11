@@ -6,13 +6,12 @@ import ButtonComponent from "../../components/ButtonComponent";
 import Loading from "../../components/LoadingComponent";
 import * as message from "../../components/Message";
 import { orderConstant } from "../../constant";
-import { useMutationHooks } from "../../hooks/useMutationHook";
 import {
   ordersSelector,
   removeAllOrderItem,
 } from "../../redux/slices/OrderSlice";
 import { RootState } from "../../redux/store";
-import * as OrderService from "../../services/OrderService";
+import { useCreateOrderMutation } from "../../services/order";
 import { convertPrice } from "../../utils";
 import {
   Label,
@@ -22,7 +21,6 @@ import {
   WrapperRight,
   WrapperTotal,
 } from "./style";
-import { useCreateOrderMutation } from "../../services/order";
 
 const PaymentPage = () => {
   const user = useSelector((state: RootState) => state.user);

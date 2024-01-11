@@ -66,7 +66,7 @@ const AdminUser = () => {
     {
       title: "Điện thoại",
       dataIndex: "phone",
-      sorter: (a: IUser, b: IUser) => a.phone - b.phone,
+      sorter: (a: IUser, b: IUser) => a.phone.localeCompare(b.phone),
     },
     {
       title: "Thao tác",

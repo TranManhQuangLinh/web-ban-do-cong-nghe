@@ -7,9 +7,9 @@ import { WrapperBreadcrumbLink } from "./style";
 const ProductDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const handleNavigate = url => {
-    navigate(url)
-  }
+  const handleNavigate = (url: string) => {
+    navigate(url);
+  };
   return (
     <div style={{ width: "100%", background: "#efefef", height: "100%" }}>
       <div
@@ -21,17 +21,21 @@ const ProductDetailsPage = () => {
         }}
       >
         <Breadcrumb
-        style={{padding: '10px 0'}}
+          style={{ padding: "10px 0" }}
           items={[
             {
-              title: <WrapperBreadcrumbLink onClick={() => handleNavigate("/")}>Trang chủ</WrapperBreadcrumbLink>,
+              title: (
+                <WrapperBreadcrumbLink onClick={() => handleNavigate("/")}>
+                  Trang chủ
+                </WrapperBreadcrumbLink>
+              ),
             },
             {
               title: "Chi tiết sản phẩm",
             },
           ]}
         />
-        <ProductDetailsComponent idProduct={id} />
+        <ProductDetailsComponent idProduct={id ?? ""} />
       </div>
     </div>
   );

@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "*": ["*", "components/*"]
+    },
     "outDir": "build/dist",
     "module": "commonjs",
     "target": "es5",
@@ -24,7 +28,6 @@
     "jest",
     "src/setupTests.ts"
   ],
-  "types": [
-    "typePatches"
-  ]
+  "types": ["typePatches"],
+  
 }

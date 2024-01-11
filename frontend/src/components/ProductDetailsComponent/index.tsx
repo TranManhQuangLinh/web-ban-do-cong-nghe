@@ -1,6 +1,6 @@
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { Col, Image, Row } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addOrderItem, ordersSelector } from "../../redux/slices/OrderSlice";
@@ -27,7 +27,7 @@ interface IProps {
 const ProductDetailsComponent: React.FC<IProps> = ({ idProduct }) => {
   const user = useSelector((state: RootState) => state.user);
   const orders = useSelector(ordersSelector);
-  const order = orders.find((item) => item.user === user._id)
+  const order = orders.find((item) => item.user === user._id);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -53,18 +53,24 @@ const ProductDetailsComponent: React.FC<IProps> = ({ idProduct }) => {
 
   const {
     data: details,
-    isFetching,
     isLoading,
+    isError,
   } = useGetDetailsProductQuery(idProduct, {
     skip: !idProduct,
   });
 
-  // console.log(details);
+  useEffect(() => {
+    if (isError) {
+      navigate("/error");
+    }
+  }, [isError]);
+
+  console.log("details", details);
 
   const handleAddToCart = () => {
     if (!user?._id) {
       navigate("/sign-in", { state: location?.pathname });
-    } else if(details?.data) {
+    } else if (details?.data) {
       const orderItem = order?.orderItems?.find(
         (item) => item.product === details?.data?._id
       );

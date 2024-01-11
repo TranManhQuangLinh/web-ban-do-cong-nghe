@@ -30,7 +30,6 @@ const CreateUpdateModal = (props: IModalProps) => {
 
   const {
     data: details,
-    isFetching,
     isLoading,
   } = useGetDetailsUserQuery(props.state.rowSelected, {
     skip: !props.state.rowSelected,
@@ -142,7 +141,6 @@ const CreateUpdateModal = (props: IModalProps) => {
       <Loading
         isPending={
           isLoading ||
-          isFetching ||
           createResult?.isLoading ||
           updateResult?.isLoading
         }

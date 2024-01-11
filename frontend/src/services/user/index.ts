@@ -100,5 +100,6 @@ export const {
   useDeleteUserMutation,
   useDeleteManyUsersMutation,
   useGetDetailsUserQuery,
+  useLazyGetDetailsUserQuery,
   useGetAllUsersQuery,
 } = userApi;

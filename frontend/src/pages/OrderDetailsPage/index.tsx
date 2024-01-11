@@ -1,4 +1,18 @@
+import { Select } from "antd";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import ButtonComponent from "../../components/ButtonComponent";
+import Loading from "../../components/LoadingComponent";
+import * as message from "../../components/Message";
+import { orderConstant } from "../../constant";
+import { RootState } from "../../redux/store";
+import {
+  useGetDetailsOrderQuery,
+  useUpdateStatusMutation,
+} from "../../services/order";
+import { useGetAllUsersQuery } from "../../services/user";
+import { convertDateToString, convertPrice } from "../../utils";
 import {
   WrapperAllPrice,
   WrapperButtonGroup,
@@ -15,24 +29,6 @@ import {
   WrapperStyleHeader,
   WrapperUpdateHistory,
 } from "./style";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import * as message from "../../components/Message";
-import * as OrderService from "../../services/OrderService";
-import * as UserService from "../../services/UserService";
-import { useQuery } from "@tanstack/react-query";
-import { orderConstant } from "../../constant";
-import { convertDateToString, convertPrice } from "../../utils";
-import Loading from "../../components/LoadingComponent";
-import { useSelector } from "react-redux";
-import ButtonComponent from "../../components/ButtonComponent";
-import { Select } from "antd";
-import { useMutationHooks } from "../../hooks/useMutationHook";
-import { RootState } from "../../redux/store";
-import { useGetAllUsersQuery } from "../../services/user";
-import {
-  useGetDetailsOrderQuery,
-  useUpdateStatusMutation,
-} from "../../services/order";
 
 const OrderDetailsPage = () => {
   const { id } = useParams();

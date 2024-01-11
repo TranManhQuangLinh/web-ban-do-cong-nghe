@@ -1,3 +1,5 @@
+import { JwtPayload } from "jwt-decode";
+
 // User
 export interface IUser {
   _id: string;
@@ -6,7 +8,7 @@ export interface IUser {
   role: string;
   name: string;
   dateOfBirth: Date;
-  phone: number;
+  phone: string;
   address: string;
   avatar: string;
   createdAt: string;
@@ -153,4 +155,10 @@ export interface IShippingPriceDataTable {
 export interface IFormStateShippingPrice {
   maxOrderAmount?: number;
   shippingFee: number;
+}
+
+
+export interface IDecode extends JwtPayload {
+  id: string;
+  role: string;
 }

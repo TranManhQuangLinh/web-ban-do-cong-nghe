@@ -10,7 +10,7 @@ interface IUserState {
   avatar: string;
   access_token: string;
   refresh_token: string;
-  isRefresh: boolean;
+  isRefresh?: boolean;
 }
 
 const initialState: IUserState = {

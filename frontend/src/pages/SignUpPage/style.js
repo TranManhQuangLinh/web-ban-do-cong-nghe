@@ -5,6 +5,9 @@ export const WrapperContainerLeft = styled.div`
     padding: 40px 45px 24px;
     display: flex;
     flex-direction: column;
+    .ant-form-item {
+        margin-bottom: 0
+    }
 `
 
 export const WrapperContainerRight = styled.div`
